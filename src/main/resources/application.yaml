@@ -1,0 +1,18 @@
+quarkus:
+  datasource:
+    db-kind: postgresql
+    jdbc:
+      url: jdbc:postgresql://localhost:5432/andi
+    username: zivi
+    password: admin
+
+  hibernate-orm:
+    database:
+      generation: update   # Change en "validate" en prod
+    log:
+      sql: true
+
+  log:
+    category:
+      "org.hibernate.SQL":
+        level: INFO

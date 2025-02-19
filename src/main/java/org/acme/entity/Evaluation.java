@@ -4,9 +4,10 @@ import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 
 @Entity
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class Evaluation extends PanacheEntityBase {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     public Long id;
 
     public String nom;
@@ -17,7 +18,8 @@ public abstract class Evaluation extends PanacheEntityBase {
     @JoinColumn(name = "cours_id")
     public Cours cours;
 
-    @OneToOne(mappedBy = "evaluation", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "rendu_id")
     public Rendu rendu;
 
 }

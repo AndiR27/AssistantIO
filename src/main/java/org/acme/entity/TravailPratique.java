@@ -17,8 +17,9 @@ public class TravailPratique extends PanacheEntityBase {
     @JoinColumn(name = "cours_id")
     public Cours cours;
 
-    @OneToOne(mappedBy = "travailPratique", cascade = CascadeType.ALL, fetch =
+    @OneToOne(cascade = CascadeType.ALL, fetch =
             FetchType.EAGER)
+    @JoinColumn(name = "rendu_id")
     public Rendu rendu;
 
 

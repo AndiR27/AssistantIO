@@ -4,7 +4,11 @@ package org.acme.entity;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import java.util.*;
-
+/**
+ * Entité pour les cours
+ * Servira à stocker les informations des cours et faire le lien entre les étudiants
+ * et leurs différents rendus
+ */
 @Entity
 public class Cours extends PanacheEntityBase {
 
@@ -33,6 +37,9 @@ public class Cours extends PanacheEntityBase {
 
     public @OneToMany(mappedBy = "cours", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<Evaluation> evaluations;
+
+    @Enumerated(EnumType.STRING)
+    public TypeCours typeCours;
 
     public Cours() {
     }

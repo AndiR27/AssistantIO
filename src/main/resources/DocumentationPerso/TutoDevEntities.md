@@ -171,11 +171,51 @@ public class Student {
     public void setEmail(String email) { this.email = email; }
 }
 ```
+## 6️⃣ Différence entre `mappedBy` et `@JoinColumn`
+La confusion entre `mappedBy` et `@JoinColumn` vient du fait qu’ils sont utilisés pour définir des relations entre entités, mais ils ont des rôles différents.
 
+### **`mappedBy` (Côté inverse de la relation)**
+- Utilisé **dans l'entité qui ne possède pas la clé étrangère**.
+- Indique que **la relation est gérée par l’autre entité**.
+- Ne crée pas de colonne supplémentaire en base de données.
+
+**Exemple** :
+```java
+@Entity
+public class Student {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    private List<Submission> submissions;
+}
+```
+Dans la base de données : Seule la table submission contiendra une colonne student_id. Aucune colonne ne sera ajoutée dans student.
+
+### **`@JoinColumn` (Côté propriétaire de la relation)**
+Utilisé pour spécifier explicitement la clé étrangère.
+Définit dans l'entité qui possède la relation.
+Crée une colonne en base de données.
+
+```java
+@Entity
+public class Student {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @OneToOne
+    @JoinColumn(name = "profile_id")
+    private Profile profile;
+}
+
+```
 ---
 
 ## 📌 Conclusion
 Ce fichier est une **référence rapide** pour la définition des entités JPA avec Hibernate. Il contient les **principales annotations, relations et options disponibles**.
+
 
 # Gestion des Relations avec Hibernate Panache dans Quarkus
 

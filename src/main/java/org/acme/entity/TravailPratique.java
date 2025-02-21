@@ -4,6 +4,10 @@ package org.acme.entity;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 @Entity
 public class TravailPratique extends PanacheEntityBase {
 
@@ -22,5 +26,7 @@ public class TravailPratique extends PanacheEntityBase {
     @JoinColumn(name = "rendu_id")
     public Rendu rendu;
 
+    @OneToMany(mappedBy = "travailPratique", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    public Set<TP_Status> statusEtudiants;
 
 }

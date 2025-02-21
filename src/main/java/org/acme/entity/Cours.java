@@ -24,6 +24,8 @@ public class Cours extends PanacheEntityBase {
     public TypeSemestre semestre;
 
     public int annee;
+
+    @Column(nullable = true)
     public String prof;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
@@ -44,4 +46,16 @@ public class Cours extends PanacheEntityBase {
     public Cours() {
     }
 
+    public Cours(String nom, String code, TypeSemestre semestre, int annee, TypeCours typeCours) {
+        this.nom = nom;
+        this.code = code;
+        this.semestre = semestre;
+        this.annee = annee;
+        this.typeCours = typeCours;
+
+        //initialisation des listes
+        this.etudiantsInscrits = new ArrayList<>();
+        this.travauxPratiques = new ArrayList<>();
+        this.evaluations = new ArrayList<>();
+    }
 }

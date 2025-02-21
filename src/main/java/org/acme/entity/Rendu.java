@@ -18,6 +18,12 @@ public class Rendu extends PanacheEntityBase {
 
     public String cheminStockage;
 
+    public Rendu() {
+    }
 
+    public Rendu(String nomFichier, String cheminStockage) {
+        this.nomFichier = nomFichier;
+        this.cheminStockage = cheminStockage;
+    }
 
 }

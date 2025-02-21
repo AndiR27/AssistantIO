@@ -34,5 +34,12 @@ public class Etudiant extends PanacheEntityBase {
     public Etudiant() {
     }
 
+    public Etudiant(String nom, String email, TypeEtude typeEtude) {
+        this.nom = nom;
+        this.email = email;
+        this.typeEtude = typeEtude;
+        this.coursEtudiant = new ArrayList<>();
+    }
+
 
 }

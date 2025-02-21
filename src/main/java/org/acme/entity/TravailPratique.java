@@ -5,6 +5,7 @@ import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,4 +30,14 @@ public class TravailPratique extends PanacheEntityBase {
     @OneToMany(mappedBy = "travailPratique", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     public Set<TP_Status> statusEtudiants;
 
+    public TravailPratique() {
+    }
+
+    public TravailPratique(int no, Cours cours, Rendu rendu) {
+        this.no = no;
+        this.cours = cours;
+        this.rendu = rendu;
+
+        this.statusEtudiants = new HashSet<>();
+    }
 }

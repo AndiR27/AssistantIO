@@ -5,6 +5,9 @@ import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import java.util.*;
 
+/**
+ * Classe représentant un étudiant et ses informations
+ */
 @Entity
 public class Etudiant extends PanacheEntityBase {
 
@@ -29,6 +32,13 @@ public class Etudiant extends PanacheEntityBase {
     public List<Cours> coursEtudiant;
 
     public Etudiant() {
+    }
+
+    public Etudiant(String nom, String email, TypeEtude typeEtude) {
+        this.nom = nom;
+        this.email = email;
+        this.typeEtude = typeEtude;
+        this.coursEtudiant = new ArrayList<>();
     }
 
 

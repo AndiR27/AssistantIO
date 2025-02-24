@@ -22,12 +22,22 @@ public abstract class Evaluation extends PanacheEntityBase {
 
     public String date;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cours_id")
     public Cours cours;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "rendu_id")
     public Rendu rendu;
+
+    public Evaluation() {
+    }
+
+    public Evaluation(String nom, String date, Cours cours, Rendu rendu) {
+        this.nom = nom;
+        this.date = date;
+        this.cours = cours;
+        this.rendu = rendu;
+    }
 
 }

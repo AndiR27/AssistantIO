@@ -17,8 +17,9 @@ public class TravailPratique extends PanacheEntityBase {
     public Integer id;
 
     public int no;
-
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    //pas de cascade : on veut eviter que l'entité enfant ne "pilote" pas la persistance
+    //du parent
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cours_id")
     public Cours cours;
 

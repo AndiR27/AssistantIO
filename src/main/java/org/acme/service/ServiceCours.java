@@ -2,12 +2,15 @@ package org.acme.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.resource.spi.ConfigProperty;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
 import org.acme.repository.*;
 import org.acme.entity.*;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +22,13 @@ public class ServiceCours {
     @Inject
     EtudiantRepository etudiantRepository;
 
+    @Inject
+    ServiceTravailPratique serviceTravailPratique;
+
+    @Inject
+    @ConfigProperty(name = "zip-storage.path")
+    String zipStoragePath;
+
     /**
      * Creation d'un cours
      * Le chemin vers un nouveau dépot pour les zips doit être créé
@@ -29,16 +39,12 @@ public class ServiceCours {
         coursRepository.persist(cours);
 
         //Creation du repertoire servant de depot pour les zips grâce au code
-        creerDossierZip(code);
-
-
-    }
-    /**
-     * Methode permettant de créer un dossier pour stocker les zips
-     */
-    private void creerDossierZip(String nomDossier) {
+        //On est dans un cours, donc le path est celui de base : "DocumentsZip/"
+        creerDossierZip(code, zipStoragePath);
 
     }
+
+
 
     /**
      * Méthode permettant d'ajouter un étudiant spécifique à un cours
@@ -86,6 +92,82 @@ public class ServiceCours {
      */
     public List<Etudiant> getEtudiantsInscrits(Long idCours){
         return coursRepository.findEtudiantsInscrits(idCours);
+    }
+
+    /**
+     * Methode permettant d'ajouter un TP à un cours en le créant
+     */
+    public void ajouterTP(Long idCours, int no) {
+        try {
+            Cours cours = coursRepository.findById(idCours);
+            TravailPratique tp = new TravailPratique(no, cours, null);
+            cours.travauxPratiques.add(tp);
+
+            //Si un TP est créé, il faudra aussi y ajouter un dossier pour les rendus
+            creerDossierZip("TP" + no, zipStoragePath + "/" + cours.code);
+
+            coursRepository.persist(cours);
+
+        }
+        catch (NotFoundException e) {
+            System.out.println("Erreur : " + e.getMessage());
+        }
+    }
+
+    /**
+     * Methode permettant d'ajouter une évaluation à un cours en la créant : Examen
+     */
+    public void ajouterExamen(Long idCours, String nom, String date, String semestre) {
+        try {
+            Cours cours = coursRepository.findById(idCours);
+            Evaluation examen = new Examen(nom, date, cours, null, TypeSemestre.valueOf(semestre));
+            cours.evaluations.add(examen);
+
+            //Creation du repertoire servant de depot pour les zips grâce au nom
+            creerDossierZip(nom, zipStoragePath + "/" + cours.code);
+            coursRepository.persist(cours);
+        }
+        catch (NotFoundException e) {
+            System.out.println("Erreur : " + e.getMessage());
+        }
+    }
+
+    /**
+     * Methode permettant d'ajouter une évaluation à un cours en la créant : Controle
+     * Continu
+     */
+    public void addCC(Long idCours, String nom, String date, int coef, int no) {
+        try {
+            Cours cours = coursRepository.findById(idCours);
+            Evaluation cc = new ControleContinu(nom, date, cours, null, coef, no);
+            cours.evaluations.add(cc);
+
+            //Creation du repertoire servant de depot pour les zips grâce au nom : /CC1
+            creerDossierZip(nom + no, zipStoragePath + "/" + cours.code);
+
+            coursRepository.persist(cours);
+        }
+        catch (NotFoundException e) {
+            System.out.println("Erreur : " + e.getMessage());
+        }
+    }
+
+
+    //PRIVATE METHODS
+    /**
+     * Methode permettant de créer un dossier pour stocker les zips
+     */
+    private void creerDossierZip(String nomDossier, String path) {
+        Path parentPath = Paths.get(path);
+
+        Path newDirectory = parentPath.resolve(nomDossier);
+        if (Files.notExists(newDirectory)) {
+            try {
+                Files.createDirectory(newDirectory);
+            } catch (Exception e) {
+                System.out.println("Erreur : " + e.getMessage());
+            }
+        }
     }
 
 

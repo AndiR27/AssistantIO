@@ -11,8 +11,12 @@ quarkus:
       generation: update   # Change en "validate" en prod
     log:
       sql: true
-
+  application:
+    name: "ProjetAndi"
   log:
     category:
       "org.hibernate.SQL":
         level: INFO
+
+zip-storage:
+  path: "DocumentsZip/"

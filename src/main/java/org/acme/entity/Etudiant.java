@@ -25,10 +25,9 @@ public class Etudiant extends PanacheEntityBase {
     @Enumerated(EnumType.STRING)
     public TypeEtude typeEtude;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
-    @JoinTable(name = "etudiant_cours",
-            joinColumns = @JoinColumn(name = "etudiant_id"),
-            inverseJoinColumns = @JoinColumn(name = "cours_id"))
+    @ManyToMany(mappedBy ="etudiantsInscrits", cascade = {CascadeType.PERSIST,
+            CascadeType.MERGE},
+            fetch = FetchType.LAZY)
     public List<Cours> coursEtudiant;
 
     public Etudiant() {
@@ -42,4 +41,7 @@ public class Etudiant extends PanacheEntityBase {
     }
 
 
+    public void addCours(Cours cours) {
+        this.coursEtudiant.add(cours);
+    }
 }

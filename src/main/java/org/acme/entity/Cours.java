@@ -64,4 +64,8 @@ public class Cours extends PanacheEntityBase {
     public void addEtudiant(Etudiant etudiant) {
         this.etudiantsInscrits.add(etudiant);
     }
+
+    public void addTravailPratique(TravailPratique tp) {
+        this.travauxPratiques.add(tp);
+    }
 }

@@ -9,7 +9,7 @@ import java.util.*;
  * Classe représentant un étudiant et ses informations
  */
 @Entity
-public class Etudiant extends PanacheEntityBase {
+public class Etudiant {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,8 +25,7 @@ public class Etudiant extends PanacheEntityBase {
     @Enumerated(EnumType.STRING)
     public TypeEtude typeEtude;
 
-    @ManyToMany(mappedBy ="etudiantsInscrits", cascade = {CascadeType.PERSIST,
-            CascadeType.MERGE},
+    @ManyToMany(mappedBy ="etudiantsInscrits",
             fetch = FetchType.LAZY)
     public List<Cours> coursEtudiant;
 

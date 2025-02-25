@@ -14,4 +14,11 @@ public class CoursRepository implements PanacheRepository<Cours>{
     public List<Etudiant> findEtudiantsInscrits(Long idCours){
         return find("id", idCours).firstResult().etudiantsInscrits;
     }
+
+    /**
+     * Methode permettant de retrouver un cours selon son code
+     */
+    public Cours findCoursByCode(String code) {
+        return find("code", code).firstResult();
+    }
 }

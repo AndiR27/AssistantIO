@@ -172,7 +172,7 @@ public class ServiceCours {
             try {
                 Files.createDirectory(newDirectory);
             } catch (Exception e) {
-                System.out.println("Erreur : " + e.getMessage());
+                System.out.println("Erreur le dossier existe deja : " + e.getMessage());
             }
         }
     }

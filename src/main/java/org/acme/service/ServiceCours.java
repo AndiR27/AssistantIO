@@ -8,6 +8,7 @@ import org.acme.repository.*;
 import org.acme.entity.*;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -23,7 +24,13 @@ public class ServiceCours {
     EtudiantRepository etudiantRepository;
 
     @Inject
+    TPRepository travailPratiqueRepository;
+
+    @Inject
     ServiceTravailPratique serviceTravailPratique;
+
+    @Inject
+    ServiceRendu serviceRendu;
 
     @Inject
     @ConfigProperty(name = "zip-storage.path")
@@ -168,6 +175,16 @@ public class ServiceCours {
                 System.out.println("Erreur : " + e.getMessage());
             }
         }
+    }
+
+    /**
+     * Methode permettant de lancer le traitement du rendu pour un TP
+     */
+    public void lancerTraitementRenduZip(Long idCours, Long idTp) throws IOException {
+        Cours cours = coursRepository.findById(idCours);
+        TravailPratique tp = travailPratiqueRepository.findById(idTp);
+
+        serviceRendu.traitementRenduZip(cours, tp);
     }
 
 

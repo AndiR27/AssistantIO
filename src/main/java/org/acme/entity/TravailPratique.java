@@ -41,4 +41,8 @@ public class TravailPratique extends PanacheEntityBase {
 
         this.statusEtudiants = new HashSet<>();
     }
+
+    public void addTPStatus(TP_Status tpStatus) {
+        this.statusEtudiants.add(tpStatus);
+    }
 }

@@ -41,10 +41,10 @@ public class ServiceTravailPratique {
     @Transactional
     public void creerRenduTP(TravailPratique tp, InputStream zipFile){
         //nom du fichier
-        String nomFichier = "TP_" + tp.no + "_RenduCyberlearn.zip";
+        String nomFichier = "TP" + tp.no + "_RenduCyberlearn.zip";
 
         //chemin vers le fichier
-        Path tpFolder = Paths.get("DocumentsZips", tp.cours.code, "TP" + tp.no);
+        Path tpFolder = Paths.get(zipStoragePath, tp.cours.code, "TP" + tp.no);
 
         //Chemin complet vers le fichier
         Path cheminVersZip = tpFolder.resolve(nomFichier);

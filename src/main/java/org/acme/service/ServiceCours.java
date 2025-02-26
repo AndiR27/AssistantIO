@@ -172,7 +172,7 @@ public class ServiceCours {
                 System.out.println("Erreur lors de la creation du dossier: " + e.getMessage());
             }
         } else {
-            System.out.println("Le dossier existe déjà");
+            System.out.println("Le dossier" + nomDossier + " existe déjà");
         }
     }
 

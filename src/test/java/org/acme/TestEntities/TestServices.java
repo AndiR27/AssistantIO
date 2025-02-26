@@ -11,8 +11,8 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.*;
 import java.util.Arrays;
 import java.util.List;
@@ -20,7 +20,7 @@ import java.util.List;
 
 @QuarkusTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class TestEntitiesCreation {
+public class TestServices {
 
     @Inject
     CoursRepository coursRepository;
@@ -29,6 +29,8 @@ public class TestEntitiesCreation {
     ServiceCours serviceCours;
     @Inject
     EtudiantRepository etudiantRepository;
+    @Inject
+    ServiceTravailPratique serviceTravailPratique;
 
 
     //Panache (et Hibernate) exigent une transaction active pour persist.
@@ -177,6 +179,44 @@ public class TestEntitiesCreation {
         //tester si les dossiers ont bien été créés
         Path tpDir = Paths.get("src/test/resources/testZips", c.code, "TP1");
         Assertions.assertTrue(Files.exists(tpDir), "Le dossier TP1 devrait exister !");
+
+        tpDir = Paths.get("src/test/resources/testZips", c.code, "Examen final");
+        Assertions.assertTrue(Files.exists(tpDir), "Le dossier Examen final devrait exister !");
+
+    }
+
+    @Test
+    @Order(9)
+    @TestTransaction
+    public void testRenduTp() throws IOException {
+        //Créer un TP, et y ajouter un rendu avec le zip
+        Path path = Paths.get("src/test/resources/mockinginputstreams/test_zip.zip");
+        InputStream inputStream = Files.newInputStream(path);
+
+        serviceCours.creerCours("Programmation collaborative", "63-21",
+                String.valueOf(TypeSemestre.Automne), 2025, String.valueOf(TypeCours.Java));
+        Cours c = coursRepository.findCoursByCode("63-21");
+
+        //Créer un TP
+        serviceCours.ajouterTP(c.id, 1);
+        TravailPratique tp01 = coursRepository.findTpByNo(c.id, 1);
+
+        //Créer le rendu du TP via le service de TP
+        serviceTravailPratique.creerRenduTP(tp01, inputStream);
+
+        //Vérifier que le rendu a bien été créé
+        Assertions.assertNotNull(tp01.rendu);
+        Assertions.assertEquals("TP1_RenduCyberlearn.zip", tp01.rendu.nomFichier);
+
+        //tester si les dossiers ont bien été créés
+        Path tpDir = Paths.get("src/test/resources/testZips", c.code, "TP1", "TP1_RenduCyberlearn.zip");
+        Assertions.assertTrue(Files.exists(tpDir), "Le dossier TP1 devrait exister !");
+    }
+
+    @Test
+    @Order(10)
+    @TestTransaction
+    public void testTraitementRenduZip(){
 
     }
 

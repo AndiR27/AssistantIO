@@ -1,5 +1,6 @@
 package org.acme.TestEntities;
 
+import io.quarkus.test.TestTransaction;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -9,8 +10,12 @@ import org.acme.service.*;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 
+
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.Arrays;
+import java.util.List;
 
 
 @QuarkusTest
@@ -22,19 +27,14 @@ public class TestEntitiesCreation {
 
     @Inject
     ServiceCours serviceCours;
+    @Inject
+    EtudiantRepository etudiantRepository;
 
-    /**
-     * JUnit créera un dossier temporaire unique pour chaque test,
-     * et le supprimera (avec tout son contenu) une fois le test fini.
-     */
-
-    @TempDir
-    Path tempDir;
 
     //Panache (et Hibernate) exigent une transaction active pour persist.
     @BeforeEach
     @Transactional
-    void setUp(){
+     void setUp(){
         coursRepository.deleteAll();
         //Préparer les données en créant un cours, un TP, et quelques étudiants
         //Ajouter les relations
@@ -60,27 +60,26 @@ public class TestEntitiesCreation {
         Assertions.assertEquals(1, c.travauxPratiques.size());
     }
 
+    /**
+     * JUnit créera un dossier temporaire unique pour chaque test,
+     * et le supprimera (avec tout son contenu) une fois le test fini.
+     */
     @Test
     @Order(2)
-    void testCreateFile() throws IOException {
-        // 1) Définir le chemin du fichier dans le dossier temporaire
-        Path targetFile = tempDir.resolve("monFichier.txt");
+    void testCreateFile(@TempDir Path tempDir) throws IOException {
+        Path tempFile = tempDir.resolve("test.txt");
 
-        // 2) Appeler la méthode de ton code qui crée/écrit dans un fichier
-        //    Ici, on fait un simple exemple d'écriture
-        Files.writeString(targetFile, "Bonjour le monde !");
+        List<String> lines = Arrays.asList("howtodoinjava.com");
 
-        // 3) Vérifier que le fichier est bien créé
-        assert Files.exists(targetFile) : "Le fichier devrait exister !";
+        Files.write(tempFile, Arrays.asList("howtodoinjava.com"));
 
-        // 4) Vérifier le contenu
-        String content = Files.readString(targetFile);
-        assert content.equals("Bonjour le monde !") : "Le contenu du fichier est incorrect";
+        Assertions.assertTrue(Files.exists(tempFile), "Temp File should have been created");
+        Assertions.assertEquals(Files.readAllLines(tempFile), lines);
     }
 
     @Test
     @Order(3)
-    @Transactional
+    @TestTransaction
     public void testCreationCours(){
         //Créer un cours
         serviceCours.creerCours("Programmation collaborative", "63-21",
@@ -89,7 +88,96 @@ public class TestEntitiesCreation {
         Assertions.assertEquals("63-21",coursRepository.findAll().list().get(1).code);
         Cours c = coursRepository.findCoursByCode("63-21");
         Assertions.assertEquals("Programmation collaborative", c.nom);
+    }
+
+    @Test
+    @Order(4)
+    @TestTransaction
+    public void testAjoutEtudiants(){
+        //Ajouter des étudiants à un cours
+        serviceCours.creerCours("Programmation collaborative", "63-21",
+                String.valueOf(TypeSemestre.Automne), 2025, String.valueOf(TypeCours.Java));
+        Cours c = coursRepository.findCoursByCode("63-21");
+        Etudiant e = etudiantRepository.findByEmail("mark@hesge.ch");
+        serviceCours.ajouterEtudiant(c.id, e.id);
+        Assertions.assertEquals(1, c.etudiantsInscrits.size());
+        Assertions.assertEquals(2, e.coursEtudiant.size());
+
+        //Test avec un id inexistant
+        Assertions.assertThrows(Exception.class, () -> serviceCours.ajouterEtudiant(100L, 100L));
+
+    }
+
+    @Test
+    @Order(5)
+    @TestTransaction
+    public void testAjoutEtudiantAvecTxt(){
+        //Ajouter des étudiants à un cours à partir d'un fichier txt
+        Cours c = coursRepository.findCoursByCode("62-21");
+        String[] data = {"Walter White;w@hesge.ch;temps_plein",
+                "Jesse Pinkman;jesse@hesge.ch;temps_partiel"};
+        serviceCours.addAllStudentsFromFile(c.id, data);
+        Assertions.assertNotNull(etudiantRepository.findByEmail("w@hesge.ch"));
+        Assertions.assertEquals(6, c.etudiantsInscrits.size());
+    }
+
+    @Test
+    @Order(6)
+    @Transactional
+    public void testAjoutTP(){
+        //Ajouter un TP à un cours
+        Cours c = coursRepository.findCoursByCode("62-21");
+        serviceCours.ajouterTP(c.id, 2);
+        Assertions.assertEquals(2, c.travauxPratiques.size());
+
+        //Tester si le TP existe
+        int noTpTest = coursRepository.findTpByNo(c.id, 2).no;
+        Assertions.assertEquals(2, noTpTest);
 
 
     }
+
+    @Test
+    @Order(7)
+    @TestTransaction
+    public void testAjoutEvaluations(){
+        //Ajout d'un examen et d'un CC dans le cours 62-21
+        Cours c = coursRepository.findCoursByCode("62-21");
+        serviceCours.ajouterExamen(c.id, "Examen final", "2025-12-15", "Automne");
+        serviceCours.addCC(c.id, "CC1", "2025-10-15", 2, 1);
+
+        //Vérifier que les évaluations ont bien été ajoutées
+        Assertions.assertEquals(2, c.evaluations.size());
+        Assertions.assertEquals("Examen final", c.evaluations.get(0).nom);
+        Assertions.assertEquals("CC1", c.evaluations.get(1).nom);
+    }
+
+    @Test
+    @Order(8)
+    @TestTransaction
+    public void testCreationDesDossiers(){
+        //Supprimer les précédents dossiers créés si il y en a :
+        Path dossierTest = Paths.get("src/test/resources/testZips/63-21");
+        try {
+            Files.delete(dossierTest);
+        } catch (IOException e) {
+            System.out.println("Le dossier n'existe pas");
+        }
+
+        serviceCours.creerCours("Programmation collaborative", "63-21",
+                String.valueOf(TypeSemestre.Automne), 2025, String.valueOf(TypeCours.Java));
+        Cours c = coursRepository.findCoursByCode("63-21");
+
+        //Créer un TP
+        serviceCours.ajouterTP(c.id, 1);
+
+        //Creer un examen
+        serviceCours.ajouterExamen(c.id, "Examen final", "2025-12-15", "Automne");
+
+        //tester si les dossiers ont bien été créés
+        Path tpDir = Paths.get("src/test/resources/testZips", c.code, "TP1");
+        Assertions.assertTrue(Files.exists(tpDir), "Le dossier TP1 devrait exister !");
+
+    }
+
 }

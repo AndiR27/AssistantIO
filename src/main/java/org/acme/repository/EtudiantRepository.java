@@ -10,4 +10,8 @@ import java.util.List;
 @ApplicationScoped
 public class EtudiantRepository implements PanacheRepository<Etudiant>{
 
+    public Etudiant findByEmail(String email) {
+        return find("email", email).firstResult();
+    }
+
 }

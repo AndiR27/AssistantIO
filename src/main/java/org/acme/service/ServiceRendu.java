@@ -1,9 +1,13 @@
 package org.acme.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.acme.entity.*;
+import org.apache.camel.CamelContext;
+import org.apache.camel.ProducerTemplate;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
@@ -12,11 +16,16 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static io.quarkus.fs.util.ZipUtils.unzip;
-import static io.quarkus.fs.util.ZipUtils.zip;
+import static io.quarkus.fs.util.ZipUtils.*;
 
 @ApplicationScoped
 public class ServiceRendu {
+
+    @Inject
+    CamelContext camelContext;
+
+    @Inject
+    ProducerTemplate producerTemplate;
 
     private String typeCours = "Java";
 
@@ -182,7 +191,11 @@ public class ServiceRendu {
             //Extraire le contenu dans le dossier temporaire local
             Path projetExtract = etudiantDir.resolve("extractedProject");
             creerRepertoireSilExistePas(projetExtract);
-            unzip(zipEtudiantPath, projetExtract);
+            //Gestion des différents types de zip avec une méthode de Quarkus
+            //OLD VERSION : unzip(zipEtudiantPath, projetExtract);
+            manageExtractionZip(zipEtudiantPath, projetExtract, etudiantDir);
+
+
 
             //Gérer le contenu du projet à copier selon le type de cours
             if (typeCours.equals("Java")) {
@@ -214,6 +227,37 @@ public class ServiceRendu {
             throw new RuntimeException("Erreur lors de la recherche du sous-zip dans " + dossierEtudiant, e);
         }
     }
+
+    /**
+     * Gère la façon d'extraire le zip selon le type de zip
+     */
+    private void manageExtractionZip(Path zipEtudiantPath, Path projetExtract, Path etudiantDir) throws IOException {
+        String zipEtudiantPathString = zipEtudiantPath.toString();
+        if (zipEtudiantPathString.endsWith(".zip")) {
+            unzip(zipEtudiantPath, projetExtract);
+        } else if (zipEtudiantPathString.endsWith(".7z")) {
+            //Gestion des fichiers 7z
+            extract7zWithCamel(zipEtudiantPath, projetExtract);
+        }
+    }
+
+    /**
+     * Extrait un fichier 7z dans un dossier
+     */
+    /**
+     * Utilise Camel Exec pour extraire un fichier 7z avec 7-Zip.
+     */
+    private void extract7zWithCamel(Path zipFile, Path outputDir) {
+        try {
+            producerTemplate.sendBody("exec:7z?args=x " + zipFile.toString() + " -o" + outputDir.toString(), null);
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors de l'extraction du 7z avec 7-Zip", e);
+        }
+    }
+
+
+
+
 
     /**
      * Copie un projet Java (on filtre .git, .idea, target, etc.).

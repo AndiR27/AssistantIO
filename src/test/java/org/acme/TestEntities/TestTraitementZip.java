@@ -16,6 +16,7 @@ import org.wildfly.common.Assert;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.*;
+import java.util.stream.Stream;
 
 @QuarkusTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -77,8 +78,39 @@ public class TestTraitementZip {
                 rendu.cheminFichierStructure);
     }
 
+    @Test
+    @TestTransaction
+    public void testerContenuZipPycharm() throws IOException {
+        //Creation des entités
+        serviceCours.creerCours("Python Introduction", "61-13",
+                "Automne", 2025, "Python");
+        Cours c = repositoryCours.findCoursByCode("61-13");
+        serviceCours.ajouterTP(c.id, 1);
 
-    public void testerContenuZipPycharm() {
-        //TODO
+        //Creer l'input pour le zip
+        Path path = Paths.get("src/test/resources/mockinginputstreams/test_zip.zip");
+        InputStream inputStream = Files.newInputStream(path);
+        //Ajout d'un rendu
+        TravailPratique tp = repositoryCours.findTpByNo(c.id, 1);
+        serviceTravailPratique.creerRenduTP(tp, inputStream);
+
+        //Lancement de la methode des traitements de zip pour un cours et un TP :
+        serviceCours.lancerTraitementRenduZip(c.id, tp.id);
+
+        //tests
+        Rendu rendu = tp.rendu;
+        Assertions.assertNotNull(rendu);
+
+        //Vérifier si le rendu de george dylan ne contient que des fichiers .py
+        Path pathRendu = Paths.get(rendu.cheminFichierStructure);
+        Assertions.assertTrue(Files.exists(pathRendu));
+
+        try (Stream<Path> files = Files.walk(pathRendu)) {
+            boolean containsOnlyPy = files
+                    .filter(Files::isRegularFile)
+                    .allMatch(file -> file.toString().endsWith(".py"));
+            Assertions.assertTrue(containsOnlyPy, "Le rendu doit contenir uniquement des fichiers .py");
+
+        }
     }
 }

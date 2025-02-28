@@ -28,7 +28,7 @@ public class ServiceRendu {
      * contient dedans un fichier zip qui est son rendu : ce fichier zip est un
      * projet Java ou python qu'il faut dézipper, et récupérer son contenu pour le
      * stocker dans un nouveau dossier "Nom_Prenom" qui sera lui même dans un dossier
-     * "RendusRestructuration" et qui sera zippé puis stocké au même endroit que le zip
+     * "RenduRestructuration" et qui sera zippé puis stocké au même endroit que le zip
      * d'origine
      * <p>
      * Cas à gérer :
@@ -63,7 +63,7 @@ public class ServiceRendu {
         Path tpRoot = originalZip.getParent();
 
         // chemin vers le dossier de restructuration
-        Path restructurationDir = tpRoot.resolve("RendusRestructuration");
+        Path restructurationDir = tpRoot.resolve("RenduRestructuration");
         creerRepertoireSilExistePas(restructurationDir);
 
         // dossier temporaire pour extraire le zip initial => tpmExtract
@@ -85,9 +85,12 @@ public class ServiceRendu {
                 });
 
         //Créez un zip global pour le dossier de restructuration
-        String nomZipRestructure = "TP" + tp.no + "_RendusRestructuration.zip";
+        String nomZipRestructure = "TP" + tp.no + "_RenduRestructuration.zip";
         Path zipRestructure = tpRoot.resolve(nomZipRestructure);
         zip(restructurationDir, zipRestructure);
+
+        //Mettre à jour le chemin du zip restructuré
+        rendu.cheminFichierStructure = zipRestructure.toString();
 
         //Nettoyer les dossiers temporaires et le dossier de restructuration
         supprimerRepertoire(tpmExtractDir);

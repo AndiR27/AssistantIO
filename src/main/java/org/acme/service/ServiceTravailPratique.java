@@ -58,7 +58,7 @@ public class ServiceTravailPratique {
         }
 
         //Creation du rendu
-        Rendu rendu = new Rendu(nomFichier, cheminVersZip.toAbsolutePath().toString()
+        Rendu rendu = new Rendu(nomFichier, cheminVersZip.toString()
                 , null);
         tp.rendu = rendu;
         travailPratiqueRepository.persist(tp);
@@ -80,7 +80,8 @@ public class ServiceTravailPratique {
 
         for(Etudiant etudiant : etudiantsList){
             TP_Status tpStatus = new TP_Status(etudiant, tp, false);
-            if(rendus.contains(etudiant.nom)){
+            String nomEtudiantRefomated = etudiant.nom.replaceAll(" ", "").toLowerCase();
+            if(rendus.contains(nomEtudiantRefomated)){
                 tpStatus.renduEtudiant = true;
             }
             tp.addTPStatus(tpStatus);

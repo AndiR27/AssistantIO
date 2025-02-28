@@ -14,7 +14,7 @@ public class TravailPratique extends PanacheEntityBase {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Integer id;
+    public Long id;
 
     public int no;
     //pas de cascade : on veut eviter que l'entité enfant ne "pilote" pas la persistance

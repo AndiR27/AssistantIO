@@ -90,12 +90,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.camel.quarkus</groupId>
-            <artifactId>camel-quarkus-zipfile</artifactId>
-            <version>3.19.0</version>
-        </dependency>
-
 
     </dependencies>
 

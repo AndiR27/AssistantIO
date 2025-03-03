@@ -24,6 +24,8 @@ public class TestServices {
 
     @Inject
     CoursRepository coursRepository;
+    @Inject
+    TPRepository travailPratiqueRepository;
 
     @Inject
     ServiceCours serviceCours;
@@ -37,9 +39,12 @@ public class TestServices {
     @BeforeEach
     @Transactional
      void setUp(){
+        travailPratiqueRepository.deleteAll();
+        etudiantRepository.deleteAll();
         coursRepository.deleteAll();
         //Préparer les données en créant un cours, un TP, et quelques étudiants
         //Ajouter les relations
+        /**
         Cours c = new Cours("Approfondissement de la programmation", "62-21",
                 TypeSemestre.Printemps, 2025, TypeCours.Java);
         TravailPratique tp = new TravailPratique(1, c, null);
@@ -50,6 +55,17 @@ public class TestServices {
         c.addEtudiant(e1);c.addEtudiant(e2);c.addEtudiant(e3);c.addEtudiant(e4);
         c.addTravailPratique(tp);
         coursRepository.persist(c);
+         */
+        serviceCours.creerCours("Approfondissement de la programmation", "62-21",
+                String.valueOf(TypeSemestre.Printemps), 2025, String.valueOf(TypeCours.Java));
+        Cours c = coursRepository.findCoursByCode("62-21");
+        serviceCours.ajouterTP(c.id, 1);
+        Etudiant e1 = new Etudiant("Scout Mark", "mark@hesge.ch", TypeEtude.temps_plein);
+        Etudiant e2 = new Etudiant("Riggs Helly", "helly@hesge.ch", TypeEtude.temps_partiel);
+        Etudiant e3 = new Etudiant("George Dylan", "dylan@hesge.ch", TypeEtude.temps_plein);
+        Etudiant e4 = new Etudiant("Bailiff Irving", "irving@hesge.ch", TypeEtude.temps_plein);
+        c.addEtudiant(e1);c.addEtudiant(e2);c.addEtudiant(e3);c.addEtudiant(e4);
+        coursRepository.persist(c);
     }
 
     @Test
@@ -57,7 +73,7 @@ public class TestServices {
     public void testSetup(){
         //Vérifier que les données ont bien été créées
         Assertions.assertEquals(1, coursRepository.count());
-        Cours c = coursRepository.findAll().firstResult();
+        Cours c = coursRepository.findCoursByCode("62-21");
         Assertions.assertEquals(4, c.etudiantsInscrits.size());
         Assertions.assertEquals(1, c.travauxPratiques.size());
     }
@@ -87,14 +103,14 @@ public class TestServices {
         serviceCours.creerCours("Programmation collaborative", "63-21",
                 String.valueOf(TypeSemestre.Automne), 2025, String.valueOf(TypeCours.Java));
         Assertions.assertEquals(2, coursRepository.count());
-        Assertions.assertEquals("63-21",coursRepository.findAll().list().get(1).code);
         Cours c = coursRepository.findCoursByCode("63-21");
+        Assertions.assertEquals("63-21",c.code);
         Assertions.assertEquals("Programmation collaborative", c.nom);
     }
 
     @Test
     @Order(4)
-    @TestTransaction
+    @Transactional
     public void testAjoutEtudiants(){
         //Ajouter des étudiants à un cours
         serviceCours.creerCours("Programmation collaborative", "63-21",
@@ -112,7 +128,6 @@ public class TestServices {
 
     @Test
     @Order(5)
-    @TestTransaction
     public void testAjoutEtudiantAvecTxt(){
         //Ajouter des étudiants à un cours à partir d'un fichier txt
         Cours c = coursRepository.findCoursByCode("62-21");
@@ -125,7 +140,6 @@ public class TestServices {
 
     @Test
     @Order(6)
-    @Transactional
     public void testAjoutTP(){
         //Ajouter un TP à un cours
         Cours c = coursRepository.findCoursByCode("62-21");
@@ -141,7 +155,6 @@ public class TestServices {
 
     @Test
     @Order(7)
-    @TestTransaction
     public void testAjoutEvaluations(){
         //Ajout d'un examen et d'un CC dans le cours 62-21
         Cours c = coursRepository.findCoursByCode("62-21");

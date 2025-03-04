@@ -88,9 +88,20 @@ public class TestTraitementZip {
         //Vérifier que le rendu a bien été traité
         Rendu rendu = tp.rendu;
         Assertions.assertNotNull(rendu);
-        Assertions.assertEquals("src\\test\\resources\\testZips\\62-21\\TP1\\TP1_RenduCyberlearn.zip", rendu.cheminStockage);
-        Assertions.assertEquals("src\\test\\resources\\testZips\\62-21\\TP1\\TP1_RenduRestructuration.zip",
-                rendu.cheminFichierStructure);
+        String cheminVersZip = rendu.cheminStockage;
+        String cheminVersZipRestructure = rendu.cheminFichierStructure;
+        // Normaliser les chemins pour éviter les problèmes de séparateurs ('/' vs '\\')
+        Path expectedPath1 = Paths.get("src/test/resources/testZips/62-21/TP1/TP1_RenduCyberlearn.zip");
+        Path expectedPath2 = Paths.get("src/test/resources/testZips/62-21/TP1/TP1_RenduRestructuration.zip");
+
+        Path actualPath1 = Paths.get(cheminVersZip);
+        Path actualPath2 = Paths.get(cheminVersZipRestructure);
+
+        // Comparaison normalisée des chemins
+        Assertions.assertTrue(expectedPath1.equals(actualPath1),
+                "Le chemin du ZIP ne correspond pas : " + actualPath1);
+        Assertions.assertTrue(expectedPath2.equals(actualPath2),
+                "Le chemin du ZIP restructuré ne correspond pas : " + actualPath2);
     }
 
     @Test

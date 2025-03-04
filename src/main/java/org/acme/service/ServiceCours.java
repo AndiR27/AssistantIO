@@ -41,7 +41,7 @@ public class ServiceCours {
      * Le chemin vers un nouveau dépot pour les zips doit être créé
      */
     public void creerCours(String nom, String code, String semestre, int annee,
-                           String typeCours){
+                           String typeCours) {
         Cours cours = new Cours(nom, code, TypeSemestre.valueOf(semestre), annee, TypeCours.valueOf(typeCours));
         coursRepository.persist(cours);
 
@@ -50,7 +50,6 @@ public class ServiceCours {
         creerDossierZip(code, zipStoragePath);
 
     }
-
 
 
     /**
@@ -97,7 +96,7 @@ public class ServiceCours {
     /**
      * Methode permettant de récupérer tous les étudiants inscrits à un cours
      */
-    public List<Etudiant> getEtudiantsInscrits(Long idCours){
+    public List<Etudiant> getEtudiantsInscrits(Long idCours) {
         return coursRepository.findEtudiantsInscrits(idCours);
     }
 
@@ -115,8 +114,7 @@ public class ServiceCours {
 
             coursRepository.persist(cours);
 
-        }
-        catch (NotFoundException e) {
+        } catch (NotFoundException e) {
             System.out.println("Erreur : " + e.getMessage());
         }
     }
@@ -133,8 +131,7 @@ public class ServiceCours {
             //Creation du repertoire servant de depot pour les zips grâce au nom
             creerDossierZip(nom, zipStoragePath + "/" + cours.code);
             coursRepository.persist(cours);
-        }
-        catch (NotFoundException e) {
+        } catch (NotFoundException e) {
             System.out.println("Erreur : " + e.getMessage());
         }
     }
@@ -150,17 +147,17 @@ public class ServiceCours {
             cours.evaluations.add(cc);
 
             //Creation du repertoire servant de depot pour les zips grâce au nom : /CC1
-            creerDossierZip(nom + no, zipStoragePath + "/" + cours.code);
+            creerDossierZip(nom, zipStoragePath + "/" + cours.code);
 
             coursRepository.persist(cours);
-        }
-        catch (NotFoundException e) {
+        } catch (NotFoundException e) {
             System.out.println("Erreur : " + e.getMessage());
         }
     }
 
 
     //PRIVATE METHODS
+
     /**
      * Methode permettant de créer un dossier pour stocker les zips
      */
@@ -172,8 +169,10 @@ public class ServiceCours {
             try {
                 Files.createDirectory(newDirectory);
             } catch (Exception e) {
-                System.out.println("Erreur le dossier existe deja : " + e.getMessage());
+                System.out.println("Erreur lors de la creation du dossier: " + e.getMessage());
             }
+        } else {
+            System.out.println("Le dossier" + nomDossier + " existe déjà");
         }
     }
 
@@ -186,7 +185,6 @@ public class ServiceCours {
 
         serviceRendu.traitementRenduZip(cours, tp);
     }
-
 
 
 }

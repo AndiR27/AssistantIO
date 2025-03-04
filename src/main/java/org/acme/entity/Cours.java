@@ -36,7 +36,7 @@ public class Cours extends PanacheEntityBase {
 
     //Avec le cascade ALL : la persistance des entités enfants possible en passant par
     //l'entité cours
-    public @OneToMany(mappedBy = "cours", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    public @OneToMany(mappedBy = "cours", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     List<TravailPratique> travauxPratiques;
 
     public @OneToMany(mappedBy = "cours", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

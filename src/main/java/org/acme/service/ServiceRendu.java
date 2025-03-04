@@ -1,9 +1,15 @@
 package org.acme.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.acme.entity.*;
+import org.apache.camel.CamelContext;
+import org.apache.camel.ProducerTemplate;
+import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
+import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
@@ -12,11 +18,16 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static io.quarkus.fs.util.ZipUtils.unzip;
-import static io.quarkus.fs.util.ZipUtils.zip;
+import static io.quarkus.fs.util.ZipUtils.*;
 
 @ApplicationScoped
 public class ServiceRendu {
+
+    @Inject
+    CamelContext camelContext;
+
+    @Inject
+    ProducerTemplate producerTemplate;
 
     private String typeCours = "Java";
 
@@ -28,7 +39,7 @@ public class ServiceRendu {
      * contient dedans un fichier zip qui est son rendu : ce fichier zip est un
      * projet Java ou python qu'il faut dézipper, et récupérer son contenu pour le
      * stocker dans un nouveau dossier "Nom_Prenom" qui sera lui même dans un dossier
-     * "RendusRestructuration" et qui sera zippé puis stocké au même endroit que le zip
+     * "RenduRestructuration" et qui sera zippé puis stocké au même endroit que le zip
      * d'origine
      * <p>
      * Cas à gérer :
@@ -63,7 +74,7 @@ public class ServiceRendu {
         Path tpRoot = originalZip.getParent();
 
         // chemin vers le dossier de restructuration
-        Path restructurationDir = tpRoot.resolve("RendusRestructuration");
+        Path restructurationDir = tpRoot.resolve("RenduRestructuration");
         creerRepertoireSilExistePas(restructurationDir);
 
         // dossier temporaire pour extraire le zip initial => tpmExtract
@@ -85,9 +96,12 @@ public class ServiceRendu {
                 });
 
         //Créez un zip global pour le dossier de restructuration
-        String nomZipRestructure = "TP" + tp.no + "_RendusRestructuration.zip";
+        String nomZipRestructure = "TP" + tp.no + "_RenduRestructuration.zip";
         Path zipRestructure = tpRoot.resolve(nomZipRestructure);
         zip(restructurationDir, zipRestructure);
+
+        //Mettre à jour le chemin du zip restructuré
+        rendu.cheminFichierStructure = zipRestructure.toString();
 
         //Nettoyer les dossiers temporaires et le dossier de restructuration
         supprimerRepertoire(tpmExtractDir);
@@ -179,7 +193,11 @@ public class ServiceRendu {
             //Extraire le contenu dans le dossier temporaire local
             Path projetExtract = etudiantDir.resolve("extractedProject");
             creerRepertoireSilExistePas(projetExtract);
-            unzip(zipEtudiantPath, projetExtract);
+            //Gestion des différents types de zip avec une méthode de Quarkus
+            //OLD VERSION : unzip(zipEtudiantPath, projetExtract);
+            manageExtractionZip(zipEtudiantPath, projetExtract, etudiantDir);
+
+
 
             //Gérer le contenu du projet à copier selon le type de cours
             if (typeCours.equals("Java")) {
@@ -211,6 +229,48 @@ public class ServiceRendu {
             throw new RuntimeException("Erreur lors de la recherche du sous-zip dans " + dossierEtudiant, e);
         }
     }
+
+    /**
+     * Gère la façon d'extraire le zip selon le type de zip
+     */
+    private void manageExtractionZip(Path zipEtudiantPath, Path projetExtract, Path etudiantDir) throws IOException {
+        String zipEtudiantPathString = zipEtudiantPath.toString();
+        if (zipEtudiantPathString.endsWith(".zip")) {
+            unzip(zipEtudiantPath, projetExtract);
+        } else if (zipEtudiantPathString.endsWith(".7z")) {
+            //Gestion des fichiers 7z
+            extract7z(zipEtudiantPath, projetExtract);
+        }
+    }
+
+    /**
+     * Extrait un fichier 7z dans un dossier
+     */
+    private void extract7z(Path zipFile, Path outputDir) {
+        try (SevenZFile sevenZFile = new SevenZFile(zipFile.toFile())) {
+            SevenZArchiveEntry entry;
+            while ((entry = sevenZFile.getNextEntry()) != null) {
+                if (entry.isDirectory()) {
+                    continue;
+                }
+
+                Path outputFile = outputDir.resolve(entry.getName());
+                Files.createDirectories(outputFile.getParent());
+
+                byte[] content = new byte[(int) entry.getSize()];
+                sevenZFile.read(content);
+                Files.write(outputFile, content);
+
+                System.out.println("Extracted: " + outputFile);
+            }
+        } catch (IOException e) {
+            System.out.println("Erreur lors de l'extraction du fichier 7z : " + e.getMessage());
+        }
+    }
+
+
+
+
 
     /**
      * Copie un projet Java (on filtre .git, .idea, target, etc.).

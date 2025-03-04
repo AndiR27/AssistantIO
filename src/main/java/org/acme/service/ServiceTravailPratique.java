@@ -41,10 +41,10 @@ public class ServiceTravailPratique {
     @Transactional
     public void creerRenduTP(TravailPratique tp, InputStream zipFile){
         //nom du fichier
-        String nomFichier = "TP_" + tp.no + "_RenduCyberlearn.zip";
+        String nomFichier = "TP" + tp.no + "_RenduCyberlearn.zip";
 
         //chemin vers le fichier
-        Path tpFolder = Paths.get("DocumentsZips", tp.cours.code, "TP" + tp.no);
+        Path tpFolder = Paths.get(zipStoragePath, tp.cours.code, "TP" + tp.no);
 
         //Chemin complet vers le fichier
         Path cheminVersZip = tpFolder.resolve(nomFichier);
@@ -58,7 +58,7 @@ public class ServiceTravailPratique {
         }
 
         //Creation du rendu
-        Rendu rendu = new Rendu(nomFichier, cheminVersZip.toAbsolutePath().toString()
+        Rendu rendu = new Rendu(nomFichier, cheminVersZip.toString()
                 , null);
         tp.rendu = rendu;
         travailPratiqueRepository.persist(tp);
@@ -80,7 +80,8 @@ public class ServiceTravailPratique {
 
         for(Etudiant etudiant : etudiantsList){
             TP_Status tpStatus = new TP_Status(etudiant, tp, false);
-            if(rendus.contains(etudiant.nom)){
+            String nomEtudiantRefomated = etudiant.nom.replaceAll(" ", "").toLowerCase();
+            if(rendus.contains(nomEtudiantRefomated)){
                 tpStatus.renduEtudiant = true;
             }
             tp.addTPStatus(tpStatus);

@@ -5,6 +5,8 @@ import jakarta.inject.Inject;
 import org.acme.entity.*;
 import org.apache.camel.CamelContext;
 import org.apache.camel.ProducerTemplate;
+import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
+import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -237,21 +239,32 @@ public class ServiceRendu {
             unzip(zipEtudiantPath, projetExtract);
         } else if (zipEtudiantPathString.endsWith(".7z")) {
             //Gestion des fichiers 7z
-            extract7zWithCamel(zipEtudiantPath, projetExtract);
+            extract7z(zipEtudiantPath, projetExtract);
         }
     }
 
     /**
      * Extrait un fichier 7z dans un dossier
      */
-    /**
-     * Utilise Camel Exec pour extraire un fichier 7z avec 7-Zip.
-     */
-    private void extract7zWithCamel(Path zipFile, Path outputDir) {
-        try {
-            producerTemplate.sendBody("exec:7z?args=x " + zipFile.toString() + " -o" + outputDir.toString(), null);
-        } catch (Exception e) {
-            throw new RuntimeException("Erreur lors de l'extraction du 7z avec 7-Zip", e);
+    private void extract7z(Path zipFile, Path outputDir) {
+        try (SevenZFile sevenZFile = new SevenZFile(zipFile.toFile())) {
+            SevenZArchiveEntry entry;
+            while ((entry = sevenZFile.getNextEntry()) != null) {
+                if (entry.isDirectory()) {
+                    continue;
+                }
+
+                Path outputFile = outputDir.resolve(entry.getName());
+                Files.createDirectories(outputFile.getParent());
+
+                byte[] content = new byte[(int) entry.getSize()];
+                sevenZFile.read(content);
+                Files.write(outputFile, content);
+
+                System.out.println("Extracted: " + outputFile);
+            }
+        } catch (IOException e) {
+            System.out.println("Erreur lors de l'extraction du fichier 7z : " + e.getMessage());
         }
     }
 

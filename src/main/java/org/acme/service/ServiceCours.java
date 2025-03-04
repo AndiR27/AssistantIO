@@ -147,7 +147,7 @@ public class ServiceCours {
             cours.evaluations.add(cc);
 
             //Creation du repertoire servant de depot pour les zips grâce au nom : /CC1
-            creerDossierZip(nom + no, zipStoragePath + "/" + cours.code);
+            creerDossierZip(nom, zipStoragePath + "/" + cours.code);
 
             coursRepository.persist(cours);
         } catch (NotFoundException e) {

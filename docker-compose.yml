@@ -1,0 +1,32 @@
+# This is a docker-compose file that will run the application and the database in separate containers.
+# The application will be available at http://localhost:8080 and the database at http://localhost:5432
+
+# Run the containers with the command: docker-compose up
+# If needed to rebuild the application, run the command: docker-compose up --build
+# Otherwise, it is possible remove all the containers + images with the command: docker-compose down --rmi all
+
+version: '3.8'
+services:
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgre
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: AssistantIO
+    ports:
+      - "5432:5432"
+
+  app:
+    build:
+      context: .
+      dockerfile: src/main/docker/Dockerfile.jvm
+    environment:
+      # Needs to be the same as the db container values
+      # It will override the application.properties values
+      QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://db/AssistantIO
+      QUARKUS_DATASOURCE_USERNAME: postgre
+      QUARKUS_DATASOURCE_PASSWORD: admin
+    ports:
+      - "8088:8088"
+    depends_on:
+      - db

@@ -27,6 +27,6 @@ services:
       QUARKUS_DATASOURCE_USERNAME: postgre
       QUARKUS_DATASOURCE_PASSWORD: admin
     ports:
-      - "8080:8080"
+      - "8088:8088"
     depends_on:
       - db

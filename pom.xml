@@ -103,13 +103,18 @@
             <version>1.10</version>
         </dependency>
 
-
-
+        <!-- https://mvnrepository.com/artifact/org.mapstruct/mapstruct -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>1.6.3</version>
+        </dependency>
 
     </dependencies>
 
     <build>
         <plugins>
+            <!-- Plugin Quarkus -->
             <plugin>
                 <groupId>${quarkus.platform.group-id}</groupId>
                 <artifactId>quarkus-maven-plugin</artifactId>
@@ -126,13 +131,30 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- Maven Compiler (UNIQUE définition) -->
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${compiler-plugin.version}</version>
                 <configuration>
+                    <!-- Utilise le release 21 pour compiler -->
+                    <release>${maven.compiler.release}</release>
+                    <!-- Génère aussi les métadonnées des paramètres (ex: pour Lombok / MapStruct) -->
                     <parameters>true</parameters>
+
+                    <!-- Active l'annotation processor MapStruct -->
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>1.6.3</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
+
+            <!-- Surefire Plugin -->
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${surefire-plugin.version}</version>
@@ -143,6 +165,8 @@
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
+
+            <!-- Failsafe Plugin (intégration) -->
             <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>${surefire-plugin.version}</version>
@@ -180,3 +204,4 @@
         </profile>
     </profiles>
 </project>
+

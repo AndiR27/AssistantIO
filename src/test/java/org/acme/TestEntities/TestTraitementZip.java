@@ -6,6 +6,9 @@ import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.acme.entity.*;
+import org.acme.models.CoursDTO;
+import org.acme.models.TypeCoursDTO;
+import org.acme.models.TypeSemestreDTO;
 import org.acme.repository.CoursRepository;
 import org.acme.repository.EtudiantRepository;
 import org.acme.repository.TPRepository;
@@ -20,6 +23,7 @@ import org.wildfly.common.Assert;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -70,8 +74,10 @@ public class TestTraitementZip {
     @TestTransaction
     public void testerTraitementZip() throws IOException {
         //Creation des entités
-        serviceCours.creerCours("Approfondissement de la programmation", "62-21",
-                "Printemps", 2025, "Java");
+        CoursDTO coursDTO = new CoursDTO(null,
+                "Approfondissement de la programmation",
+                "62-21", TypeSemestreDTO.Printemps, 2025, "Stettler", TypeCoursDTO.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        serviceCours.creerCours(coursDTO);
         Cours c = repositoryCours.findCoursByCode("62-21");
         serviceCours.ajouterTP(c.id, 1);
 
@@ -108,8 +114,10 @@ public class TestTraitementZip {
     @TestTransaction
     public void testerContenuZip() throws IOException {
         //Creation des entités
-        serviceCours.creerCours("Python Introduction", "61-13",
-                "Automne", 2025, "Python");
+        CoursDTO coursDTO = new CoursDTO(null,
+                "Python Introduction",
+                "61-13", TypeSemestreDTO.Automne, 2025, "Stettler", TypeCoursDTO.Python, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        serviceCours.creerCours(coursDTO);
         Cours c = repositoryCours.findCoursByCode("61-13");
         serviceCours.ajouterTP(c.id, 1);
 
@@ -182,8 +190,10 @@ public class TestTraitementZip {
     public void testStatusUpdateEtudiants() throws IOException {
 
         //Créer les données de test
-        serviceCours.creerCours("Approfondissement de la programmation", "62-21",
-                String.valueOf(TypeSemestre.Printemps), 2025, String.valueOf(TypeCours.Java));
+        CoursDTO coursDTO = new CoursDTO(null,
+                "Approfondissement de la programmation",
+                "62-21", TypeSemestreDTO.Printemps, 2025, "Stettler", TypeCoursDTO.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        serviceCours.creerCours(coursDTO);
         Cours c = repositoryCours.findCoursByCode("62-21");
         serviceCours.ajouterTP(c.id, 1);
         Etudiant e1 = new Etudiant("Scout Mark", "mark@hesge.ch", TypeEtude.temps_plein);

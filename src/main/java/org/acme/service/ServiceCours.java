@@ -4,6 +4,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
+import org.acme.mapping.CoursMapper;
+import org.acme.models.*;
 import org.acme.repository.*;
 import org.acme.entity.*;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -36,19 +38,22 @@ public class ServiceCours {
     @ConfigProperty(name = "zip-storage.path")
     String zipStoragePath;
 
+    @Inject
+    CoursMapper coursMapper;
+
     /**
      * Creation d'un cours
      * Le chemin vers un nouveau dépot pour les zips doit être créé
      */
-    public void creerCours(String nom, String code, String semestre, int annee,
-                           String typeCours) {
-        Cours cours = new Cours(nom, code, TypeSemestre.valueOf(semestre), annee, TypeCours.valueOf(typeCours));
+    public CoursDTO creerCours(CoursDTO coursDTO) {
+        Cours cours = coursMapper.toEntity(coursDTO);
+        //Cours cours = new Cours(nom, code, TypeSemestre.valueOf(semestre), annee, TypeCours.valueOf(typeCours));
         coursRepository.persist(cours);
 
         //Creation du repertoire servant de depot pour les zips grâce au code
         //On est dans un cours, donc le path est celui de base : "DocumentsZip/"
-        creerDossierZip(code, zipStoragePath);
-
+        creerDossierZip(cours.code, zipStoragePath);
+        return coursMapper.toDto(cours);
     }
 
 

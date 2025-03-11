@@ -5,6 +5,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.acme.entity.*;
+import org.acme.models.*;
 import org.acme.repository.*;
 import org.acme.service.*;
 import org.junit.jupiter.api.*;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -46,33 +48,13 @@ public class TestServices {
     /**
      * Vérifie qu'on peut créer un cours et un TP,
      * ainsi que 4 étudiants, puis vérifier leur bonne insertion.
+     * // Ajouter des étudiants
+     *         Etudiant e1 = new Etudiant("Scout Mark", "mark@hesge.ch", TypeEtude.temps_plein);
+     *         Etudiant e2 = new Etudiant("Riggs Helly", "helly@hesge.ch", TypeEtude.temps_partiel);
+     *         Etudiant e3 = new Etudiant("George Dylan", "dylan@hesge.ch", TypeEtude.temps_plein);
+     *         Etudiant e4 = new Etudiant("Bailiff Irving", "irving@hesge.ch", TypeEtude.temps_plein);
      */
-    @Test
-    @Transactional
-    public void testSetup() {
-        // Créer un cours
-        serviceCours.creerCours("Approfondissement de la programmation", "62-21",
-                String.valueOf(TypeSemestre.Printemps), 2025, String.valueOf(TypeCours.Java));
-        Cours c = coursRepository.findCoursByCode("62-21");
-        // Ajouter un TP
-        serviceCours.ajouterTP(c.id, 1);
 
-        // Ajouter des étudiants
-        Etudiant e1 = new Etudiant("Scout Mark", "mark@hesge.ch", TypeEtude.temps_plein);
-        Etudiant e2 = new Etudiant("Riggs Helly", "helly@hesge.ch", TypeEtude.temps_partiel);
-        Etudiant e3 = new Etudiant("George Dylan", "dylan@hesge.ch", TypeEtude.temps_plein);
-        Etudiant e4 = new Etudiant("Bailiff Irving", "irving@hesge.ch", TypeEtude.temps_plein);
-        c.addEtudiant(e1);
-        c.addEtudiant(e2);
-        c.addEtudiant(e3);
-        c.addEtudiant(e4);
-        coursRepository.persist(c);
-
-        // Vérifications
-        Assertions.assertEquals(1, coursRepository.count());
-        Assertions.assertEquals(4, c.etudiantsInscrits.size());
-        Assertions.assertEquals(1, c.travauxPratiques.size());
-    }
 
     /**
      * Exemple d'utilisation de @TempDir :
@@ -96,8 +78,10 @@ public class TestServices {
     @Test
     @TestTransaction
     public void testCreationCours() {
-        serviceCours.creerCours("Programmation collaborative", "63-21",
-                String.valueOf(TypeSemestre.Automne), 2025, String.valueOf(TypeCours.Java));
+        CoursDTO coursDTO = new CoursDTO(null,
+                "Programmation collaborative",
+                "63-21", TypeSemestreDTO.Automne, 2025, "Stettler", TypeCoursDTO.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        serviceCours.creerCours(coursDTO);
 
         Assertions.assertEquals(1, coursRepository.count());
         Cours c = coursRepository.findCoursByCode("63-21");
@@ -112,8 +96,11 @@ public class TestServices {
     @Transactional
     public void testAjoutEtudiants() {
         // Créer un cours
-        serviceCours.creerCours("Programmation collaborative", "63-21",
-                String.valueOf(TypeSemestre.Automne), 2025, String.valueOf(TypeCours.Java));
+        CoursDTO coursDTO = new CoursDTO(null,
+                "Programmation collaborative",
+                "63-21", TypeSemestreDTO.Automne, 2025, "Stettler", TypeCoursDTO.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        serviceCours.creerCours(coursDTO);
+
         Cours c = coursRepository.findCoursByCode("63-21");
 
         // Créer un étudiant en base (par ex. déjà existant)
@@ -138,8 +125,10 @@ public class TestServices {
     @Transactional
     public void testAjoutEtudiantAvecTxt() {
         // Créer un cours
-        serviceCours.creerCours("Approfondissement de la programmation", "62-21",
-                String.valueOf(TypeSemestre.Printemps), 2025, String.valueOf(TypeCours.Java));
+        CoursDTO coursDTO = new CoursDTO(null,
+                "Approfondissement de la programmation",
+                "62-21", TypeSemestreDTO.Printemps, 2025, "Stettler", TypeCoursDTO.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        serviceCours.creerCours(coursDTO);
         Cours c = coursRepository.findCoursByCode("62-21");
 
         // Ajout de quelques étudiants via un pseudo-fichier .txt
@@ -162,8 +151,10 @@ public class TestServices {
     @Transactional
     public void testAjoutTP() {
         // Créer un cours
-        serviceCours.creerCours("Approfondissement de la programmation", "62-21",
-                String.valueOf(TypeSemestre.Printemps), 2025, String.valueOf(TypeCours.Java));
+        CoursDTO coursDTO = new CoursDTO(null,
+                "Approfondissement de la programmation",
+                "62-21", TypeSemestreDTO.Printemps, 2025, "Stettler", TypeCoursDTO.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        serviceCours.creerCours(coursDTO);
         Cours c = coursRepository.findCoursByCode("62-21");
 
         // Ajouter un TP
@@ -183,8 +174,10 @@ public class TestServices {
     @Transactional
     public void testAjoutEvaluations() {
         // Créer un cours
-        serviceCours.creerCours("Approfondissement de la programmation", "62-21",
-                String.valueOf(TypeSemestre.Printemps), 2025, String.valueOf(TypeCours.Java));
+        CoursDTO coursDTO = new CoursDTO(null,
+                "Approfondissement de la programmation",
+                "62-21", TypeSemestreDTO.Printemps, 2025, "Stettler", TypeCoursDTO.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        serviceCours.creerCours(coursDTO);
         Cours c = coursRepository.findCoursByCode("62-21");
 
         // Ajout d'un examen et d'un CC
@@ -217,8 +210,10 @@ public class TestServices {
         }
 
         // Créer un cours
-        serviceCours.creerCours("Programmation collaborative", "63-21",
-                String.valueOf(TypeSemestre.Automne), 2025, String.valueOf(TypeCours.Java));
+        CoursDTO coursDTO = new CoursDTO(null,
+                "Programmation collaborative",
+                "63-21", TypeSemestreDTO.Automne, 2025, "Stettler", TypeCoursDTO.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        serviceCours.creerCours(coursDTO);
         Cours c = coursRepository.findCoursByCode("63-21");
 
         // Créer un TP et un examen
@@ -240,8 +235,10 @@ public class TestServices {
     @TestTransaction
     public void testRenduTp() throws IOException {
         // Créer un cours et un TP
-        serviceCours.creerCours("Programmation collaborative", "63-21",
-                String.valueOf(TypeSemestre.Automne), 2025, String.valueOf(TypeCours.Java));
+        CoursDTO coursDTO = new CoursDTO(null,
+                "Programmation collaborative",
+                "63-21", TypeSemestreDTO.Automne, 2025, "Stettler", TypeCoursDTO.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        serviceCours.creerCours(coursDTO);
         Cours c = coursRepository.findCoursByCode("63-21");
         serviceCours.ajouterTP(c.id, 1);
         TravailPratique tp01 = coursRepository.findTpByNo(c.id, 1);

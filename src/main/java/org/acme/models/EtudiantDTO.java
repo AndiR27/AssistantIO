@@ -7,17 +7,17 @@ public class EtudiantDTO {
     private String nom;
     private String email;
     private TypeEtudeDTO typeEtude;
-    private List<CoursDTO> cours;
+    private List<CoursDTO> coursEtudiant;
 
     // Constructeurs
     public EtudiantDTO() {}
 
-    public EtudiantDTO(Long id, String nom, String email, TypeEtudeDTO typeEtude, List<CoursDTO> cours) {
+    public EtudiantDTO(Long id, String nom, String email, TypeEtudeDTO typeEtude, List<CoursDTO> coursEtudiant) {
         this.id = id;
         this.nom = nom;
         this.email = email;
         this.typeEtude = typeEtude;
-        this.cours = cours;
+        this.coursEtudiant = coursEtudiant;
     }
 
     // Getters et Setters
@@ -33,6 +33,6 @@ public class EtudiantDTO {
     public TypeEtudeDTO getTypeEtude() { return typeEtude; }
     public void setTypeEtude(TypeEtudeDTO typeEtude) { this.typeEtude = typeEtude; }
 
-    public List<CoursDTO> getCours() { return cours; }
-    public void setCours(List<CoursDTO> cours) { this.cours = cours; }
+    public List<CoursDTO> getCoursEtudiant() { return coursEtudiant; }
+    public void setCoursEtudiant(List<CoursDTO> cours) { this.coursEtudiant = cours; }
 }

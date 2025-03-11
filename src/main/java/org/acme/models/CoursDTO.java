@@ -10,7 +10,7 @@ public class CoursDTO {
     private int annee;
     private String prof;
     private TypeCoursDTO typeCours;
-    private List<EtudiantDTO> etudiants;
+    private List<EtudiantDTO> etudiantsInscrits;
     private List<TravailPratiqueDTO> travauxPratiques;
     private List<EvaluationDTO> evaluations;
 
@@ -18,7 +18,7 @@ public class CoursDTO {
     public CoursDTO() {}
 
     public CoursDTO(Long id, String nom, String code, TypeSemestreDTO semestre, int annee, String prof, TypeCoursDTO typeCours,
-                    List<EtudiantDTO> etudiants, List<TravailPratiqueDTO> travauxPratiques, List<EvaluationDTO> evaluations) {
+                    List<EtudiantDTO> etudiantsInscrits, List<TravailPratiqueDTO> travauxPratiques, List<EvaluationDTO> evaluations) {
         this.id = id;
         this.nom = nom;
         this.code = code;
@@ -26,7 +26,7 @@ public class CoursDTO {
         this.annee = annee;
         this.prof = prof;
         this.typeCours = typeCours;
-        this.etudiants = etudiants;
+        this.etudiantsInscrits = etudiantsInscrits;
         this.travauxPratiques = travauxPratiques;
         this.evaluations = evaluations;
     }
@@ -53,8 +53,8 @@ public class CoursDTO {
     public TypeCoursDTO getTypeCours() { return typeCours; }
     public void setTypeCours(TypeCoursDTO typeCours) { this.typeCours = typeCours; }
 
-    public List<EtudiantDTO> getEtudiants() { return etudiants; }
-    public void setEtudiants(List<EtudiantDTO> etudiants) { this.etudiants = etudiants; }
+    public List<EtudiantDTO> getEtudiants() { return etudiantsInscrits; }
+    public void setEtudiants(List<EtudiantDTO> etudiantsInscrits) { this.etudiantsInscrits = etudiantsInscrits; }
 
     public List<TravailPratiqueDTO> getTravauxPratiques() { return travauxPratiques; }
     public void setTravauxPratiques(List<TravailPratiqueDTO> travauxPratiques) { this.travauxPratiques = travauxPratiques; }

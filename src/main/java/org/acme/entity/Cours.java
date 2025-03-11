@@ -46,16 +46,6 @@ public class Cours extends PanacheEntityBase {
     public TypeCours typeCours;
 
     public Cours() {
-    }
-
-    public Cours(String nom, String code, TypeSemestre semestre, int annee, TypeCours typeCours) {
-        this.nom = nom;
-        this.code = code;
-        this.semestre = semestre;
-        this.annee = annee;
-        this.typeCours = typeCours;
-
-        //initialisation des listes
         this.etudiantsInscrits = new ArrayList<>();
         this.travauxPratiques = new ArrayList<>();
         this.evaluations = new ArrayList<>();

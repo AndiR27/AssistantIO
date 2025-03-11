@@ -1,6 +1,6 @@
 package org.acme.models;
 
-public abstract class EvaluationDTO {
+public class EvaluationDTO {
     private Long id;
     private String nom;
     private String date;

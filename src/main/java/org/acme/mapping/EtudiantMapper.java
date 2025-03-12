@@ -11,6 +11,7 @@ import org.mapstruct.*;
 public interface EtudiantMapper {
     // on ignore la liste "coursInscrits" pour éviter que l'étudiant
     // ne contienne lui-même les cours, qui contiennent les étudiants, etc.
+    @Mapping(target = "coursEtudiant", ignore = true)
     EtudiantDTO toDto(Etudiant etudiant);
 
     // ou inversement, on ignore dans l’autre sens

@@ -1,4 +1,4 @@
-package org.acme.TestEntities;
+package org.acme.TestServices;
 
 import io.quarkus.test.TestTransaction;
 import io.quarkus.test.junit.QuarkusTest;
@@ -121,8 +121,8 @@ public class TestServices {
         Assertions.assertNotNull(etuAdded);
 
         // On vérifie qu'il est aussi lié côté Etudiant
-        Assertions.assertEquals(1, etuAdded.getCoursEtudiant().size());
-        Assertions.assertEquals("63-21", etuAdded.getCoursEtudiant().getFirst().getCode());
+        Assertions.assertEquals(1, etudiantRepository.findByEmail(etuAdded.getEmail()).coursEtudiant.size());
+        Assertions.assertEquals("63-21", etudiantRepository.findByEmail(etuAdded.getEmail()).coursEtudiant.getFirst().code);
 
         // Test d'un ID inexistant
         //Assertions.assertThrows(Exception.class, () -> serviceCours.ajouterEtudiant(new CoursDTO(), new EtudiantDTO()));

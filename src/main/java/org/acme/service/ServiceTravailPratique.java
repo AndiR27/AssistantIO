@@ -74,7 +74,7 @@ public class ServiceTravailPratique {
      * 4. Persister la liste des TP_Status
      */
     @Transactional
-    public void gestionRendusTP(Cours cours, TravailPratique tp,
+    public TravailPratique gestionRendusTP(Cours cours, TravailPratique tp,
                                 List<Etudiant> etudiantsList){
         List<String> rendus = serviceRendu.getListRendus(tp.rendu);
 
@@ -87,6 +87,7 @@ public class ServiceTravailPratique {
             tp.addTPStatus(tpStatus);
         }
         travailPratiqueRepository.persist(tp);
+        return tp;
     }
 
 

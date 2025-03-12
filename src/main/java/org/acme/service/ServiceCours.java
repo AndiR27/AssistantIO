@@ -115,7 +115,7 @@ public class ServiceCours {
             List<Etudiant> nouveauxEtudiants = new ArrayList<>();
             for (String row : data) {
                 String[] etudiantData = row.split(";");
-                Etudiant etudiant = new Etudiant(etudiantData[0], etudiantData[1], TypeEtude.valueOf(etudiantData[2]));
+                //Etudiant etudiant = new Etudiant(etudiantData[0], etudiantData[1], TypeEtude.valueOf(etudiantData[2]));
                 EtudiantDTO etudiantDTO = new EtudiantDTO(null, etudiantData[0], etudiantData[1], TypeEtudeDTO.valueOf(etudiantData[2]), new ArrayList<>());
                 EtudiantDTO etuAdded = serviceEtudiant.addEtudiant(etudiantDTO);
                 ajouterEtudiant(coursDTO, etuAdded);

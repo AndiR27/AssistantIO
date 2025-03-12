@@ -1,12 +1,12 @@
-package org.acme.TestEntities;
+package org.acme.TestServices;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import io.quarkus.test.TestTransaction;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.acme.entity.*;
 import org.acme.models.CoursDTO;
+import org.acme.models.TravailPratiqueDTO;
 import org.acme.models.TypeCoursDTO;
 import org.acme.models.TypeSemestreDTO;
 import org.acme.repository.CoursRepository;
@@ -15,22 +15,17 @@ import org.acme.repository.TPRepository;
 import org.acme.repository.TP_StatusRepository;
 import org.acme.service.*;
 import org.acme.service.ServiceTravailPratique;
-import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
-import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 import org.junit.jupiter.api.*;
-import org.wildfly.common.Assert;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 @QuarkusTest
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TestTraitementZip {
 
     @Inject
@@ -66,7 +61,6 @@ public class TestTraitementZip {
                     });
         }
         Files.createDirectories(testZip);
-
     }
 
 
@@ -78,13 +72,15 @@ public class TestTraitementZip {
                 "Approfondissement de la programmation",
                 "62-21", TypeSemestreDTO.Printemps, 2025, "Stettler", TypeCoursDTO.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         CoursDTO coursDTO = serviceCours.creerCours(cours);
-        Cours c = repositoryCours.findCoursByCode("62-21");
+
         serviceCours.ajouterTP(coursDTO, 1);
 
         //Creer l'input pour le zip
         Path path = Paths.get("src/test/resources/mockinginputstreams/test_zip.zip");
         InputStream inputStream = Files.newInputStream(path);
+
         //Ajout d'un rendu
+        Cours c = repositoryCours.findCoursByCode("62-21");
         TravailPratique tp = repositoryCours.findTpByNo(c.id, 1);
         serviceTravailPratique.creerRenduTP(tp, inputStream);
 
@@ -118,13 +114,14 @@ public class TestTraitementZip {
                 "Python Introduction",
                 "61-13", TypeSemestreDTO.Automne, 2025, "Stettler", TypeCoursDTO.Python, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         CoursDTO coursDTO = serviceCours.creerCours(cours);
-        Cours c = repositoryCours.findCoursByCode("61-13");
+
         serviceCours.ajouterTP(coursDTO, 1);
 
         //Creer l'input pour le zip
         Path path = Paths.get("src/test/resources/mockinginputstreams/test_zip.zip");
         InputStream inputStream = Files.newInputStream(path);
         //Ajout d'un rendu
+        Cours c = repositoryCours.findCoursByCode("61-13");
         TravailPratique tp = repositoryCours.findTpByNo(c.id, 1);
         serviceTravailPratique.creerRenduTP(tp, inputStream);
 
@@ -186,7 +183,7 @@ public class TestTraitementZip {
      * Tester la mise à jour des status des étudiants pour voir qui a fait et qui a pas fait
      */
     @Test
-    @Transactional
+    @TestTransaction
     public void testStatusUpdateEtudiants() throws IOException {
 
         //Créer les données de test
@@ -194,19 +191,23 @@ public class TestTraitementZip {
                 "Approfondissement de la programmation",
                 "62-21", TypeSemestreDTO.Printemps, 2025, "Stettler", TypeCoursDTO.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         CoursDTO coursDTO = serviceCours.creerCours(cours);
-        Cours c = repositoryCours.findCoursByCode("62-21");
-        serviceCours.ajouterTP(coursDTO, 1);
-        Etudiant e1 = new Etudiant("Scout Mark", "mark@hesge.ch", TypeEtude.temps_plein);
-        Etudiant e2 = new Etudiant("Riggs Helly", "helly@hesge.ch", TypeEtude.temps_partiel);
-        Etudiant e3 = new Etudiant("George Dylan", "dylan@hesge.ch", TypeEtude.temps_plein);
-        Etudiant e4 = new Etudiant("Bailiff Irving", "irving@hesge.ch", TypeEtude.temps_plein);
-        c.addEtudiant(e1);c.addEtudiant(e2);c.addEtudiant(e3);c.addEtudiant(e4);
-        repositoryCours.persist(c);
+
+        TravailPratiqueDTO tpDTO = serviceCours.ajouterTP(coursDTO, 1);
+
+        String[] etudiants = {
+                "Scout Mark;mark@hesge.ch;temps_plein",
+                "Riggs Helly;helly@hesge.ch;temps_partiel",
+                "George Dylan;dylan@hesge.ch;temps_plein",
+                "Bailiff Irving;irving@hesge.ch;temps_plein",
+        };
+        serviceCours.addAllStudentsFromFile(coursDTO, etudiants);
 
         //Utilisation d'un zip pour ajouter un rendu
         Path path = Paths.get("src/test/resources/mockinginputstreams/test_zip.zip");
         InputStream inputStream = Files.newInputStream(path);
+
         //Ajout d'un rendu
+        Cours c = repositoryCours.findCoursByCode("62-21");
         TravailPratique tp = repositoryCours.findTpByNo(c.id, 1);
         serviceTravailPratique.creerRenduTP(tp, inputStream);
 
@@ -218,7 +219,7 @@ public class TestTraitementZip {
         Assertions.assertNotNull(rendu);
 
         //Lancement de la methode pour traiter les TP_Status avec gestionRendusTP dans serviceTravailPratique
-        serviceTravailPratique.gestionRendusTP(c, tp, c.etudiantsInscrits);
+        tp = serviceTravailPratique.gestionRendusTP(c, tp, c.etudiantsInscrits);
 
         //première vérification : tester si les 4 étudiants ont bien un TP_Status
         List<TP_Status> tpStatusList = repositoryTP_Status.findByTP(tp.id);

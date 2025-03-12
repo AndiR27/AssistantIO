@@ -9,10 +9,7 @@ import org.acme.models.CoursDTO;
 import org.acme.models.TravailPratiqueDTO;
 import org.acme.models.TypeCoursDTO;
 import org.acme.models.TypeSemestreDTO;
-import org.acme.repository.CoursRepository;
-import org.acme.repository.EtudiantRepository;
-import org.acme.repository.TPRepository;
-import org.acme.repository.TP_StatusRepository;
+import org.acme.repository.*;
 import org.acme.service.*;
 import org.acme.service.ServiceTravailPratique;
 import org.junit.jupiter.api.*;
@@ -44,6 +41,8 @@ public class TestTraitementZip {
 
     @Inject
     TPRepository repositoryTravailPratique;
+    @Inject
+    RenduRepository renduRepository;
 
     @BeforeEach
     @Transactional
@@ -61,11 +60,17 @@ public class TestTraitementZip {
                     });
         }
         Files.createDirectories(testZip);
+        /**
+        renduRepository.deleteAll();
+        repositoryTravailPratique.deleteAll();
+        etudiantRepository.deleteAll();
+        repositoryCours.deleteAll();
+         */
     }
 
 
     @Test
-    @TestTransaction
+    @Transactional
     public void testerTraitementZip() throws IOException {
         //Creation des entités
         CoursDTO cours = new CoursDTO(null,
@@ -80,7 +85,7 @@ public class TestTraitementZip {
         InputStream inputStream = Files.newInputStream(path);
 
         //Ajout d'un rendu
-        Cours c = repositoryCours.findCoursByCode("62-21");
+        Cours c = repositoryCours.findById(coursDTO.getId());
         TravailPratique tp = repositoryCours.findTpByNo(c.id, 1);
         serviceTravailPratique.creerRenduTP(tp, inputStream);
 
@@ -107,7 +112,7 @@ public class TestTraitementZip {
     }
 
     @Test
-    @TestTransaction
+    @Transactional
     public void testerContenuZip() throws IOException {
         //Creation des entités
         CoursDTO cours = new CoursDTO(null,
@@ -183,7 +188,7 @@ public class TestTraitementZip {
      * Tester la mise à jour des status des étudiants pour voir qui a fait et qui a pas fait
      */
     @Test
-    @TestTransaction
+    @Transactional
     public void testStatusUpdateEtudiants() throws IOException {
 
         //Créer les données de test
@@ -207,7 +212,7 @@ public class TestTraitementZip {
         InputStream inputStream = Files.newInputStream(path);
 
         //Ajout d'un rendu
-        Cours c = repositoryCours.findCoursByCode("62-21");
+        Cours c = repositoryCours.findById(coursDTO.getId());
         TravailPratique tp = repositoryCours.findTpByNo(c.id, 1);
         serviceTravailPratique.creerRenduTP(tp, inputStream);
 

@@ -74,12 +74,12 @@ public class TestTraitementZip {
     @TestTransaction
     public void testerTraitementZip() throws IOException {
         //Creation des entités
-        CoursDTO coursDTO = new CoursDTO(null,
+        CoursDTO cours = new CoursDTO(null,
                 "Approfondissement de la programmation",
                 "62-21", TypeSemestreDTO.Printemps, 2025, "Stettler", TypeCoursDTO.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-        serviceCours.creerCours(coursDTO);
+        CoursDTO coursDTO = serviceCours.creerCours(cours);
         Cours c = repositoryCours.findCoursByCode("62-21");
-        serviceCours.ajouterTP(c.id, 1);
+        serviceCours.ajouterTP(coursDTO, 1);
 
         //Creer l'input pour le zip
         Path path = Paths.get("src/test/resources/mockinginputstreams/test_zip.zip");
@@ -114,12 +114,12 @@ public class TestTraitementZip {
     @TestTransaction
     public void testerContenuZip() throws IOException {
         //Creation des entités
-        CoursDTO coursDTO = new CoursDTO(null,
+        CoursDTO cours = new CoursDTO(null,
                 "Python Introduction",
                 "61-13", TypeSemestreDTO.Automne, 2025, "Stettler", TypeCoursDTO.Python, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-        serviceCours.creerCours(coursDTO);
+        CoursDTO coursDTO = serviceCours.creerCours(cours);
         Cours c = repositoryCours.findCoursByCode("61-13");
-        serviceCours.ajouterTP(c.id, 1);
+        serviceCours.ajouterTP(coursDTO, 1);
 
         //Creer l'input pour le zip
         Path path = Paths.get("src/test/resources/mockinginputstreams/test_zip.zip");
@@ -190,18 +190,19 @@ public class TestTraitementZip {
     public void testStatusUpdateEtudiants() throws IOException {
 
         //Créer les données de test
-        CoursDTO coursDTO = new CoursDTO(null,
+        CoursDTO cours = new CoursDTO(null,
                 "Approfondissement de la programmation",
                 "62-21", TypeSemestreDTO.Printemps, 2025, "Stettler", TypeCoursDTO.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-        serviceCours.creerCours(coursDTO);
+        CoursDTO coursDTO = serviceCours.creerCours(cours);
         Cours c = repositoryCours.findCoursByCode("62-21");
-        serviceCours.ajouterTP(c.id, 1);
+        serviceCours.ajouterTP(coursDTO, 1);
         Etudiant e1 = new Etudiant("Scout Mark", "mark@hesge.ch", TypeEtude.temps_plein);
         Etudiant e2 = new Etudiant("Riggs Helly", "helly@hesge.ch", TypeEtude.temps_partiel);
         Etudiant e3 = new Etudiant("George Dylan", "dylan@hesge.ch", TypeEtude.temps_plein);
         Etudiant e4 = new Etudiant("Bailiff Irving", "irving@hesge.ch", TypeEtude.temps_plein);
         c.addEtudiant(e1);c.addEtudiant(e2);c.addEtudiant(e3);c.addEtudiant(e4);
         repositoryCours.persist(c);
+
         //Utilisation d'un zip pour ajouter un rendu
         Path path = Paths.get("src/test/resources/mockinginputstreams/test_zip.zip");
         InputStream inputStream = Files.newInputStream(path);

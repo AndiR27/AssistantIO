@@ -5,6 +5,9 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
 import org.acme.mapping.CoursMapper;
+import org.acme.mapping.EtudiantMapper;
+import org.acme.mapping.EvaluationMapper;
+import org.acme.mapping.TravailPratiqueMapper;
 import org.acme.models.*;
 import org.acme.repository.*;
 import org.acme.entity.*;
@@ -40,6 +43,14 @@ public class ServiceCours {
 
     @Inject
     CoursMapper coursMapper;
+    @Inject
+    EtudiantMapper etudiantMapper;
+    @Inject
+    TravailPratiqueMapper tpMapper;
+    @Inject
+    EvaluationMapper evaluationMapper;
+    @Inject
+    ServiceEtudiant serviceEtudiant;
 
     /**
      * Creation d'un cours
@@ -58,21 +69,38 @@ public class ServiceCours {
 
 
     /**
-     * Méthode permettant d'ajouter un étudiant spécifique à un cours
+     * Méthode permettant d'ajouter un étudiant spécifique existant à un cours existant
      */
-    public void ajouterEtudiant(Long idCours, Long idEtudiant) {
+    public EtudiantDTO ajouterEtudiant(CoursDTO coursDTO, EtudiantDTO etudiantDTO) {
+
         try {
-            Cours cours = coursRepository.findById(idCours);
-            Etudiant etudiant = etudiantRepository.findById(idEtudiant);
+            // Récupérer le cours, ou lever une NotFoundException si non présent
+            Cours cours = coursRepository.findByIdOptional(coursDTO.getId())
+                    .orElseThrow(() -> new NotFoundException("Cours non trouvé (ID=" + coursDTO.getId() + ")"));
+
+            // Récupérer l'étudiant, ou lever une NotFoundException si non présent
+            Etudiant etudiant = etudiantRepository.findByIdOptional(etudiantDTO.getId())
+                    .orElseThrow(() -> new NotFoundException("Étudiant non trouvé (ID=" + etudiantDTO.getId() + ")"));
+
+            // Établir la relation bidirectionnelle
             cours.addEtudiant(etudiant);
             etudiant.addCours(cours);
+
+            // Persister en base
             coursRepository.persist(cours);
             etudiantRepository.persist(etudiant);
+
+            return etudiantMapper.toDto(etudiant);
+
         } catch (NotFoundException e) {
             System.out.println("Erreur : " + e.getMessage());
         }
+        catch (Exception e) {
+            // Pour toute autre erreur imprévue
+            System.out.print("Erreur inattendue lors de l'ajout de l'étudiant au cours" + e.getMessage());
+        }
 
-
+        return null;
     }
 
     /**
@@ -80,18 +108,18 @@ public class ServiceCours {
      * à partir d'un fichier TXT
      */
     @Transactional
-    public void addAllStudentsFromFile(Long idCours, String[] data) {
+    public void addAllStudentsFromFile(CoursDTO coursDTO, String[] data) {
         try {
-            Cours cours = coursRepository.findById(idCours);
+            Cours cours = coursMapper.toEntity(coursDTO);
+            //Cours cours = coursRepository.findById(idCours);
             List<Etudiant> nouveauxEtudiants = new ArrayList<>();
             for (String row : data) {
                 String[] etudiantData = row.split(";");
                 Etudiant etudiant = new Etudiant(etudiantData[0], etudiantData[1], TypeEtude.valueOf(etudiantData[2]));
-                cours.addEtudiant(etudiant);
-                etudiant.addCours(cours);
-                nouveauxEtudiants.add(etudiant);
-                coursRepository.persist(cours);
-                etudiantRepository.persist(nouveauxEtudiants);
+                EtudiantDTO etudiantDTO = new EtudiantDTO(null, etudiantData[0], etudiantData[1], TypeEtudeDTO.valueOf(etudiantData[2]), new ArrayList<>());
+                EtudiantDTO etuAdded = serviceEtudiant.addEtudiant(etudiantDTO);
+                ajouterEtudiant(coursDTO, etuAdded);
+
             }
         } catch (RuntimeException e) {
             System.out.println("Erreur : " + e.getMessage());
@@ -108,56 +136,77 @@ public class ServiceCours {
     /**
      * Methode permettant d'ajouter un TP à un cours en le créant
      */
-    public void ajouterTP(Long idCours, int no) {
+    public TravailPratiqueDTO ajouterTP(CoursDTO coursDTO, int no) {
+        TravailPratiqueDTO tpDTO = null;
         try {
-            Cours cours = coursRepository.findById(idCours);
+            Cours cours = coursRepository.findById(coursDTO.getId());
             TravailPratique tp = new TravailPratique(no, cours, null);
             cours.travauxPratiques.add(tp);
+            tp.cours = cours;
+            //travailPratiqueRepository.persist(tp);
+            coursRepository.persist(cours);
+
+            coursRepository.getEntityManager().flush();
 
             //Si un TP est créé, il faudra aussi y ajouter un dossier pour les rendus
             creerDossierZip("TP" + no, zipStoragePath + "/" + cours.code);
 
-            coursRepository.persist(cours);
+            tpDTO = tpMapper.toDto(tp);
 
         } catch (NotFoundException e) {
             System.out.println("Erreur : " + e.getMessage());
         }
+        return tpDTO;
     }
 
     /**
      * Methode permettant d'ajouter une évaluation à un cours en la créant : Examen
      */
-    public void ajouterExamen(Long idCours, String nom, String date, String semestre) {
+    public ExamenDTO ajouterExamen(CoursDTO coursDTO, ExamenDTO examenDTO) {
+        ExamenDTO examDTO = null;
         try {
-            Cours cours = coursRepository.findById(idCours);
-            Evaluation examen = new Examen(nom, date, cours, null, TypeSemestre.valueOf(semestre));
+            Cours cours = coursRepository.findById(coursDTO.getId());
+            Examen examen = evaluationMapper.toEntityExamen(examenDTO);
+            examen.cours = cours;
+            //Evaluation examen = new Examen(nom, date, cours, null, TypeSemestre.valueOf(semestre));
             cours.evaluations.add(examen);
+            coursRepository.persist(cours);
+            coursRepository.getEntityManager().flush();
 
             //Creation du repertoire servant de depot pour les zips grâce au nom
-            creerDossierZip(nom, zipStoragePath + "/" + cours.code);
-            coursRepository.persist(cours);
+            creerDossierZip(examen.nom, zipStoragePath + "/" + cours.code);
+            examDTO = evaluationMapper.toDtoExamen(examen);
+
         } catch (NotFoundException e) {
             System.out.println("Erreur : " + e.getMessage());
         }
+        return examDTO;
     }
 
     /**
      * Methode permettant d'ajouter une évaluation à un cours en la créant : Controle
      * Continu
      */
-    public void addCC(Long idCours, String nom, String date, int coef, int no) {
+    public ControleContinuDTO addCC(CoursDTO coursDTO, ControleContinuDTO ccDTO) {
+
         try {
-            Cours cours = coursRepository.findById(idCours);
-            Evaluation cc = new ControleContinu(nom, date, cours, null, coef, no);
+            Cours cours = coursRepository.findById(coursDTO.getId());
+            ControleContinu cc = evaluationMapper.toEntityControleContinu(ccDTO);
+
+            cc.cours = cours;
             cours.evaluations.add(cc);
+            coursRepository.persist(cours);
+            coursRepository.getEntityManager().flush();
 
             //Creation du repertoire servant de depot pour les zips grâce au nom : /CC1
-            creerDossierZip(nom, zipStoragePath + "/" + cours.code);
+            creerDossierZip(cc.nom, zipStoragePath + "/" + cours.code);
 
-            coursRepository.persist(cours);
+
+            return evaluationMapper.toDtoControleContinu(cc);
         } catch (NotFoundException e) {
             System.out.println("Erreur : " + e.getMessage());
         }
+        return null;
     }
 
 

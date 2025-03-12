@@ -4,7 +4,7 @@ import org.mapstruct.*;
 
 @MapperConfig(
         componentModel = "cdi",
-        unmappedTargetPolicy = ReportingPolicy.IGNORE,
+        unmappedTargetPolicy = ReportingPolicy.WARN,
         mappingInheritanceStrategy = MappingInheritanceStrategy.AUTO_INHERIT_FROM_CONFIG,
         injectionStrategy =InjectionStrategy.CONSTRUCTOR
 )

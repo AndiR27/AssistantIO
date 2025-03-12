@@ -17,4 +17,5 @@ public interface EvaluationMapper {
 
     @InheritInverseConfiguration
     ControleContinu toEntityControleContinu(ControleContinuDTO dto);
+
 }

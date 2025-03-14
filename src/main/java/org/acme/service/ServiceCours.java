@@ -241,4 +241,10 @@ public class ServiceCours {
     }
 
 
+    public List<CoursDTO> listCours() {
+        //Récupérer la liste des cours avec le repo et convertir en liste de DTO avec stream
+        return coursRepository.listAll().stream()
+                .map(coursMapper::toDto)
+                .toList();
+    }
 }

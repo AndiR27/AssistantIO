@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Cours</title>
+    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f4f4f4; }
+        .form-container { margin-top: 20px; }
+    </style>
+</head>
+<body>
+<h1>Liste des Cours</h1>
+
+<!-- Affichage des cours existants -->
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Nom</th>
+        <th>Code</th>
+    </tr>
+    </thead>
+    <tbody>
+    {#for course in courses}
+        <tr>
+            <td>{course.id}</td>
+            <td>{course.nom}</td>
+            <td>{course.code}</td>
+        </tr>
+    {/for}
+    </tbody>
+</table>
+
+<!-- Formulaire pour ajouter un cours -->
+<div class="form-container">
+    <h2>Ajouter un Cours</h2>
+    <form hx-post="/courses" hx-target="#courses-table" hx-swap="beforeend">
+        <label for="nom">Nom du cours :</label>
+        <input type="text" id="nom" name="nom" required>
+
+        <label for="codeCours">Code du cours :</label>
+        <input type="text" id="codeCours" name="codeCours" required>
+
+        <button type="submit">Ajouter</button>
+    </form>
+</div>
+</body>
+</html>

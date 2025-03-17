@@ -1,0 +1,56 @@
+{#include layout/base.html}
+    {#contents}
+        <div class="container">
+
+            <!-- Titre principal -->
+            <h1 class="title-large">{coursDTO.nom}</h1>
+
+            <!-- Section des informations détaillées -->
+            <div class="course-details">
+                <p><strong>Code :</strong> {coursDTO.code}</p>
+                <p><strong>Professeur :</strong> {coursDTO.prof}</p>
+                <p><strong>Semestre :</strong> {coursDTO.semestre}</p>
+                <p><strong>Année académique :</strong> {coursDTO.annee}</p>
+            </div>
+
+            <!-- Liste des étudiants -->
+            <h2 class="title-form mt-10">Étudiants inscrits</h2>
+            <div id="etudiants-list">
+                <table class="etudiants-table">
+                    <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Email</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {#for etudiant in coursDTO.etudiantsInscrits}
+                        <tr>
+                            <td>{etudiant.nom}</td>
+                            <td>{etudiant.email}</td>
+                        </tr>
+                    {/for}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Formulaire HTMX pour ajouter un étudiant -->
+            <h2 class="title-form mt-10">Ajouter un étudiant</h2>
+            <form hx-post="/cours/{coursDTO.id}/etudiants" hx-target="#etudiants-list" hx-swap="outerHTML">
+                <label for="nom">Nom :</label>
+                <input type="text" id="nom" name="nom" required>
+
+                <label for="email">Email :</label>
+                <input type="email" id="email" name="email" required>
+
+                <button type="submit">Ajouter</button>
+            </form>
+
+            <!-- Lien retour -->
+            <div class="back-link">
+                <a href="/admin/home">← Retour à la liste des cours</a>
+            </div>
+
+        </div>
+    {/contents}
+{/include}

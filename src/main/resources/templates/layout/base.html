@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{#insert title}Gestion des Cours{/insert}</title>
+
+    <!-- HTMX script -->
+    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+
+    <!-- Style personnalisé -->
+    <style>
+        /* RESET BASIQUE / NORMALISATION */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f9fafb;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /************************
+     *       HEADER         *
+     ************************/
+        header.site-header {
+            background-color: #1f2937; /* Gris sombre */
+            padding: 1rem 0;
+            margin-bottom: 1rem; /* léger espace sous le header */
+        }
+        .header-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1rem;
+        }
+        .header-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #fff;
+        }
+        .header-nav a {
+            color: #fff;
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-weight: 500;
+        }
+        .header-nav a:hover {
+            text-decoration: underline;
+        }
+
+        /************************
+         *       FOOTER         *
+         ************************/
+        footer.site-footer {
+            background-color: #1f2937; /* Même couleur que le header */
+            padding: 1rem 0;
+            margin-top: 2rem; /* espace au-dessus du footer */
+        }
+        .footer-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            text-align: center;
+        }
+        .footer-inner p {
+            color: #fff;
+            font-size: 0.9rem;
+        }
+        .footer-inner a {
+            color: #93c5fd; /* bleu clair */
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .footer-inner a:hover {
+            text-decoration: underline;
+        }
+
+        /* CONTAINER PRINCIPAL */
+        .container {
+            max-width: 1200px;  /* Largeur max du contenu */
+            margin: 0 auto;     /* Centrer horizontalement */
+            padding: 2rem 1rem; /* Espacements internes */
+            flex: 1;
+        }
+
+        /* TITRES */
+        .title-large {
+            font-size: 2rem;       /* Taille équivalente ~ text-3xl */
+            font-weight: bold;
+            margin-bottom: 1.5rem; /* Équivalent à mb-6 */
+            color: #1f2937;        /* Un gris plus foncé pour le titre */
+        }
+
+        .title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #1f2937;
+        }
+
+        /* GRID DES COURS */
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 2 colonnes */
+            gap: 1.5rem;                           /* Espacement entre les colonnes et lignes (ex-gap-6) */
+        }
+
+        /* CARTES DE COURS */
+        .course-card {
+            padding: 1.5rem;                     /* équivalent p-6 */
+            background-color: #fff;              /* équivalent bg-white */
+            border-radius: 0.5rem;               /* équivalent rounded-lg */
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* équivalent shadow */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .course-card h2 {
+            font-size: 1.25rem;   /* équivalent text-xl */
+            font-weight: bold;    /* équivalent font-bold */
+            margin-bottom: 0.5rem;
+        }
+
+        .course-card p {
+            margin: 0.25rem 0;    /* Petit espace entre les paragraphes */
+            color: #4b5563;       /* Gris moyen (ex text-gray-600/500) */
+        }
+
+        .course-link {
+            text-decoration: none;
+            color: #1f2937; /* Même couleur que les titres */
+            font-weight: bold;
+        }
+
+        .course-link:hover {
+            color: #2563eb; /* Bleu au survol */
+            text-decoration: underline;
+        }
+
+        /* LIEN VERS LE DÉTAIL DU COURS */
+        .course-details {
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 1rem;
+        }
+
+        .course-details p {
+            font-size: 1rem;
+            color: #333;
+            margin: 0.5rem 0;
+        }
+
+        .back-link {
+            margin-top: 1.5rem;
+        }
+
+        .back-link a {
+            text-decoration: none;
+            color: #2563eb;
+            font-weight: bold;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+
+        /* Spécifique pour l’information tout en bas de la carte (Durée, etc.) */
+        .course-card p.last-info {
+            margin-top: auto;     /* équivalent mt-auto */
+            font-size: 0.875rem;  /* équivalent text-sm */
+            color: #6b7280;       /* un gris légèrement plus clair */
+        }
+
+        /* ESPACEMENTS VERTICAUX */
+        .mt-10 {
+            margin-top: 2.5rem; /* équivalent mt-10 (40px) */
+        }
+
+        /* FORM TITRE */
+        .title-form {
+            font-size: 1.25rem;    /* équivalent text-2xl */
+            font-weight: 600;      /* équivalent font-semibold */
+            margin-bottom: 1rem;   /* équivalent mb-4 */
+            color: #1f2937;
+        }
+
+        /* LIENS HOVER EXEMPLE */
+        a {
+            color: #2563eb; /* équivalent text-blue-600 */
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline; /* équivalent hover:underline */
+        }
+
+        /* ETUDIANTS */
+        .etudiants-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: #fff;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .etudiants-table th, .etudiants-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .etudiants-table th {
+            background-color: #1f2937;
+            color: #fff;
+        }
+
+        .etudiants-table tbody tr:hover {
+            background-color: #f3f4f6;
+        }
+
+    </style>
+</head>
+
+<body>
+    {#include fragments/header.html /} <!-- Header commun -->
+
+{#insert contents}No contents!{/}
+
+    {#include fragments/footer.html /} <!-- Footer commun -->
+</body>
+</html>

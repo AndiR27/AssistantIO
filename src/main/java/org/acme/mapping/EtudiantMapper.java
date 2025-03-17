@@ -7,7 +7,7 @@ import org.acme.models.EtudiantDTO;
 import org.acme.models.TypeEtudeDTO;
 import org.mapstruct.*;
 
-@Mapper(config = CentralConfig.class, componentModel = "cdi")
+@Mapper(config = CentralConfig.class)
 public interface EtudiantMapper {
     // on ignore la liste "coursInscrits" pour éviter que l'étudiant
     // ne contienne lui-même les cours, qui contiennent les étudiants, etc.

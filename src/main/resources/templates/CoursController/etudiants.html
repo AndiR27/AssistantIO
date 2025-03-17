@@ -1,0 +1,16 @@
+<table class="etudiants-table">
+    <thead>
+    <tr>
+        <th>Nom</th>
+        <th>Email</th>
+    </tr>
+    </thead>
+    <tbody>
+    {#for etudiant in etudiants}
+        <tr>
+            <td>{etudiant.nom}</td>
+            <td>{etudiant.email}</td>
+        </tr>
+    {/for}
+    </tbody>
+</table>

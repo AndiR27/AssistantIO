@@ -67,7 +67,13 @@ public class ServiceCours {
         return coursMapper.toDto(cours);
     }
 
-
+    /**
+     * Methode permettant de retrouver un cours selon l'id
+    **/
+    public CoursDTO findCours(Long id) {
+        Cours cours = coursRepository.findById(id);
+        return coursMapper.toDto(cours);
+    }
     /**
      * Méthode permettant d'ajouter un étudiant spécifique existant à un cours existant
      */
@@ -129,8 +135,13 @@ public class ServiceCours {
     /**
      * Methode permettant de récupérer tous les étudiants inscrits à un cours
      */
-    public List<Etudiant> getEtudiantsInscrits(Long idCours) {
-        return coursRepository.findEtudiantsInscrits(idCours);
+    public List<EtudiantDTO> getEtudiantsInscrits(Long idCours) {
+        //Récupérer la liste des étudiants inscrits à un cours avec le repo et convertir en liste de DTO
+        List<Etudiant> etudiants = coursRepository.findById(idCours).etudiantsInscrits;
+        return etudiants.stream()
+                .map(etudiantMapper::toDto)
+                .toList();
+        //return coursRepository.findEtudiantsInscrits(idCours);
     }
 
     /**

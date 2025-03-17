@@ -53,8 +53,8 @@ public class CoursDTO {
     public TypeCoursDTO getTypeCours() { return typeCours; }
     public void setTypeCours(TypeCoursDTO typeCours) { this.typeCours = typeCours; }
 
-    public List<EtudiantDTO> getEtudiants() { return etudiantsInscrits; }
-    public void setEtudiants(List<EtudiantDTO> etudiantsInscrits) { this.etudiantsInscrits = etudiantsInscrits; }
+    public List<EtudiantDTO> getEtudiantsInscrits() { return etudiantsInscrits; }
+    public void setEtudiantsInscrits(List<EtudiantDTO> etudiantsInscrits) { this.etudiantsInscrits = etudiantsInscrits; }
 
     public List<TravailPratiqueDTO> getTravauxPratiques() { return travauxPratiques; }
     public void setTravauxPratiques(List<TravailPratiqueDTO> travauxPratiques) { this.travauxPratiques = travauxPratiques; }

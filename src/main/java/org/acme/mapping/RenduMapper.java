@@ -4,7 +4,7 @@ import org.acme.entity.Rendu;
 import org.acme.models.RenduDTO;
 import org.mapstruct.Mapper;
 
-@Mapper(config = CentralConfig.class, componentModel = "cdi")
+@Mapper(config = CentralConfig.class)
 public interface RenduMapper {
     RenduDTO toDto(Rendu entity);
     Rendu toEntity(RenduDTO dto);

@@ -9,7 +9,7 @@ import org.mapstruct.*;
  * @Mapper(componentModel = "cdi") :
  * indique à MapStruct et à Quarkus que cette interface doit être gérée par le conteneur CDI.
  */
-@Mapper(config = CentralConfig.class, componentModel = "cdi",
+@Mapper(config = CentralConfig.class,
         uses = {EtudiantMapper.class, TravailPratiqueMapper.class})
 public interface CoursMapper {
     /**

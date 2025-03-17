@@ -1,53 +1,52 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion des Cours</title>
-    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f4f4f4; }
-        .form-container { margin-top: 20px; }
-    </style>
-</head>
-<body>
-<h1>Liste des Cours</h1>
+{#include 'layout/base.html'}
+{#contents}
+<div class="container">
 
-<!-- Affichage des cours existants -->
-<table>
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Nom</th>
-        <th>Code</th>
-    </tr>
-    </thead>
-    <tbody>
-    {#for course in courses}
-        <tr>
-            <td>{course.id}</td>
-            <td>{course.nom}</td>
-            <td>{course.code}</td>
-        </tr>
+  <!-- TITRE PRINCIPAL -->
+  <h1 class="title-large">Liste des Cours</h1>
+
+  <!-- SECTION D’AFFICHAGE DES COURS -->
+  <section class="courses-grid" id="courses-list">
+
+    <!-- Exemple statique -->
+    <div class="course-card">
+      <h2>Cours 1 : Programmation</h2>
+      <p>Code : INFO101</p>
+      <p>Prof : M. Dupont</p>
+      <p class="last-info">Durée : 24h</p>
+    </div>
+
+    <div class="course-card">
+      <h2>Cours 2 : Algorithmique</h2>
+      <p>Code : INFO201</p>
+      <p>Prof : Mme Martin</p>
+      <p class="last-info">Durée : 30h</p>
+    </div>
+
+    <!-- Affichage dynamique via Qute -->
+    {#for cours in courses}
+      <div class="course-card">
+        <a href="/Cours/{cours.id}" class="course-link">{cours.nom}</a>
+        <p>Code : {cours.code}</p>
+        <p>Prof : {cours.prof}</p>
+        <!-- Lien vers le détail du cours, si besoin -->
+        <!--
+        <a href="/cours/{cours.id}">
+          Détails du cours
+        </a>
+        -->
+      </div>
     {/for}
-    </tbody>
-</table>
 
-<!-- Formulaire pour ajouter un cours -->
-<div class="form-container">
-    <h2>Ajouter un Cours</h2>
-    <form hx-post="/courses" hx-target="#courses-table" hx-swap="beforeend">
-        <label for="nom">Nom du cours :</label>
-        <input type="text" id="nom" name="nom" required>
+  </section>
 
-        <label for="codeCours">Code du cours :</label>
-        <input type="text" id="codeCours" name="codeCours" required>
+  <!-- SECTION POUR AJOUTER UN COURS -->
+  <section class="mt-10">
+    <h2 class="title-form">Ajouter un Cours</h2>
+    <!-- Formulaire HTMX inclus (Admin/cours_form.html) -->
+    {#include 'Admin/cours_form.html' /}
+  </section>
 
-        <button type="submit">Ajouter</button>
-    </form>
 </div>
-</body>
-</html>
+{/contents}
+{/include}

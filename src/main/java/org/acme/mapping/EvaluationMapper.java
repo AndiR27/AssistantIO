@@ -4,7 +4,7 @@ import org.acme.entity.*;
 import org.acme.models.*;
 import org.mapstruct.*;
 
-@Mapper(config = CentralConfig.class, componentModel = "cdi")
+@Mapper(config = CentralConfig.class)
 public interface EvaluationMapper {
     @Mapping(target = "cours", ignore = true) // On ignore la référence au Cours
     ExamenDTO toDtoExamen(Examen entity);

@@ -4,7 +4,7 @@ import org.acme.entity.*;
 import org.acme.models.*;
 import org.mapstruct.*;
 
-@Mapper(config = CentralConfig.class, componentModel = "cdi",
+@Mapper(config = CentralConfig.class,
     uses = {RenduMapper.class})
 public interface TravailPratiqueMapper {
 

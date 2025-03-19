@@ -35,8 +35,10 @@
             </div>
 
             <!-- Formulaire HTMX pour ajouter un étudiant -->
-            <h2 class="title-form mt-10">Ajouter un étudiant</h2>
-            <form hx-post="/cours/{coursDTO.id}/etudiants" hx-target="#etudiants-list" hx-swap="outerHTML">
+            <form hx-post="/cours/{coursDTO.id}/etudiants"
+                  hx-target="#etudiants-list"
+                  hx-swap="outerHTML"
+                  method="POST">
                 <label for="nom">Nom :</label>
                 <input type="text" id="nom" name="nom" required>
 
@@ -45,6 +47,16 @@
 
                 <button type="submit">Ajouter</button>
             </form>
+
+            <form hx-post="/cours/{coursDTO.id}/addTP"
+                  hx-target="#tp-list"
+                  hx-swap="outerHTML"
+                  method="POST">
+                <label for="numero">Numéro du TP :</label>
+                <input type="number" id="numero" name="numero" required>
+                <button type="submit">Ajouter TP</button>
+            </form>
+
 
             <!-- Lien retour -->
             <div class="back-link">

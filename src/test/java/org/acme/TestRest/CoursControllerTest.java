@@ -54,14 +54,16 @@ public class CoursControllerTest {
      * Test: ajouter un étudiant via un form POST
      */
     @Test
+    @Transactional
     public void testAddEtudiant() {
         // On suppose qu'un cours ID=1 existe
         given()
                 .formParam("nom", "Alice Dupont")
                 .formParam("email", "alice@example.com")
+                .formParam("typeEtude", "temps_plein")
                 .contentType(ContentType.URLENC)
                 .when()
-                .post("/cours/1/etudiants")
+                .post("/cours/1/addEtudiant")
                 .then()
                 .statusCode(200)
                 // On renvoie probablement un fragment HTML listant les étudiants
@@ -69,6 +71,7 @@ public class CoursControllerTest {
                 .body(containsString("Alice Dupont"))
                 .body(containsString("alice@example.com"));
     }
+
 
     /**
      * Test: ajouter un TP

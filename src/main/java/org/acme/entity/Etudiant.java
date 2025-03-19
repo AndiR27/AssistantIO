@@ -22,23 +22,16 @@ public class Etudiant {
     @Column(nullable = false, unique = true)
     public String email;
 
+
     @Enumerated(EnumType.STRING)
     public TypeEtude typeEtude;
 
     @ManyToMany(mappedBy ="etudiantsInscrits",
             fetch = FetchType.LAZY)
-    public List<Cours> coursEtudiant;
+    public List<Cours> coursEtudiant = new ArrayList<>();
 
     public Etudiant() {
     }
-
-    public Etudiant(String nom, String email, TypeEtude typeEtude) {
-        this.nom = nom;
-        this.email = email;
-        this.typeEtude = typeEtude;
-        this.coursEtudiant = new ArrayList<>();
-    }
-
 
     public void addCours(Cours cours) {
         this.coursEtudiant.add(cours);

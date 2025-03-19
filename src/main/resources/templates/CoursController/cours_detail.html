@@ -1,26 +1,88 @@
-{#include layout/base.html}
+{#include 'layout/base.html'}
     {#contents}
         <div class="container">
 
-            <!-- Titre principal -->
-            <h1 class="title-large">{coursDTO.nom}</h1>
-
-            <!-- Section des informations détaillées -->
-            <div class="course-details">
-                <p><strong>Code :</strong> {coursDTO.code}</p>
-                <p><strong>Professeur :</strong> {coursDTO.prof}</p>
-                <p><strong>Semestre :</strong> {coursDTO.semestre}</p>
-                <p><strong>Année académique :</strong> {coursDTO.annee}</p>
+            <!-- Header principal (titre + infos) -->
+            <div class="course-header">
+                <h1 class="title-large">{coursDTO.nom}</h1>
+                <div class="course-details">
+                    <p><strong>Code :</strong> {coursDTO.code}</p>
+                    <p><strong>Professeur :</strong> {coursDTO.prof}</p>
+                    <p><strong>Semestre :</strong> {coursDTO.semestre}</p>
+                    <p><strong>Année académique :</strong> {coursDTO.annee}</p>
+                </div>
             </div>
 
-            <!-- Liste des étudiants -->
-            <h2 class="title-form mt-10">Étudiants inscrits</h2>
-            <div id="etudiants-list">
+            <!-- Section d'ajouts, disposée horizontalement ou en un bloc compact -->
+            <div class="add-section">
+                <!-- 1) Ajout d’étudiant manuellement -->
+                <form
+                        hx-post="/cours/{coursDTO.id}/addEtudiant"
+                        hx-target="#etudiants-tp-table"
+                        hx-swap="outerHTML"
+                        method="POST"
+                        class="mini-card"
+                >
+                    <h3 class="form-subtitle">Ajout d'un étudiant</h3>
+
+                    <label for="nom">Nom</label>
+                    <input type="text" id="nom" name="nom" required>
+
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+
+                    <label for="typeEtude">Type d'étude</label>
+                    <select id="typeEtude" name="typeEtude">
+                        <option value="temps_plein">Temps Plein</option>
+                        <option value="temps_partiel">Temps partiel</option>
+                    </select>
+
+                    <button type="submit" class="btn-primary">Ajouter</button>
+                </form>
+
+                <!-- 2) Upload d’un fichier TXT pour ajouter plusieurs étudiants -->
+                <form
+                        hx-post="/cours/{coursDTO.id}/ajoutEtudiantsTxt"
+                        hx-encoding="multipart/form-data"
+                        hx-target="#etudiants-tp-table"
+                        hx-swap="outerHTML"
+                        method="POST"
+                        class="mini-card"
+                >
+                    <h3 class="form-subtitle">Ajout d'étudiants (via fichier .txt)</h3>
+                    <label for="txtFile">Fichier TXT</label>
+                    <input type="file" id="txtFile" name="file" accept=".txt" required>
+
+                    <button type="submit" class="btn-upload">Importer</button>
+                </form>
+
+                <!-- 3) Ajout d'un TP (nouvelle colonne) -->
+                <form
+                        hx-post="/cours/{coursDTO.id}/addTP"
+                        hx-target="#etudiants-tp-table"
+                        hx-swap="outerHTML"
+                        method="POST"
+                        class="mini-card"
+                >
+                    <h3 class="form-subtitle">Ajout d'un Travail Pratique</h3>
+                    <label for="numero">Numéro :</label>
+                    <input type="number" id="numero" name="numero" required>
+                    <button type="submit" class="btn-primary">Ajouter TP</button>
+                </form>
+            </div>
+
+            <!-- GRAND TABLEAU Étudiants x TPs -->
+            <div id="etudiants-tp-table" class="mt-10">
+                <h2 class="title-form">Étudiants &amp; Travaux Pratiques</h2>
+
                 <table class="etudiants-table">
                     <thead>
                     <tr>
                         <th>Nom</th>
                         <th>Email</th>
+                        {#for tp in coursDTO.travauxPratiques}
+                            <th>TP {tp.no}</th>
+                        {/for}
                     </tr>
                     </thead>
                     <tbody>
@@ -28,38 +90,18 @@
                         <tr>
                             <td>{etudiant.nom}</td>
                             <td>{etudiant.email}</td>
+                            {#for tp in coursDTO.travauxPratiques}
+                                <!-- Placeholder: pour l'instant, 0 -->
+                                <td>0</td>
+                            {/for}
                         </tr>
                     {/for}
                     </tbody>
                 </table>
             </div>
 
-            <!-- Formulaire HTMX pour ajouter un étudiant -->
-            <form hx-post="/cours/{coursDTO.id}/etudiants"
-                  hx-target="#etudiants-list"
-                  hx-swap="outerHTML"
-                  method="POST">
-                <label for="nom">Nom :</label>
-                <input type="text" id="nom" name="nom" required>
-
-                <label for="email">Email :</label>
-                <input type="email" id="email" name="email" required>
-
-                <button type="submit">Ajouter</button>
-            </form>
-
-            <form hx-post="/cours/{coursDTO.id}/addTP"
-                  hx-target="#tp-list"
-                  hx-swap="outerHTML"
-                  method="POST">
-                <label for="numero">Numéro du TP :</label>
-                <input type="number" id="numero" name="numero" required>
-                <button type="submit">Ajouter TP</button>
-            </form>
-
-
             <!-- Lien retour -->
-            <div class="back-link">
+            <div class="back-link" style="margin-top:1.5rem;">
                 <a href="/admin/home">← Retour à la liste des cours</a>
             </div>
 

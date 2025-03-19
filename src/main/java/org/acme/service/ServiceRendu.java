@@ -3,8 +3,6 @@ package org.acme.service;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.acme.entity.*;
-import org.apache.camel.CamelContext;
-import org.apache.camel.ProducerTemplate;
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
 import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 
@@ -23,11 +21,6 @@ import static io.quarkus.fs.util.ZipUtils.*;
 @ApplicationScoped
 public class ServiceRendu {
 
-    @Inject
-    CamelContext camelContext;
-
-    @Inject
-    ProducerTemplate producerTemplate;
 
     private String typeCours = "Java";
 

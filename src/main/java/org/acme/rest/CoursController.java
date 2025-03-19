@@ -3,6 +3,8 @@ package org.acme.rest;
 import io.quarkus.qute.CheckedTemplate;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
+import io.smallrye.config.ConfigMapping;
+import io.vertx.ext.web.FileUpload;
 import jakarta.annotation.Resource;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -11,7 +13,13 @@ import jakarta.ws.rs.core.*;
 import org.acme.models.*;
 import org.acme.service.ServiceCours;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.jboss.logging.annotations.Param;
+import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
+import org.jboss.resteasy.annotations.providers.multipart.PartType;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,15 +55,13 @@ public class CoursController {
     public TemplateInstance addEtudiant(
             @PathParam("id") Long id,
             @FormParam("nom") String nom,
-            @FormParam("email") String email) {
-        // 1. Construire l’objet EtudiantDTO (sans ID => nouvel étudiant)
-        EtudiantDTO newEtd = new EtudiantDTO();
-        newEtd.setNom(nom);
-        newEtd.setEmail(email);
-        // Optionnel : newEtd.setTypeEtude(TypeEtudeDTO.TEMPS_PLEIN); etc.
-
-        // 2. Récupérer le cours et ajouter l’étudiant via le service
+            @FormParam("email") String email,
+            @FormParam("typeEtude") String typeEtude) {
+        //Récupérer le cours et ajouter l’étudiant via le service
         CoursDTO coursDto = coursService.findCours(id);
+        // 1. Construire l’objet EtudiantDTO (sans ID => nouvel étudiant)
+        EtudiantDTO newEtd = new EtudiantDTO(null, nom, email, TypeEtudeDTO.valueOf(typeEtude),new ArrayList<>());
+
         if (coursDto == null) {
             throw new NotFoundException("Cours non trouvé (ID=" + id + ")");
         }
@@ -105,6 +111,39 @@ public class CoursController {
 
         // 4. Renvoyer la page détaillée du cours mise à jour
         return Templates.cours_detail(updatedCours);
+    }
+
+    @POST
+    @Path("/{id}/ajoutEtudiantsTxt")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.TEXT_HTML)
+    @Transactional
+    @APIResponse(
+            responseCode = "200",
+            description = "Ajout d'étudiants à un cours à partir d'un fichier TXT"
+    )
+    public TemplateInstance ajoutEtudiantsTxt(
+            @PathParam("id") Long id,
+            @FormParam("file") @PartType(MediaType.APPLICATION_OCTET_STREAM) InputStream file) {
+        // 1. Récupérer le cours
+        CoursDTO coursDto = coursService.findCours(id);
+        if (file == null) {
+            return (TemplateInstance) Response.status(Response.Status.BAD_REQUEST).entity("Fichier manquant").build();
+        }
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file))) {
+            // Transformer en tableau de String
+            String[] data = reader.lines().toArray(String[]::new);
+            // 3. Ajouter les étudiants
+            coursService.addAllStudentsFromFile(coursDto, data);
+
+            // 4. Rafraîchir le cours en base pour avoir la liste d'étudiants à jour
+            CoursDTO updatedCours = coursService.findCours(id);
+
+            // 5. Renvoyer la page détaillée du cours mise à jour
+            return Templates.cours_detail(updatedCours);
+        } catch (Exception e) {
+            return (TemplateInstance) Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Erreur lors de la lecture du fichier").build();
+        }
     }
 
 

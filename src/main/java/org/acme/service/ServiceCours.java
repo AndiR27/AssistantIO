@@ -84,17 +84,23 @@ public class ServiceCours {
             Cours cours = coursRepository.findByIdOptional(coursDTO.getId())
                     .orElseThrow(() -> new NotFoundException("Cours non trouvé (ID=" + coursDTO.getId() + ")"));
 
-            // Récupérer l'étudiant, ou lever une NotFoundException si non présent
-            Etudiant etudiant = etudiantRepository.findByIdOptional(etudiantDTO.getId())
-                    .orElseThrow(() -> new NotFoundException("Étudiant non trouvé (ID=" + etudiantDTO.getId() + ")"));
-
+            Etudiant etudiant;
+            if (etudiantDTO.getId() != null) {
+                // Cas : l'étudiant existe déjà
+                etudiant = etudiantRepository.findByIdOptional(etudiantDTO.getId())
+                        .orElseThrow(() -> new NotFoundException("Étudiant non trouvé (ID=" + etudiantDTO.getId() + ")"));
+            } else {
+                // Cas : l'étudiant n'existe pas => on le crée
+                EtudiantDTO etudiantDTO1 = serviceEtudiant.addEtudiant(etudiantDTO);
+                etudiant = etudiantMapper.toEntity(etudiantDTO1);
+            }
             // Établir la relation bidirectionnelle
             cours.addEtudiant(etudiant);
             etudiant.addCours(cours);
 
             // Persister en base
             coursRepository.persist(cours);
-            etudiantRepository.persist(etudiant);
+            //etudiantRepository.persistAndFlush(etudiant);
 
             return etudiantMapper.toDto(etudiant);
 

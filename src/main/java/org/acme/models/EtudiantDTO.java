@@ -1,5 +1,6 @@
 package org.acme.models;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class EtudiantDTO {
@@ -7,7 +8,7 @@ public class EtudiantDTO {
     private String nom;
     private String email;
     private TypeEtudeDTO typeEtude;
-    private List<CoursDTO> coursEtudiant;
+    private List<CoursDTO> coursEtudiant = new ArrayList<>();
 
     // Constructeurs
     public EtudiantDTO() {}

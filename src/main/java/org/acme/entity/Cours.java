@@ -28,7 +28,7 @@ public class Cours extends PanacheEntityBase {
     @Column(nullable = true)
     public String prof;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "etudiant_cours",
             joinColumns = @JoinColumn(name = "cours_id"),
             inverseJoinColumns = @JoinColumn(name = "etudiant_id"))

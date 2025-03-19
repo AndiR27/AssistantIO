@@ -15,6 +15,7 @@ public interface EtudiantMapper {
     EtudiantDTO toDto(Etudiant etudiant);
 
     // ou inversement, on ignore dans l’autre sens
+    @InheritInverseConfiguration
     Etudiant toEntity(EtudiantDTO dto);
 
     // Gestion de typeEtude

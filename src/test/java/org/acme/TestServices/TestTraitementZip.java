@@ -78,7 +78,7 @@ public class TestTraitementZip {
                 "62-21", TypeSemestreDTO.Printemps, 2025, "Stettler", TypeCoursDTO.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         CoursDTO coursDTO = serviceCours.creerCours(cours);
 
-        serviceCours.ajouterTP(coursDTO, 1);
+        TravailPratiqueDTO tpDTP = serviceCours.ajouterTP(coursDTO, 1);
 
         //Creer l'input pour le zip
         Path path = Paths.get("src/test/resources/mockinginputstreams/test_zip.zip");
@@ -87,7 +87,8 @@ public class TestTraitementZip {
         //Ajout d'un rendu
         Cours c = repositoryCours.findById(coursDTO.getId());
         TravailPratique tp = repositoryCours.findTpByNo(c.id, 1);
-        serviceTravailPratique.creerRenduTP(tp, inputStream);
+
+        serviceTravailPratique.creerRenduTP(tpDTP, inputStream);
 
         //Lancement de la methode des traitements de zip pour un cours et un TP :
         serviceCours.lancerTraitementRenduZip(c.id, tp.id);
@@ -120,7 +121,7 @@ public class TestTraitementZip {
                 "61-13", TypeSemestreDTO.Automne, 2025, "Stettler", TypeCoursDTO.Python, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         CoursDTO coursDTO = serviceCours.creerCours(cours);
 
-        serviceCours.ajouterTP(coursDTO, 1);
+        TravailPratiqueDTO tpDTO = serviceCours.ajouterTP(coursDTO, 1);
 
         //Creer l'input pour le zip
         Path path = Paths.get("src/test/resources/mockinginputstreams/test_zip.zip");
@@ -128,7 +129,7 @@ public class TestTraitementZip {
         //Ajout d'un rendu
         Cours c = repositoryCours.findCoursByCode("61-13");
         TravailPratique tp = repositoryCours.findTpByNo(c.id, 1);
-        serviceTravailPratique.creerRenduTP(tp, inputStream);
+        serviceTravailPratique.creerRenduTP(tpDTO, inputStream);
 
         //Lancement de la methode des traitements de zip pour un cours et un TP :
         serviceCours.lancerTraitementRenduZip(c.id, tp.id);
@@ -214,7 +215,7 @@ public class TestTraitementZip {
         //Ajout d'un rendu
         Cours c = repositoryCours.findById(coursDTO.getId());
         TravailPratique tp = repositoryCours.findTpByNo(c.id, 1);
-        serviceTravailPratique.creerRenduTP(tp, inputStream);
+        serviceTravailPratique.creerRenduTP(tpDTO, inputStream);
 
         //Lancement de la methode des traitements de zip pour un cours et un TP :
         serviceCours.lancerTraitementRenduZip(c.id, tp.id);

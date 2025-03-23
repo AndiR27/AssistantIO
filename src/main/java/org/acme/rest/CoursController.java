@@ -11,7 +11,9 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 import org.acme.models.*;
+import org.acme.rest.form.FileUploadForm;
 import org.acme.service.ServiceCours;
+import org.acme.service.ServiceTravailPratique;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.jboss.logging.annotations.Param;
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
@@ -36,6 +38,9 @@ public class CoursController {
 
     @Inject
     ServiceCours coursService;
+
+    @Inject
+    ServiceTravailPratique tpService;
 
     @GET
     @Path("/{id}")
@@ -124,13 +129,16 @@ public class CoursController {
     )
     public TemplateInstance ajoutEtudiantsTxt(
             @PathParam("id") Long id,
-            @FormParam("file") @PartType(MediaType.APPLICATION_OCTET_STREAM) InputStream file) {
+            @MultipartForm FileUploadForm form) {
         // 1. Récupérer le cours
         CoursDTO coursDto = coursService.findCours(id);
-        if (file == null) {
-            return (TemplateInstance) Response.status(Response.Status.BAD_REQUEST).entity("Fichier manquant").build();
+        if (form == null) {
+            System.out.println("Erreur fichier manquant");
+            //return (TemplateInstance) Response.status(Response.Status.BAD_REQUEST).entity("Fichier manquant").build();
+            return Templates.cours_detail(coursDto).data("error", "Fichier manquant");
+
         }
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(form.getFile()))) {
             // Transformer en tableau de String
             String[] data = reader.lines().toArray(String[]::new);
             // 3. Ajouter les étudiants
@@ -223,6 +231,42 @@ public class CoursController {
         CoursDTO updated = coursService.findCours(id);
         return Templates.cours_detail(updated);
     }
+
+    // Autres méthodes spécifiques au traitement des TPs
+    /**
+     * Créer un rendu pour un TP donné à travers ServiceTravailPratique
+     * Note : Eventuellement par la suite, cette méthode pourrait être déplacée dans un autre contrôleur
+     */
+    @POST
+    @Path("/{id_cours}/addRendu/{no_tp}")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.TEXT_HTML)
+    @Transactional
+    @APIResponse(
+            responseCode = "200",
+            description = "Ajout d'un rendu pour un TP"
+    )
+    public TemplateInstance addRendu(@PathParam("id_cours") Long idCours,
+                                     @PathParam("no_tp") int noTP,
+                                     @MultipartForm FileUploadForm form) {
+        // 1. Récupérer le cours et le TP
+        CoursDTO coursDto = coursService.findCours(idCours);
+        TravailPratiqueDTO tpDto = coursService.findTPByNumero(coursDto, noTP );
+        if (tpDto == null) {
+            throw new NotFoundException("Cours ou TP non trouvé (ID=" + idCours + ", " + noTP + ")");
+        }
+
+        // 2. Appeler le service pour ajouter le rendu
+        tpService.creerRenduTP(tpDto, form.getFile());
+
+        // 3. Rafraîchir le cours en base pour avoir la liste de rendus à jour
+        CoursDTO updatedCours = coursService.findCours(idCours);
+
+        // 4. Renvoyer la page détaillée du cours mise à jour
+        return Templates.cours_detail(updatedCours);
+    }
+
+
 }
 
 

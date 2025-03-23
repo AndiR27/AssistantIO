@@ -177,6 +177,17 @@ public class ServiceCours {
     }
 
     /**
+     * Methode permettant de récupérer un TP selon son no (on suppose qu'un cours
+     * a plusieurs TP, il sera plus facile de les retrouver par leur no sans chercher
+     * dans toute la Database par les id)
+     */
+    public TravailPratiqueDTO findTPByNumero(CoursDTO coursDTO, int no) {
+        TravailPratique tp = coursRepository.findTpByNo(coursDTO.getId(), no);
+        return tpMapper.toDto(tp);
+    }
+
+
+    /**
      * Methode permettant d'ajouter une évaluation à un cours en la créant : Examen
      */
     public ExamenDTO ajouterExamen(CoursDTO coursDTO, ExamenDTO examenDTO) {

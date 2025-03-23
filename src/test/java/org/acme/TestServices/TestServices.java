@@ -35,6 +35,7 @@ public class TestServices {
     ServiceEtudiant serviceEtudiant;
 
 
+
     /**
      * Nettoyage de la base avant chaque test.
      * On ne recrée pas ici d'entités par défaut
@@ -262,20 +263,20 @@ public class TestServices {
         CoursDTO coursDTO = serviceCours.creerCours(cours);
         Cours c = coursRepository.findCoursByCode("63-21");
 
-        serviceCours.ajouterTP(coursDTO, 1);
+        TravailPratiqueDTO tp01DTO = serviceCours.ajouterTP(coursDTO, 1);
 
-        TravailPratique tp01 = coursRepository.findTpByNo(c.id, 1);
+        //TravailPratique tp01 = coursRepository.findTpByNo(c.id, 1);
 
         // Préparer un rendu (ZIP)
         Path path = Paths.get("src/test/resources/mockinginputstreams/test_zip.zip");
         InputStream inputStream = Files.newInputStream(path);
 
         // Créer le rendu du TP via le service
-        serviceTravailPratique.creerRenduTP(tp01, inputStream);
+        TravailPratiqueDTO tp01DTP = serviceTravailPratique.creerRenduTP(tp01DTO, inputStream);
 
         // Vérifier
-        Assertions.assertNotNull(tp01.rendu);
-        Assertions.assertEquals("TP1_RenduCyberlearn.zip", tp01.rendu.nomFichier);
+        Assertions.assertNotNull(tp01DTP.getRendu());
+        Assertions.assertEquals("TP1_RenduCyberlearn.zip",tp01DTP.getRendu().getNomFichier());
 
         Path tpZipPath = Paths.get("src/test/resources/testZips", c.code, "TP1", "TP1_RenduCyberlearn.zip");
         Assertions.assertTrue(Files.exists(tpZipPath), "Le dossier TP1 devrait exister !");

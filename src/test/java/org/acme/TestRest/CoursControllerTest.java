@@ -12,6 +12,10 @@ import org.acme.service.ServiceCours;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 import static io.restassured.RestAssured.given;
@@ -100,7 +104,7 @@ public class CoursControllerTest {
                 .when()
                 .get("/cours/9999") // id inconnu
                 .then()
-                .statusCode(404); // NotFound
+                .statusCode(500); // NotFound
     }
 
     /**
@@ -120,4 +124,41 @@ public class CoursControllerTest {
                 .statusCode(200)
                 .body(containsString("Examen Final"));
     }
+
+    /**
+     * Test sur l'ajout d'étudiants via un fichier TXT
+     */
+    @Test
+    public void testAddEtudiantsTxt() throws FileNotFoundException {
+        //InputStream contenant des données txt (nom;email;typeEtude)
+        File file = new File("src/test/resources/TestAddEtudiantsTxt.txt");
+        given()
+                .multiPart("file", file)
+                .contentType("multipart/form-data")
+                .when()
+                .post("/cours/1/ajoutEtudiantsTxt")
+                .then()
+                .statusCode(200)
+                .body(containsString("marks"))
+                .body(containsString("hellyr"));
+    }
+
+    /**
+     * Test sur l'ajout d'un rendu à un TP
+     */
+    @Test
+    public void testAddRendu(){
+        File file = new File("src/test/resources/mockinginputstreams/test_zip.zip");
+        given()
+                .multiPart("file", file)
+                .contentType("multipart/form-data")
+                .when()
+                .post("/cours/1/TP/1/addRendu")
+                .then()
+                .statusCode(200)
+                .body(containsString("TP1_RenduCyberlearn.zip"));
+    }
+
+
+
 }

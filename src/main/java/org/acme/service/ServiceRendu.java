@@ -22,6 +22,10 @@ import static io.quarkus.fs.util.ZipUtils.*;
 public class ServiceRendu {
 
 
+    /**
+     *
+     */
+
     private String typeCours = "Java";
 
     /**

@@ -1,0 +1,2 @@
+marks;mark@hesge.ch;temps_plein
+hellyr;helly@hesge.ch;temps_partiel

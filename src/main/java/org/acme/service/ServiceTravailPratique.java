@@ -5,6 +5,8 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.acme.entity.*;
 import org.acme.entity.TravailPratique;
+import org.acme.mapping.TravailPratiqueMapper;
+import org.acme.models.TravailPratiqueDTO;
 import org.acme.repository.*;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
@@ -21,13 +23,21 @@ public class ServiceTravailPratique {
     TPRepository travailPratiqueRepository;
 
     @Inject
-
     ServiceRendu serviceRendu;
+
+    @Inject
+    TravailPratiqueMapper travailPratiqueMapper;
 
     @Inject
     @ConfigProperty(name = "zip-storage.path")
     String zipStoragePath;
 
+    /**
+     * Récupérer un travail pratique depuis la base de données
+     */
+    public TravailPratiqueDTO findTravailPratique(Long id) {
+        return travailPratiqueMapper.toDto(travailPratiqueRepository.findById(id));
+    }
 
     /**
      * Methode permettant d'ajouter un rendu au TP afin de pouvoir le stocker
@@ -39,7 +49,9 @@ public class ServiceTravailPratique {
      */
 
     @Transactional
-    public void creerRenduTP(TravailPratique tp, InputStream zipFile){
+    public TravailPratiqueDTO creerRenduTP(TravailPratiqueDTO tpDTO, InputStream zipFile){
+        //Récupérer le TP
+        TravailPratique tp = travailPratiqueRepository.findById(tpDTO.getId());
         //nom du fichier
         String nomFichier = "TP" + tp.no + "_RenduCyberlearn.zip";
 
@@ -62,6 +74,7 @@ public class ServiceTravailPratique {
                 , null);
         tp.rendu = rendu;
         travailPratiqueRepository.persist(tp);
+        return travailPratiqueMapper.toDto(tp);
     }
 
     /**

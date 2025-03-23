@@ -1,4 +1,4 @@
-{#include 'layout/base.html'}
+{#include layout/base.html}
     {#contents}
         <div class="container">
 
@@ -13,7 +13,7 @@
                 </div>
             </div>
 
-            <!-- Section d'ajouts, disposée horizontalement ou en un bloc compact -->
+            <!-- Section d'ajouts -->
             <div class="add-section">
                 <!-- 1) Ajout d’étudiant manuellement -->
                 <form
@@ -49,7 +49,7 @@
                         method="POST"
                         class="mini-card"
                 >
-                    <h3 class="form-subtitle">Ajout d'étudiants (via fichier .txt)</h3>
+                    <h3 class="form-subtitle">Ajout d'étudiants (fichier .txt)</h3>
                     <label for="txtFile">Fichier TXT</label>
                     <input type="file" id="txtFile" name="file" accept=".txt" required>
 
@@ -64,7 +64,7 @@
                         method="POST"
                         class="mini-card"
                 >
-                    <h3 class="form-subtitle">Ajout d'un Travail Pratique</h3>
+                    <h3 class="form-subtitle">Ajout d'un Travail Pratique (TP)</h3>
                     <label for="numero">Numéro :</label>
                     <input type="number" id="numero" name="numero" required>
                     <button type="submit" class="btn-primary">Ajouter TP</button>
@@ -81,7 +81,13 @@
                         <th>Nom</th>
                         <th>Email</th>
                         {#for tp in coursDTO.travauxPratiques}
-                            <th>TP {tp.no}</th>
+                            <!-- nouveau code -->
+                            <th style="white-space:nowrap;">
+                                TP {tp.no}
+                                <!-- On inclut le fichier de fragment pour le bouton "Ajouter Rendu ZIP" -->
+                                {#include CoursController/rendu_form.html coursId=coursDTO.id tpNo=tp.no /}
+
+                            </th>
                         {/for}
                     </tr>
                     </thead>
@@ -91,7 +97,7 @@
                             <td>{etudiant.nom}</td>
                             <td>{etudiant.email}</td>
                             {#for tp in coursDTO.travauxPratiques}
-                                <!-- Placeholder: pour l'instant, 0 -->
+                                <!-- Pour l'instant, on affiche 0, ou rien, ou la note ? -->
                                 <td>0</td>
                             {/for}
                         </tr>

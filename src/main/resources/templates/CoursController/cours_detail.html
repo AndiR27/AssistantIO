@@ -34,7 +34,7 @@
                     <label for="typeEtude">Type d'étude</label>
                     <select id="typeEtude" name="typeEtude">
                         <option value="temps_plein">Temps Plein</option>
-                        <option value="temps_partiel">Temps partiel</option>
+                        <option value="temps_partiel">Temps Partiel</option>
                     </select>
 
                     <button type="submit" class="btn-primary">Ajouter</button>
@@ -82,10 +82,19 @@
                         <th>Email</th>
                         {#for tp in coursDTO.travauxPratiques}
                             <!-- nouveau code -->
+
                             <th style="white-space:nowrap;">
+                                    {#include CoursController/rendu_form.html
+                                    coursId=coursDTO.id
+                                    tp=tp
+                                    /}
                                 TP {tp.no}
-                                <!-- On inclut le fichier de fragment pour le bouton "Ajouter Rendu ZIP" -->
-                                {#include CoursController/rendu_form.html coursId=coursDTO.id tpNo=tp.no /}
+                                <!--
+                                    Inclusion du fragment "rendu_form.html"
+                                    pour gérer l’ajout de Rendu ZIP (ex. upload).
+                                    On lui passe 3 paramètres @param : coursId, tpNo, ...
+                                -->
+
 
                             </th>
                         {/for}

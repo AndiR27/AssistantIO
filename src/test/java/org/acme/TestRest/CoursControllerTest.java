@@ -9,6 +9,7 @@ import org.acme.models.CoursDTO;
 import org.acme.models.TypeCoursDTO;
 import org.acme.models.TypeSemestreDTO;
 import org.acme.service.ServiceCours;
+import org.acme.service.ServiceRendu;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -26,6 +27,9 @@ public class CoursControllerTest {
 
     @Inject
     ServiceCours coursService;
+    @Inject
+    ServiceRendu serviceRendu;
+
     @BeforeEach
     @Transactional
     void setup() {
@@ -36,6 +40,8 @@ public class CoursControllerTest {
                 "Programmation collaborative",
                 "63-21", TypeSemestreDTO.Automne, 2025, "Stettler", TypeCoursDTO.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         CoursDTO coursDTO = coursService.creerCours(cours);
+        coursService.ajouterTP(coursDTO, 1);
+
     }
 
     /**
@@ -147,13 +153,14 @@ public class CoursControllerTest {
      * Test sur l'ajout d'un rendu à un TP
      */
     @Test
-    public void testAddRendu(){
+    @Transactional
+    public void testAddRenduZip(){
         File file = new File("src/test/resources/mockinginputstreams/test_zip.zip");
         given()
                 .multiPart("file", file)
                 .contentType("multipart/form-data")
                 .when()
-                .post("/cours/1/TP/1/addRendu")
+                .post("/cours/1/TP/1/addRenduZip")
                 .then()
                 .statusCode(200)
                 .body(containsString("TP1_RenduCyberlearn.zip"));

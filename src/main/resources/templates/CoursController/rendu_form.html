@@ -1,16 +1,211 @@
+<!--
+  rendu_form.html
 
-<!-- Div englobant l'action "Ajouter Rendu ZIP" -->
-<div class="add-rendu-zip">
-  <!-- Pour l'instant, on ne fait qu'un bouton. -->
-  <!-- On imagine plus tard un formulaire ou un hx-post / hx-target. -->
-  <!-- rendu_form.html -->
-   <button
-            class="btn-rendu-zip"
-            title="Ajouter un rendu ZIP pour ce TP"
-            type="button"
-            onclick="alert('Cours=' + {coursId} + ' / TP=' + {tpNo});"
-    >
-      📥 Rendu ZIP
-    </button>
-  </div>
+  @param coursId java.lang.Long
+  @param tp org.acme.models.TravailPratiqueDTO (ou selon tes classes)
+  @param renduExiste java.lang.Boolean
 
+  On suppose que tp.rendu peut contenir:
+   - id
+   - cheminVersStructure
+   - etc.
+-->
+<style>
+    .zip-status {
+        padding: 0.4rem;
+        margin: 0.3rem 0;
+        border-radius: 4px;
+        color: #fff;
+        font-weight: bold;
+    }
+
+    .zip-status-empty {
+        background-color: #ddd;
+        color: #000;
+    }
+
+    .zip-status-pending {
+        background-color: orange;
+    }
+
+    .zip-status-ready {
+        background-color: green;
+    }
+
+    .btn {
+        padding: 0.3rem 0.6rem;
+        border: none;
+        cursor: pointer;
+        color: #fff;
+        margin: 0.3rem 0;
+    }
+
+    .btn-upload {
+        background-color: #007bff;
+    }
+
+    .btn-process {
+        background-color: #6c757d;
+        margin-left: 0.5rem;
+    }
+
+    .btn-plus {
+        background-color: #28a745;
+        font-size: 1rem;
+        font-weight: bold;
+        margin-left: 0.5rem;
+    }
+
+    /* Wrapper pour positionner la bulle */
+    .rendu-bubble-wrapper {
+        position: relative;
+        display: inline-block;
+    }
+
+    /* La bulle au-dessus, centrée horizontalement, cachée par défaut */
+    .upload-form-bubble {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 999;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        padding: 0.8rem 1rem;
+        border-radius: 4px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+        text-align: center;
+        width: 240px; /* Ajuste la largeur selon ton besoin */
+        display: none; /* caché par défaut */
+    }
+
+    /* Flèche triangulaire */
+    .upload-form-bubble::after {
+        content: "";
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-top: 8px solid #ccc;
+    }
+
+    /* Bouton X en haut à droite */
+    .bubble-close-btn {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: transparent;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+    }
+
+    .bubble-error {
+        color: red;
+        font-weight: bold;
+        margin: 0.5rem 0;
+    }
+</style>
+
+<!-- Conteneur unique par TP -->
+<div id="rendu-zip-container-{tp.no}">
+
+    {#if tp.rendu == null}
+    <!-- ÉTAT 1) AUCUN RENDU -->
+    <!--
+      Bouton + qui dévoile la "bulle"
+      On l'enrobe dans .rendu-bubble-wrapper
+    -->
+    <!-- Bouton + pour afficher la bulle d'upload -->
+    <div class="rendu-bubble-wrapper">
+        <button
+                type="button"
+                class="btn btn-plus"
+                onclick="toggleUploadBubble_{tp.no}()"
+                title="Ajouter un rendu ZIP"
+        >
+            +
+        </button>
+
+        <!-- Bulle -->
+        <div
+                id="upload-bubble-{tp.no}"
+                class="upload-form-bubble">
+        <!-- Si error != null => on la laisse ouverte -->
+
+        <!-- Bouton X pour fermer la bulle -->
+        <button class="bubble-close-btn" type="button" onclick="toggleUploadBubble_{tp.no}(true)">×</button>
+
+        <p><strong>Ajouter un Rendu ZIP</strong></p>
+        <form
+                style="margin-top:0.5rem;"
+                hx-post="/cours/{coursId}/TP/{tp.no}/addRenduZip"
+                hx-target="#rendu-zip-container-{tp.no}"
+                hx-swap="outerHTML"
+                enctype="multipart/form-data"
+                method="post"
+        >
+            <input
+                    type="file"
+                    name="file"
+                    accept=".zip"
+                    required
+                    style="margin-bottom: 0.5rem;"
+            /><br/>
+            <button type="submit" class="btn btn-upload">
+                📥 Uploader
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function toggleUploadBubble_{tp.no}(forceClose) {
+        const bubble = document.getElementById('upload-bubble-{tp.no}');
+
+        // Si forceClose == true, on ferme forcément
+        if (forceClose) {
+            bubble.style.display = 'none';
+            return;
+        }
+
+        // Sinon, on toggle
+        bubble.style.display = (bubble.style.display === 'none' || bubble.style.display === '')
+            ? 'block'
+            : 'none';
+    }
+</script>
+{#else}
+    <!-- CAS 2) Rendu présent => check si "tp.rendu.cheminVersStructure" est défini -->
+    {#if tp.rendu.cheminFichierStructure == null}
+        <!-- Rendu non traité, affichage orange -->
+        <!-- Bouton pour lancer le traitement (futur endpoint) -->
+        <button
+                class="btn btn-process"
+                hx-post="/cours/{coursId}/TP/{tp.no}/traitementZip/{tp.rendu.id}"
+                hx-target="#rendu-zip-container-{tp.no}"
+                hx-swap="outerHTML"
+        >
+            Rendu {tp.rendu.nomFichier}
+            Traiter le ZIP
+        </button>
+    {#else}
+        <!-- CAS 3) Rendu traité => affichage vert -->
+        <div class="zip-status zip-status-ready">
+            Rendu ZIP <strong>traité</strong> avec succès !
+        </div>
+        <!-- Lien pour télécharger le fichier traité -->
+        <a
+                class="btn btn-upload"
+                href="/rendus/{tp.rendu.id}/download"
+                target="_blank"
+                title="Télécharger le rendu traité"
+        >
+            Télécharger
+        </a>
+    {/if}
+{/if}
+
+</div>

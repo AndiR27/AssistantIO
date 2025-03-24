@@ -10,6 +10,7 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
+import org.acme.entity.Cours;
 import org.acme.models.*;
 import org.acme.rest.form.FileUploadForm;
 import org.acme.service.ServiceCours;
@@ -34,6 +35,9 @@ public class CoursController {
         public static native TemplateInstance cours_detail(CoursDTO coursDTO);
 
         public static native TemplateInstance etudiants(List<EtudiantDTO> etudiants);
+
+        public static native TemplateInstance rendu_form(Long coursId, TravailPratiqueDTO tp, boolean renduExiste);
+
     }
 
     @Inject
@@ -264,6 +268,35 @@ public class CoursController {
 
         // 4. Renvoyer la page détaillée du cours mise à jour
         return Templates.cours_detail(updatedCours);
+    }
+
+    /**
+     * Ajouter un rendu zip à un TP
+     */
+    @POST
+    @Path("/{id_cours}/TP/{no_tp}/addRenduZip")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.TEXT_HTML)
+    @Transactional
+    @APIResponse(
+            responseCode = "200",
+            description = "Ajout d'un rendu zip pour un TP"
+    )
+    public TemplateInstance addRenduZip(@PathParam("id_cours") Long idCours,
+                            @PathParam("no_tp") int noTP,
+                            @MultipartForm FileUploadForm form) {
+        // 1. Récupérer le cours et le TP
+        CoursDTO coursDto = coursService.findCours(idCours);
+        TravailPratiqueDTO tpDto = coursService.findTPByNumero(coursDto, noTP );
+        if (tpDto == null) {
+            throw new NotFoundException("Cours ou TP non trouvé (ID=" + idCours + ", " + noTP + ")");
+        }
+
+        // 2. Appeler le service pour ajouter le rendu
+        TravailPratiqueDTO tpDTO = tpService.creerRenduTP(tpDto, form.getFile());
+        CoursDTO coursDTO = coursService.findCours(idCours);
+        return Templates.rendu_form(coursDTO.getId(), tpDTO, true);
+
     }
 
 

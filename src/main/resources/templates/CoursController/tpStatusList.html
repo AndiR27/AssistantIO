@@ -1,0 +1,23 @@
+{#for etudiant in coursDTO.etudiantsInscrits}
+    <tr>
+        <td>{etudiant.nom}</td>
+        <td>{etudiant.email}</td>
+
+        {#for tp in coursDTO.travauxPratiques}
+            <td id="cell-{etudiant.id}-{tp.id}">
+                {#set statusMap = statusMap }
+                        test
+                        {#set tpStatus = statusMap != null ? statusMap.get(etudiant.id) : null }
+
+                                {#if tpStatus == null}
+
+                                {#else}
+                                    {tpStatus.renduEtudiant ? '1' : '0'}
+                                {/if}
+                        {/set}
+                {/set}
+            </td>
+        {/for}
+
+    </tr>
+{/for}

@@ -4,10 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
-import org.acme.mapping.CoursMapper;
-import org.acme.mapping.EtudiantMapper;
-import org.acme.mapping.EvaluationMapper;
-import org.acme.mapping.TravailPratiqueMapper;
+import org.acme.mapping.*;
 import org.acme.models.*;
 import org.acme.repository.*;
 import org.acme.entity.*;
@@ -49,6 +46,9 @@ public class ServiceCours {
     TravailPratiqueMapper tpMapper;
     @Inject
     EvaluationMapper evaluationMapper;
+
+    @Inject
+    RenduMapper renduMapper;
     @Inject
     ServiceEtudiant serviceEtudiant;
 
@@ -261,11 +261,15 @@ public class ServiceCours {
     /**
      * Methode permettant de lancer le traitement du rendu pour un TP
      */
-    public void lancerTraitementRenduZip(Long idCours, Long idTp) throws IOException {
+    public RenduDTO lancerTraitementRenduZip(Long idCours, Long idTp) throws IOException {
         Cours cours = coursRepository.findById(idCours);
         TravailPratique tp = travailPratiqueRepository.findById(idTp);
 
-        serviceRendu.traitementRenduZip(cours, tp);
+        RenduDTO rendu = serviceRendu.traitementRenduZip(coursMapper.toDto(cours), tpMapper.toDto(tp));
+        //Mettre à jour le TP
+        tp.rendu = renduMapper.toEntity(rendu);
+        travailPratiqueRepository.persist(tp);
+        return rendu;
     }
 
 

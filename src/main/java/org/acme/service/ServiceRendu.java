@@ -2,7 +2,13 @@ package org.acme.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import org.acme.entity.*;
+import org.acme.mapping.RenduMapper;
+import org.acme.models.CoursDTO;
+import org.acme.models.RenduDTO;
+import org.acme.models.TravailPratiqueDTO;
+import org.acme.repository.RenduRepository;
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
 import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 
@@ -21,10 +27,10 @@ import static io.quarkus.fs.util.ZipUtils.*;
 @ApplicationScoped
 public class ServiceRendu {
 
-
-    /**
-     *
-     */
+    @Inject
+    RenduMapper renduMapper;
+    @Inject
+    RenduRepository renduRepository;
 
     private String typeCours = "Java";
 
@@ -51,21 +57,23 @@ public class ServiceRendu {
      * Une entité Rendu a les infos de stockage du zip d'origine, il faudra ajouter
      * ainsi
      */
-    public void traitementRenduZip(Cours c, TravailPratique tp) throws IOException {
+    @Transactional
+    public RenduDTO traitementRenduZip(CoursDTO coursDTO, TravailPratiqueDTO tpDTO) throws IOException {
         //TODO
-        Rendu rendu = tp.rendu;
-        if (rendu == null) {
+        RenduDTO rendu = tpDTO.getRendu();
+        Rendu renduEntity = renduMapper.toEntity(rendu);
+        if (renduEntity == null) {
             System.out.println("Aucun rendu n'a été trouvé pour ce TP");
-            return;
+            return null;
         }
 
         //Gérer le type de cours
-        if (c.typeCours != null) {
-            typeCours = String.valueOf(c.typeCours);
+        if (coursDTO.getTypeCours() != null) {
+            typeCours = String.valueOf(coursDTO.getTypeCours());
         }
 
         // chemin vers le zip d'origine
-        Path originalZip = Paths.get(rendu.cheminStockage);
+        Path originalZip = Paths.get(renduEntity.cheminStockage);
 
         // chemin racine du TP : "DocumentsZips/{CODE_COURS}/TP{no}"
         Path tpRoot = originalZip.getParent();
@@ -93,17 +101,24 @@ public class ServiceRendu {
                 });
 
         //Créez un zip global pour le dossier de restructuration
-        String nomZipRestructure = "TP" + tp.no + "_RenduRestructuration.zip";
+        String nomZipRestructure = "TP" + tpDTO.getNo() + "_RenduRestructuration.zip";
         Path zipRestructure = tpRoot.resolve(nomZipRestructure);
         zip(restructurationDir, zipRestructure);
 
         //Mettre à jour le chemin du zip restructuré
-        rendu.cheminFichierStructure = zipRestructure.toString();
+        renduEntity.cheminFichierStructure = zipRestructure.toString();
+        //rendu.setCheminFichierStructure(zipRestructure.toString());
 
         //Nettoyer les dossiers temporaires et le dossier de restructuration
         supprimerRepertoire(tpmExtractDir);
         supprimerRepertoire(restructurationDir);
 
+        //Persister le rendu
+        //renduRepository.persist(renduEntity);
+        Rendu renduPersisted = renduRepository.getEntityManager().merge(renduEntity);
+
+        //Retourner le rendu
+        return renduMapper.toDto(renduPersisted);
     }
 
 

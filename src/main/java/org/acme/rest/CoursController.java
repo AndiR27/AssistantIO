@@ -14,6 +14,7 @@ import org.acme.entity.Cours;
 import org.acme.models.*;
 import org.acme.rest.form.FileUploadForm;
 import org.acme.service.ServiceCours;
+import org.acme.service.ServiceRendu;
 import org.acme.service.ServiceTravailPratique;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.jboss.logging.annotations.Param;
@@ -21,10 +22,14 @@ import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 import org.jboss.resteasy.annotations.providers.multipart.PartType;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Path("/cours")
 public class CoursController {
@@ -38,6 +43,8 @@ public class CoursController {
 
         public static native TemplateInstance rendu_form(Long coursId, TravailPratiqueDTO tp, boolean renduExiste);
 
+        public static native TemplateInstance tpStatusList(Map<Long, TPStatusDTO> statusEtudiants);
+
     }
 
     @Inject
@@ -45,6 +52,9 @@ public class CoursController {
 
     @Inject
     ServiceTravailPratique tpService;
+
+    @Inject
+    ServiceRendu serviceRendu;
 
     @GET
     @Path("/{id}")
@@ -297,6 +307,64 @@ public class CoursController {
         CoursDTO coursDTO = coursService.findCours(idCours);
         return Templates.rendu_form(coursDTO.getId(), tpDTO, true);
 
+    }
+
+    /**
+     * Lancer le processus de traitement du ZIP rendu pour le formater correctement
+     * /cours/{coursId}/TP/{tp.no}/traitementZip/{tp.rendu.id}
+     */
+    @PUT
+    @Path("/{id_cours}/TP/{no_Tp}/traitementZip")
+    @Produces(MediaType.TEXT_HTML)
+    public TemplateInstance traitementZip(@PathParam("id_cours") Long idCours,
+                                          @PathParam("no_Tp") int noTP) throws IOException {
+        //Trouver le cours et le TP
+        CoursDTO coursDTO = coursService.findCours(idCours);
+        TravailPratiqueDTO tpDTO = coursService.findTPByNumero(coursDTO, noTP);
+
+        // Appeler le service pour traiter le rendu
+        RenduDTO renduDTO = coursService.lancerTraitementRenduZip(idCours, tpDTO.getId());
+
+        // Rafraîchir le cours en base pour avoir la liste de rendus à jour
+        CoursDTO updatedCours = coursService.findCours(idCours);
+        TravailPratiqueDTO updatedTpDTO = tpService.findTravailPratique(tpDTO.getId());
+
+        //Quand le traitement est terminé, on voudrait pouvoir lancer la gestion des rendus
+
+
+
+        // Renvoyer la page détaillée du cours mise à jour
+        return Templates.rendu_form(updatedCours.getId(), updatedTpDTO, true);
+    }
+
+    @GET
+    @Path("/{id_cours}/TP/{tp_no}/downloadZip/{id_rendu}")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    public Response downloadZipTraite(@PathParam("id_cours") Long idCours,
+                                              @PathParam("tp_no") int tpNo,
+                                              @PathParam("id_rendu") Long idRendu) throws IOException {
+        // 1. Récupérer le cours et le TP
+        CoursDTO coursDto = coursService.findCours(idCours);
+        TravailPratiqueDTO tpDto = coursService.findTPByNumero(coursDto, tpNo );
+        if (tpDto == null) {
+            throw new NotFoundException("Cours ou TP non trouvé (ID=" + idCours + ", " + tpNo + ")");
+        }
+
+        // 2. Récupérer le rendu
+        RenduDTO renduDTO = tpDto.getRendu();
+        if (renduDTO == null || renduDTO.getCheminFichierStructure() == null) {
+            throw new NotFoundException("Aucun rendu traité n'est disponible pour ce TP.");
+        }
+
+        // Construire la réponse de téléchargement
+        // On ouvre un InputStream depuis le Path
+        InputStream inputStream = Files.newInputStream(Paths.get(renduDTO.getCheminFichierStructure()));
+        String nomFichier = Paths.get(renduDTO.getCheminFichierStructure()).getFileName().toString(); // ex: "TP2_RenduRestructuration.zip"
+
+        // On précise le content type (zip) et on inclut le header Content-Disposition pour le "download"
+        return Response.ok(inputStream, MediaType.APPLICATION_OCTET_STREAM)
+                .header("Content-Disposition", "attachment; filename=\"" + nomFichier + "\"")
+                .build();
     }
 
 

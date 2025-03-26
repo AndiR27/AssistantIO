@@ -46,7 +46,7 @@
 
     .btn-process {
         background-color: #6c757d;
-        margin-left: 0.5rem;
+        margin-left: 0rem;
     }
 
     .btn-plus {
@@ -184,22 +184,19 @@
         <!-- Bouton pour lancer le traitement (futur endpoint) -->
         <button
                 class="btn btn-process"
-                hx-post="/cours/{coursId}/TP/{tp.no}/traitementZip/{tp.rendu.id}"
+                hx-put="/cours/{coursId}/TP/{tp.no}/traitementZip"
                 hx-target="#rendu-zip-container-{tp.no}"
                 hx-swap="outerHTML"
-        >
-            Rendu {tp.rendu.nomFichier}
-            Traiter le ZIP
+                hx-on="htmx:afterRequest: window.location.reload()"
+                type="button"
+        >Traiter le ZIP
         </button>
     {#else}
         <!-- CAS 3) Rendu traité => affichage vert -->
-        <div class="zip-status zip-status-ready">
-            Rendu ZIP <strong>traité</strong> avec succès !
-        </div>
         <!-- Lien pour télécharger le fichier traité -->
         <a
                 class="btn btn-upload"
-                href="/rendus/{tp.rendu.id}/download"
+                href="/cours/{coursId}/TP/{tp.no}/downloadZip/{tp.rendu.id}"
                 target="_blank"
                 title="Télécharger le rendu traité"
         >

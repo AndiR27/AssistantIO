@@ -94,23 +94,28 @@
                                     pour gérer l’ajout de Rendu ZIP (ex. upload).
                                     On lui passe 3 paramètres @param : coursId, tpNo, ...
                                 -->
-
+                            <!-- Bouton "tout traiter" pour ce TP -->
+                            <button
+                              class="btn btn-process-all"
+                              hx-post="/cours/{coursDTO.id}/TP/{tp.id}/traitementGlobal"
+                              hx-target="#etudiants-tp-table"
+                              hx-swap="outerHTML"
+                              type="button"
+                              title="Traiter tous les rendus de ce TP"
+                            >
+                              Valider tout
+                            </button>
 
                             </th>
                         {/for}
                     </tr>
                     </thead>
                     <tbody>
-                    {#for etudiant in coursDTO.etudiantsInscrits}
-                        <tr>
-                            <td>{etudiant.nom}</td>
-                            <td>{etudiant.email}</td>
-                            {#for tp in coursDTO.travauxPratiques}
-                                <!-- Pour l'instant, on affiche 0, ou rien, ou la note ? -->
-                                <td>0</td>
-                            {/for}
-                        </tr>
-                    {/for}
+                    {#include CoursController/tpStatusList.html
+                        coursDTO=coursDTO
+
+                    /}
+
                     </tbody>
                 </table>
             </div>

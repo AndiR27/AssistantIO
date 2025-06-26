@@ -57,7 +57,7 @@ Pour stocker des énumérations en base de données.
 
 ```java
     @Enumerated(EnumType.STRING) // Stocke "TEMPS_PLEIN", "TEMPS_PARTIEL"
-    private TypeEtude typeEtude;
+    private TypeEtude studyType;
 ```
 📌 **Deux modes possibles** :
 - `EnumType.STRING` → Stocke les valeurs sous forme de texte (**recommandé**).
@@ -80,7 +80,7 @@ Relation **1 → N** : Un étudiant peut avoir plusieurs rendus.
 
 ---
 ### **ManyToOne (`@ManyToOne`)**
-Relation **N → 1** : Chaque rendu appartient à un étudiant.
+Relation **N → 1** : Chaque submission appartient à un étudiant.
 
 ```java
     @ManyToOne
@@ -92,7 +92,7 @@ Relation **N → 1** : Chaque rendu appartient à un étudiant.
 
 ---
 ### **ManyToMany (`@ManyToMany`)**
-Relation **N ↔ N** : Un étudiant peut être inscrit à plusieurs cours.
+Relation **N ↔ N** : Un étudiant peut être inscrit à plusieurs course.
 
 ```java
     @ManyToMany
@@ -106,7 +106,7 @@ Relation **N ↔ N** : Un étudiant peut être inscrit à plusieurs cours.
 📌 **Options** :
 - `@JoinTable` → Crée une table intermédiaire pour stocker les associations.
 - `joinColumns = @JoinColumn(name = "student_id")` → Colonne qui stocke l’ID de l’étudiant.
-- `inverseJoinColumns = @JoinColumn(name = "course_id")` → Colonne qui stocke l’ID du cours.
+- `inverseJoinColumns = @JoinColumn(name = "course_id")` → Colonne qui stocke l’ID du course.
 
 ---
 
@@ -151,7 +151,7 @@ public class Student {
     private String email;
 
     @Enumerated(EnumType.STRING)
-    private TypeEtude typeEtude;
+    private TypeEtude studyType;
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Submission> submissions;
@@ -237,11 +237,11 @@ Le `CascadeType` définit comment les actions **CRUD** sur une entité affectent
 
 ### 🔹 Exemple avec `CascadeType.ALL`
 ```java
-@OneToMany(mappedBy = "etudiant", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+@OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 public List<Submission> submissions;
 ```
 👉 **Les `submissions` sont supprimées si l’étudiant est supprimé.**
-👉 **Avec `orphanRemoval = true`, les `submissions` sans `etudiant` sont automatiquement supprimées.**
+👉 **Avec `orphanRemoval = true`, les `submissions` sans `student` sont automatiquement supprimées.**
 
 ---
 
@@ -256,7 +256,7 @@ Le `FetchType` définit comment Hibernate récupère les entités liées en mém
 
 ### 🔹 Exemple avec `FetchType.LAZY` (Recommandé pour `OneToMany` et `ManyToMany`)
 ```java
-@OneToMany(mappedBy = "etudiant", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+@OneToMany(mappedBy = "student", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 public List<Submission> submissions;
 ```
 👉 **Hibernate ne charge PAS les `submissions` immédiatement**, elles sont chargées uniquement à la demande.
@@ -271,12 +271,12 @@ public class Etudiant extends PanacheEntityBase {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long id;
 
-    @OneToMany(mappedBy = "etudiant", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     public List<Submission> submissions;
 }
 ```
 
-### 🔹 Many-To-One (Un rendu appartient à un cours)
+### 🔹 Many-To-One (Un submission appartient à un course)
 ```java
 @Entity
 public class Submission extends PanacheEntityBase {
@@ -296,12 +296,12 @@ public class Etudiant extends PanacheEntityBase {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long id;
 
-    @OneToOne(mappedBy = "etudiant", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "student", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     public Profile profile;
 }
 ```
 
-### 🔹 Many-To-Many (Un étudiant suit plusieurs cours)
+### 🔹 Many-To-Many (Un étudiant suit plusieurs course)
 ```java
 @Entity
 public class Etudiant extends PanacheEntityBase {
@@ -333,24 +333,24 @@ public class Etudiant extends PanacheEntityBase {
 ## 📌 5️⃣ Tester avec `cURL`
 ### 🔹 Ajouter un étudiant
 ```bash
-curl -X POST http://localhost:8080/etudiants \
+curl -X POST http://localhost:8080/students \
      -H "Content-Type: application/json" \
-     -d '{"nom": "Alice", "typeEtude": "temps plein"}'
+     -d '{"nom": "Alice", "studyType": "temps plein"}'
 ```
 
 ### 🔹 Récupérer tous les étudiants
 ```bash
-curl -X GET http://localhost:8080/etudiants
+curl -X GET http://localhost:8080/students
 ```
 
-### 🔹 Ajouter un cours
+### 🔹 Ajouter un course
 ```bash
 curl -X POST http://localhost:8080/courses \
      -H "Content-Type: application/json" \
      -d '{"nom": "Quarkus Basics", "semestre": "Printemps", "annee": 2025}'
 ```
 
-### 🔹 Récupérer tous les cours
+### 🔹 Récupérer tous les course
 ```bash
 curl -X GET http://localhost:8080/courses
 ```

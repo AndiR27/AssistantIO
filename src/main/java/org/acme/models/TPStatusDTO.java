@@ -2,14 +2,14 @@ package org.acme.models;
 
 public class TPStatusDTO {
     private Long id;
-    private EtudiantDTO etudiant;
-    private TravailPratiqueDTO travailPratique;
+    private StudentDTO etudiant;
+    private TP_DTO travailPratique;
     private boolean renduEtudiant;
 
     // Constructeurs
     public TPStatusDTO() {}
 
-    public TPStatusDTO(Long id, EtudiantDTO etudiant, TravailPratiqueDTO travailPratique, boolean renduEtudiant) {
+    public TPStatusDTO(Long id, StudentDTO etudiant, TP_DTO travailPratique, boolean renduEtudiant) {
         this.id = id;
         this.etudiant = etudiant;
         this.travailPratique = travailPratique;
@@ -20,11 +20,11 @@ public class TPStatusDTO {
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public EtudiantDTO getEtudiant() { return etudiant; }
-    public void setEtudiant(EtudiantDTO etudiant) { this.etudiant = etudiant; }
+    public StudentDTO getEtudiant() { return etudiant; }
+    public void setEtudiant(StudentDTO etudiant) { this.etudiant = etudiant; }
 
-    public TravailPratiqueDTO getTravailPratique() { return travailPratique; }
-    public void setTravailPratique(TravailPratiqueDTO travailPratique) { this.travailPratique = travailPratique; }
+    public TP_DTO getTravailPratique() { return travailPratique; }
+    public void setTravailPratique(TP_DTO travailPratique) { this.travailPratique = travailPratique; }
 
     public boolean isRenduEtudiant() { return renduEtudiant; }
     public void setRenduEtudiant(boolean renduEtudiant) { this.renduEtudiant = renduEtudiant; }

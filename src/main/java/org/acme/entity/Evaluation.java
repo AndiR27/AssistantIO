@@ -3,6 +3,8 @@ package org.acme.entity;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+
 /**
  * Différents types d'évaluations : CC1, CC2, Examen, Rattrappage
  * Le tag inheritance permet de spécifier la stratégie de mapping de l'héritage
@@ -13,31 +15,39 @@ import jakarta.persistence.*;
  */
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@Table(name = "evaluation")
 public class Evaluation extends PanacheEntityBase {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     public Long id;
 
-    public String nom;
+    @Column(name = "evaluation_name")
+    public String name;
 
-    public String date;
+    @Column(name = "evaluation_date")
+    public LocalDateTime date;
+
+    /**
+     * Note : penser à ajouter un champ pour le % de l'evaluation dans la note finale
+     * --> Une table Module est-elle nécessaire pour stocker le tout ? à voir...
+     */
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cours_id")
-    public Cours cours;
+    @JoinColumn(name = "course_id")
+    public Course course;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "rendu_id")
-    public Rendu rendu;
+    @JoinColumn(name = "submission_id")
+    public Submission submission;
 
     public Evaluation() {
     }
 
-    public Evaluation(String nom, String date, Cours cours, Rendu rendu) {
-        this.nom = nom;
+    public Evaluation(String name, LocalDateTime date, Course course, Submission submission) {
+        this.name = name;
         this.date = date;
-        this.cours = cours;
-        this.rendu = rendu;
+        this.course = course;
+        this.submission = submission;
     }
 
 }

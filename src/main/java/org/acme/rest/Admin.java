@@ -5,10 +5,9 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import org.acme.models.CoursDTO;
-import org.acme.models.TypeCoursDTO;
-import org.acme.models.TypeSemestreDTO;
-import org.acme.service.ServiceCours;
+import org.acme.enums.*;
+import org.acme.models.CourseDTO;
+import org.acme.service.CourseService;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 
 import java.util.ArrayList;
@@ -19,13 +18,13 @@ public class Admin {
 
     @CheckedTemplate
     private static class Templates{
-        public static native TemplateInstance home(List<CoursDTO> courses);
-        public static native TemplateInstance cours_form(CoursDTO coursDTO);
+        public static native TemplateInstance home(List<CourseDTO> courses);
+        public static native TemplateInstance cours_form(CourseDTO courseDTO);
 
     }
 
     @Inject
-    ServiceCours coursService;
+    CourseService coursService;
 
     @GET
     @Path("/home")
@@ -48,7 +47,7 @@ public class Admin {
                                      @FormParam("prof") String prof,
                                      @FormParam("typeCours") String typeCours) {
 
-        CoursDTO cours = new CoursDTO(null, nom, code, TypeSemestreDTO.valueOf(semestre), annee, prof, TypeCoursDTO.valueOf(typeCours), new ArrayList<>(),
+        CourseDTO cours = new CourseDTO(null, nom, code, SemesterType.valueOf(semestre), annee, prof, CourseType.valueOf(typeCours), new ArrayList<>(),
                 new ArrayList<>(), new ArrayList<>());
         return Templates.cours_form(coursService.creerCours(cours));
     }

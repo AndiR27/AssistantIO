@@ -4,18 +4,18 @@ import java.util.Set;
 /**
  * Classe POJO représentant un Travail Pratique sans exposer l'entité JPA.
  */
-public class TravailPratiqueDTO {
+public class TP_DTO {
 
     private Long id;
     private int no;
-    private CoursDTO cours;
-    private RenduDTO rendu;
+    private CourseDTO cours;
+    private SubmissionDTO rendu;
     private Set<TPStatusDTO> statusEtudiants;
 
     // Constructeurs
-    public TravailPratiqueDTO() {}
+    public TP_DTO() {}
 
-    public TravailPratiqueDTO(Long id, int no, CoursDTO cours, RenduDTO rendu, Set<TPStatusDTO> statusEtudiants) {
+    public TP_DTO(Long id, int no, CourseDTO cours, SubmissionDTO rendu, Set<TPStatusDTO> statusEtudiants) {
         this.id = id;
         this.no = no;
         this.cours = cours;
@@ -30,11 +30,11 @@ public class TravailPratiqueDTO {
     public int getNo() { return no; }
     public void setNo(int no) { this.no = no; }
 
-    public CoursDTO getCours() { return cours; }
-    public void setCours(CoursDTO cours) { this.cours = cours; }
+    public CourseDTO getCours() { return cours; }
+    public void setCours(CourseDTO cours) { this.cours = cours; }
 
-    public RenduDTO getRendu() { return rendu; }
-    public void setRendu(RenduDTO rendu) { this.rendu = rendu; }
+    public SubmissionDTO getRendu() { return rendu; }
+    public void setRendu(SubmissionDTO rendu) { this.rendu = rendu; }
 
     public Set<TPStatusDTO> getStatusEtudiants() { return statusEtudiants; }
     public void setStatusEtudiants(Set<TPStatusDTO> statusEtudiants) { this.statusEtudiants = statusEtudiants; }

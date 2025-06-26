@@ -4,12 +4,11 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.acme.entity.*;
-import org.acme.entity.TravailPratique;
-import org.acme.mapping.TravailPratiqueMapper;
-import org.acme.models.TravailPratiqueDTO;
+import org.acme.entity.TP;
+import org.acme.mapping.TPMapper;
+import org.acme.models.TP_DTO;
 import org.acme.repository.*;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,16 +16,16 @@ import java.nio.file.*;
 import java.util.List;
 
 @ApplicationScoped
-public class ServiceTravailPratique {
+public class TPService {
 
     @Inject
     TPRepository travailPratiqueRepository;
 
     @Inject
-    ServiceRendu serviceRendu;
+    SubmissionService submissionService;
 
     @Inject
-    TravailPratiqueMapper travailPratiqueMapper;
+    TPMapper TPMapper;
 
     @Inject
     @ConfigProperty(name = "zip-storage.path")
@@ -35,8 +34,8 @@ public class ServiceTravailPratique {
     /**
      * Récupérer un travail pratique depuis la base de données
      */
-    public TravailPratiqueDTO findTravailPratique(Long id) {
-        return travailPratiqueMapper.toDto(travailPratiqueRepository.findById(id));
+    public TP_DTO findTravailPratique(Long id) {
+        return TPMapper.toDto(travailPratiqueRepository.findById(id));
     }
 
     /**
@@ -49,14 +48,14 @@ public class ServiceTravailPratique {
      */
 
     @Transactional
-    public TravailPratiqueDTO creerRenduTP(TravailPratiqueDTO tpDTO, InputStream zipFile){
+    public TP_DTO creerRenduTP(TP_DTO tpDTO, InputStream zipFile){
         //Récupérer le TP
-        TravailPratique tp = travailPratiqueRepository.findById(tpDTO.getId());
+        TP tp = travailPratiqueRepository.findById(tpDTO.getId());
         //nom du fichier
         String nomFichier = "TP" + tp.no + "_RenduCyberlearn.zip";
 
         //chemin vers le fichier
-        Path tpFolder = Paths.get(zipStoragePath, tp.cours.code, "TP" + tp.no);
+        Path tpFolder = Paths.get(zipStoragePath, tp.course.code, "TP" + tp.no);
 
         //Chemin complet vers le fichier
         Path cheminVersZip = tpFolder.resolve(nomFichier);
@@ -70,11 +69,11 @@ public class ServiceTravailPratique {
         }
 
         //Creation du rendu
-        Rendu rendu = new Rendu(nomFichier, cheminVersZip.toString()
+        Submission submission = new Submission(nomFichier, cheminVersZip.toString()
                 , null);
-        tp.rendu = rendu;
+        tp.submission = submission;
         travailPratiqueRepository.persist(tp);
-        return travailPratiqueMapper.toDto(tp);
+        return TPMapper.toDto(tp);
     }
 
     /**
@@ -87,15 +86,15 @@ public class ServiceTravailPratique {
      * 4. Persister la liste des TP_Status
      */
     @Transactional
-    public TravailPratique gestionRendusTP(Cours cours, TravailPratique tp,
-                                List<Etudiant> etudiantsList){
-        List<String> rendus = serviceRendu.getListRendus(tp.rendu);
+    public TP gestionRendusTP(Course course, TP tp,
+                              List<Student> etudiantsList){
+        List<String> rendus = submissionService.getListRendus(tp.submission);
 
-        for(Etudiant etudiant : etudiantsList){
-            TP_Status tpStatus = new TP_Status(etudiant, tp, false);
-            String nomEtudiantRefomated = etudiant.nom.replaceAll(" ", "").toLowerCase();
+        for(Student student : etudiantsList){
+            TPStatus tpStatus = new TPStatus(student, tp, false);
+            String nomEtudiantRefomated = student.name.replaceAll(" ", "").toLowerCase();
             if(rendus.contains(nomEtudiantRefomated)){
-                tpStatus.renduEtudiant = true;
+                tpStatus.studentSubmission = true;
             }
             tp.addTPStatus(tpStatus);
         }

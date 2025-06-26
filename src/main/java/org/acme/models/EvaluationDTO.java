@@ -4,13 +4,13 @@ public class EvaluationDTO {
     private Long id;
     private String nom;
     private String date;
-    private CoursDTO cours;
-    private RenduDTO rendu;
+    private CourseDTO cours;
+    private SubmissionDTO rendu;
 
     // Constructeurs
     public EvaluationDTO() {}
 
-    public EvaluationDTO(Long id, String nom, String date, CoursDTO cours, RenduDTO rendu) {
+    public EvaluationDTO(Long id, String nom, String date, CourseDTO cours, SubmissionDTO rendu) {
         this.id = id;
         this.nom = nom;
         this.date = date;
@@ -28,9 +28,9 @@ public class EvaluationDTO {
     public String getDate() { return date; }
     public void setDate(String date) { this.date = date; }
 
-    public CoursDTO getCours() { return cours; }
-    public void setCours(CoursDTO cours) { this.cours = cours; }
+    public CourseDTO getCours() { return cours; }
+    public void setCours(CourseDTO cours) { this.cours = cours; }
 
-    public RenduDTO getRendu() { return rendu; }
-    public void setRendu(RenduDTO rendu) { this.rendu = rendu; }
+    public SubmissionDTO getRendu() { return rendu; }
+    public void setRendu(SubmissionDTO rendu) { this.rendu = rendu; }
 }

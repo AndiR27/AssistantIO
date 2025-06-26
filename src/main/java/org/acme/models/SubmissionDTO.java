@@ -1,15 +1,15 @@
 package org.acme.models;
 
-public class RenduDTO {
+public class SubmissionDTO {
     private Long id;
     private String nomFichier;
     private String cheminStockage;
     private String cheminFichierStructure;
 
     // Constructeurs
-    public RenduDTO() {}
+    public SubmissionDTO() {}
 
-    public RenduDTO(Long id, String nomFichier, String cheminStockage, String cheminFichierStructure) {
+    public SubmissionDTO(Long id, String nomFichier, String cheminStockage, String cheminFichierStructure) {
         this.id = id;
         this.nomFichier = nomFichier;
         this.cheminStockage = cheminStockage;

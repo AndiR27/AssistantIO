@@ -1,13 +1,12 @@
 package org.acme.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import org.acme.entity.*;
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
 import org.apache.commons.compress.archivers.sevenz.SevenZFile;
+import org.jboss.logging.Logger;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
@@ -19,18 +18,15 @@ import java.util.stream.Stream;
 import static io.quarkus.fs.util.ZipUtils.*;
 
 @ApplicationScoped
-public class ServiceRendu {
-
-
-    /**
-     *
-     */
+public class SubmissionService {
 
     private String typeCours = "Java";
+    private static final Logger LOG = Logger.getLogger(SubmissionService.class);
+
 
     /**
      * Methode permettant de restructurer le rendu d'un fichier zip
-     * <p>
+     *
      * Logique de restructuration : Chaque dossier dans le zip est un étudiant (le
      * nom du fichier contient les infos de rendu, dont le nom au début) et
      * contient dedans un fichier zip qui est son rendu : ce fichier zip est un
@@ -38,34 +34,35 @@ public class ServiceRendu {
      * stocker dans un nouveau dossier "Nom_Prenom" qui sera lui même dans un dossier
      * "RenduRestructuration" et qui sera zippé puis stocké au même endroit que le zip
      * d'origine
-     * <p>
+     *
      * Cas à gérer :
      * - Lister les dossiers à ignorer (dossiers d'environnements, de build, etc...)
      * - les fichiers MacOS (._) à ignorer
      * - les fichiers cachés à ignorer
+     *
      * - Gérer le cas ou c'est un projet Java ou Python (si java, on prends tout le
-     * dossier src, si python on ne prends que les fichiers .py par exemple)
+     * dossier src, si python, on ne prend que les fichiers .py par exemple)
      * - si java avancé, il faudrait récupérer aussi des fichiers supplémentaires tel
      * que les tests unitaires ou dossiers ressources et pom.xml
-     * <p>
-     * Une entité Rendu a les infos de stockage du zip d'origine, il faudra ajouter
-     * ainsi
+     *
+     * Une entité Rendu a les infos de stockage du zip d'origine
      */
-    public void traitementRenduZip(Cours c, TravailPratique tp) throws IOException {
+    public void traitementRenduZip(Course c, TP tp) throws IOException {
         //TODO
-        Rendu rendu = tp.rendu;
-        if (rendu == null) {
-            System.out.println("Aucun rendu n'a été trouvé pour ce TP");
+        Submission submission = tp.submission;
+        if (submission == null) {
+            LOG.warn("No submission found for TP: " + tp.no);
             return;
         }
 
         //Gérer le type de cours
-        if (c.typeCours != null) {
-            typeCours = String.valueOf(c.typeCours);
+        if (c.courseType != null) {
+            typeCours = String.valueOf(c.courseType);
         }
 
+        LOG.debug("Starting restructuring for TP: " + tp.no + " of course: " + c.code);
         // chemin vers le zip d'origine
-        Path originalZip = Paths.get(rendu.cheminStockage);
+        Path originalZip = Paths.get(submission.pathStorage);
 
         // chemin racine du TP : "DocumentsZips/{CODE_COURS}/TP{no}"
         Path tpRoot = originalZip.getParent();
@@ -98,8 +95,8 @@ public class ServiceRendu {
         zip(restructurationDir, zipRestructure);
 
         //Mettre à jour le chemin du zip restructuré
-        rendu.cheminFichierStructure = zipRestructure.toString();
-
+        submission.pathFileRestructurated = zipRestructure.toString();
+        LOG.info("Submission path with restructurated data updated: " + submission.pathFileRestructurated);
         //Nettoyer les dossiers temporaires et le dossier de restructuration
         supprimerRepertoire(tpmExtractDir);
         supprimerRepertoire(restructurationDir);
@@ -110,9 +107,9 @@ public class ServiceRendu {
     /**
      * Méthode permettant de retourner la liste des étudiants ayant rendu leur TP
      */
-    public List<String> getListRendus(Rendu rendu) {
+    public List<String> getListRendus(Submission submission) {
         //Récupérer le path du zip restructuré
-        Path zipRestructure = Paths.get(rendu.cheminFichierStructure);
+        Path zipRestructure = Paths.get(submission.pathFileRestructurated);
         List<String> etudiants = new ArrayList<>();
         try {
             //Extraire le zip
@@ -130,7 +127,7 @@ public class ServiceRendu {
             //Supprimer le dossier temporaire
             supprimerRepertoire(extractDir);
         } catch (IOException e) {
-            throw new RuntimeException("Erreur lors de la récupération de la liste des étudiants", e);
+            LOG.error("Error while retrieving the list of students", e);
         }
 
         return etudiants;
@@ -138,7 +135,7 @@ public class ServiceRendu {
 
 
     // --------------------------------------------------------------------------
-    // Méthodes privées "utilitaires" (pseudo-code)
+    // Méthodes privées "utilitaires"
     // --------------------------------------------------------------------------
 
     /**
@@ -148,7 +145,8 @@ public class ServiceRendu {
         try {
             Files.createDirectories(dir);
         } catch (IOException e) {
-            throw new RuntimeException("Impossible de créer le dossier : " + dir, e);
+            LOG.error("Could not create directory: " + dir, e);
+            //throw new RuntimeException("Impossible de créer le dossier : " + dir, e);
         }
     }
 
@@ -195,7 +193,7 @@ public class ServiceRendu {
             manageExtractionZip(zipEtudiantPath, projetExtract, etudiantDir);
 
 
-
+            LOG.debug("Manage extraction for student project and typeCours");
             //Gérer le contenu du projet à copier selon le type de cours
             if (typeCours.equals("Java")) {
                 copierProjetJava(projetExtract, etudiantDirRestructured);
@@ -223,8 +221,9 @@ public class ServiceRendu {
                 return fileName.endsWith(".zip") || fileName.endsWith(".7z") || fileName.endsWith(".rar");
             }).findFirst();
         } catch (IOException e) {
-            throw new RuntimeException("Erreur lors de la recherche du sous-zip dans " + dossierEtudiant, e);
+            LOG.error("Error while searching for sub-zip in " + dossierEtudiant, e);
         }
+        return Optional.empty();
     }
 
     /**
@@ -258,10 +257,10 @@ public class ServiceRendu {
                 sevenZFile.read(content);
                 Files.write(outputFile, content);
 
-                System.out.println("Extracted: " + outputFile);
+                LOG.info("Extracted: " + outputFile);
             }
         } catch (IOException e) {
-            System.out.println("Erreur lors de l'extraction du fichier 7z : " + e.getMessage());
+            LOG.error("Error while extracting 7z file", e);
         }
     }
 
@@ -326,11 +325,12 @@ public class ServiceRendu {
                                 Files.copy(path, destPath, StandardCopyOption.REPLACE_EXISTING); // 8️⃣ Copier le fichier
                             }
                         } catch (IOException e) {
-                            throw new RuntimeException("Erreur lors de la copie de " + path + " vers " + destPath, e);
+                            LOG.error("Error while copying " + path + " to " + destPath, e);
                         }
                     });
         } catch (IOException e) {
-            throw new RuntimeException("Erreur lors du parcours de " + sourceDir, e);
+            LOG.error("Error while traversing " + sourceDir, e);
+
         }
     }
 
@@ -358,7 +358,7 @@ public class ServiceRendu {
                 }
             });
         } catch (IOException e) {
-            System.err.println("Impossible de supprimer " + dir + ": " + e.getMessage());
+            LOG.error("Directory deletion failed: " + dir, e);
         }
     }
 

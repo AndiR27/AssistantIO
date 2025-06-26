@@ -1,26 +1,20 @@
 package org.acme.rest;
 
 import io.quarkus.qute.CheckedTemplate;
-import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
-import io.smallrye.config.ConfigMapping;
-import io.vertx.ext.web.FileUpload;
-import jakarta.annotation.Resource;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
+import org.acme.enums.*;
 import org.acme.models.*;
 import org.acme.rest.form.FileUploadForm;
-import org.acme.service.ServiceCours;
-import org.acme.service.ServiceTravailPratique;
+import org.acme.service.CourseService;
+import org.acme.service.TPService;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
-import org.jboss.logging.annotations.Param;
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
-import org.jboss.resteasy.annotations.providers.multipart.PartType;
 
 import java.io.BufferedReader;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,16 +25,16 @@ public class CoursController {
     @CheckedTemplate
     private static class Templates {
 
-        public static native TemplateInstance cours_detail(CoursDTO coursDTO);
+        public static native TemplateInstance cours_detail(CourseDTO courseDTO);
 
-        public static native TemplateInstance etudiants(List<EtudiantDTO> etudiants);
+        public static native TemplateInstance etudiants(List<StudentDTO> etudiants);
     }
 
     @Inject
-    ServiceCours coursService;
+    CourseService coursService;
 
     @Inject
-    ServiceTravailPratique tpService;
+    TPService tpService;
 
     @GET
     @Path("/{id}")
@@ -63,17 +57,17 @@ public class CoursController {
             @FormParam("email") String email,
             @FormParam("typeEtude") String typeEtude) {
         //Récupérer le cours et ajouter l’étudiant via le service
-        CoursDTO coursDto = coursService.findCours(id);
+        CourseDTO courseDto = coursService.findCours(id);
         // 1. Construire l’objet EtudiantDTO (sans ID => nouvel étudiant)
-        EtudiantDTO newEtd = new EtudiantDTO(null, nom, email, TypeEtudeDTO.valueOf(typeEtude),new ArrayList<>());
+        StudentDTO newEtd = new StudentDTO(null, nom, email, StudyType.valueOf(typeEtude),new ArrayList<>());
 
-        if (coursDto == null) {
+        if (courseDto == null) {
             throw new NotFoundException("Cours non trouvé (ID=" + id + ")");
         }
-        coursService.ajouterEtudiant(coursDto, newEtd);
+        coursService.ajouterEtudiant(courseDto, newEtd);
 
         // 3. Renvoyer un fragment HTML qui affiche la liste mise à jour
-        List<EtudiantDTO> etudiantsInscrits = coursService.getEtudiantsInscrits(id);
+        List<StudentDTO> etudiantsInscrits = coursService.getEtudiantsInscrits(id);
         return Templates.etudiants(etudiantsInscrits);
     }
 
@@ -83,7 +77,7 @@ public class CoursController {
     @GET
     @Path("/{id}/etudiants")
     public TemplateInstance etudiants(@PathParam("id") Long id) {
-        List<EtudiantDTO> etudiantsInscrits = coursService.getEtudiantsInscrits(id);
+        List<StudentDTO> etudiantsInscrits = coursService.getEtudiantsInscrits(id);
         return Templates.etudiants(etudiantsInscrits);
     }
 
@@ -103,16 +97,16 @@ public class CoursController {
             @PathParam("id") Long id,
             @FormParam("numero") int numero) {
         // 1. Récupérer le cours
-        CoursDTO coursDto = coursService.findCours(id);
-        if (coursDto == null) {
+        CourseDTO courseDto = coursService.findCours(id);
+        if (courseDto == null) {
             throw new NotFoundException("Cours non trouvé (ID=" + id + ")");
         }
 
         // 2. Ajouter le TP
-        TravailPratiqueDTO newTp = coursService.ajouterTP(coursDto, numero);
+        TP_DTO newTp = coursService.ajouterTP(courseDto, numero);
 
         // 3. Rafraîchir le cours en base pour avoir la liste TPs à jour
-        CoursDTO updatedCours = coursService.findCours(id);
+        CourseDTO updatedCours = coursService.findCours(id);
 
         // 4. Renvoyer la page détaillée du cours mise à jour
         return Templates.cours_detail(updatedCours);
@@ -131,21 +125,21 @@ public class CoursController {
             @PathParam("id") Long id,
             @MultipartForm FileUploadForm form) {
         // 1. Récupérer le cours
-        CoursDTO coursDto = coursService.findCours(id);
+        CourseDTO courseDto = coursService.findCours(id);
         if (form == null) {
             System.out.println("Erreur fichier manquant");
             //return (TemplateInstance) Response.status(Response.Status.BAD_REQUEST).entity("Fichier manquant").build();
-            return Templates.cours_detail(coursDto).data("error", "Fichier manquant");
+            return Templates.cours_detail(courseDto).data("error", "Fichier manquant");
 
         }
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(form.getFile()))) {
             // Transformer en tableau de String
             String[] data = reader.lines().toArray(String[]::new);
             // 3. Ajouter les étudiants
-            coursService.addAllStudentsFromFile(coursDto, data);
+            coursService.addAllStudentsFromFile(courseDto, data);
 
             // 4. Rafraîchir le cours en base pour avoir la liste d'étudiants à jour
-            CoursDTO updatedCours = coursService.findCours(id);
+            CourseDTO updatedCours = coursService.findCours(id);
 
             // 5. Renvoyer la page détaillée du cours mise à jour
             return Templates.cours_detail(updatedCours);
@@ -174,23 +168,23 @@ public class CoursController {
             @FormParam("semestre") String semestre
     ) {
         // 1) Récupérer le cours
-        CoursDTO coursDto = coursService.findCours(id);
-        if (coursDto == null) {
+        CourseDTO courseDto = coursService.findCours(id);
+        if (courseDto == null) {
             throw new NotFoundException("Cours non trouvé (ID=" + id + ")");
         }
 
         // 2) Construire un ExamenDTO
-        ExamenDTO examDTO = new ExamenDTO();
+        ExamDTO examDTO = new ExamDTO();
         examDTO.setNom(nomExamen);
         examDTO.setDate(dateExamen);           // ex: "2025-05-12"
-        examDTO.setSemestre(TypeSemestreDTO.valueOf(semestre)); // PRINTEMPS / AUTOMNE ?
+        examDTO.setSemestre(SemesterType.valueOf(semestre)); // PRINTEMPS / AUTOMNE ?
         // etc. selon tes champs
 
         // 3) Appeler le service
-        coursService.ajouterExamen(coursDto, examDTO);
+        coursService.ajouterExamen(courseDto, examDTO);
 
         // 4) Réafficher la page cours_detail
-        CoursDTO updated = coursService.findCours(id);
+        CourseDTO updated = coursService.findCours(id);
         return Templates.cours_detail(updated);
     }
 
@@ -213,22 +207,22 @@ public class CoursController {
             @FormParam("semestre") String semestre
     ) {
         // 1) Récupérer le cours
-        CoursDTO coursDto = coursService.findCours(id);
-        if (coursDto == null) {
+        CourseDTO courseDto = coursService.findCours(id);
+        if (courseDto == null) {
             throw new NotFoundException("Cours non trouvé (ID=" + id + ")");
         }
 
         // 2) Construire un ControleContinuDTO
-        ControleContinuDTO ccDTO = new ControleContinuDTO();
+        ContinuousAssessmentDTO ccDTO = new ContinuousAssessmentDTO();
         ccDTO.setNom(nomCC);
         ccDTO.setDate(dateCC);
-        //ccDTO.setSemestre(TypeSemestreDTO.valueOf(semestre)); // Ex: PRINTEMPS / AUTOMNE ?
+        //ccDTO.setSemestre(SemesterType.valueOf(semestre)); // Ex: PRINTEMPS / AUTOMNE ?
 
         // 3) Appeler le service
-        coursService.addCC(coursDto, ccDTO);
+        coursService.addCC(courseDto, ccDTO);
 
         // 4) Réafficher la page cours_detail
-        CoursDTO updated = coursService.findCours(id);
+        CourseDTO updated = coursService.findCours(id);
         return Templates.cours_detail(updated);
     }
 
@@ -250,8 +244,8 @@ public class CoursController {
                                      @PathParam("no_tp") int noTP,
                                      @MultipartForm FileUploadForm form) {
         // 1. Récupérer le cours et le TP
-        CoursDTO coursDto = coursService.findCours(idCours);
-        TravailPratiqueDTO tpDto = coursService.findTPByNumero(coursDto, noTP );
+        CourseDTO courseDto = coursService.findCours(idCours);
+        TP_DTO tpDto = coursService.findTPByNumero(courseDto, noTP );
         if (tpDto == null) {
             throw new NotFoundException("Cours ou TP non trouvé (ID=" + idCours + ", " + noTP + ")");
         }
@@ -260,7 +254,7 @@ public class CoursController {
         tpService.creerRenduTP(tpDto, form.getFile());
 
         // 3. Rafraîchir le cours en base pour avoir la liste de rendus à jour
-        CoursDTO updatedCours = coursService.findCours(idCours);
+        CourseDTO updatedCours = coursService.findCours(idCours);
 
         // 4. Renvoyer la page détaillée du cours mise à jour
         return Templates.cours_detail(updatedCours);

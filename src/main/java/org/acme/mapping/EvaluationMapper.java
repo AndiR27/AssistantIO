@@ -7,15 +7,15 @@ import org.mapstruct.*;
 @Mapper(config = CentralConfig.class)
 public interface EvaluationMapper {
     @Mapping(target = "cours", ignore = true) // On ignore la référence au Cours
-    ExamenDTO toDtoExamen(Examen entity);
+    ExamDTO toDtoExamen(Exam entity);
 
     @InheritInverseConfiguration
-    Examen toEntityExamen(ExamenDTO dto);
+    Exam toEntityExamen(ExamDTO dto);
 
     @Mapping(target = "cours", ignore = true) // On ignore la référence au Cours
-    ControleContinuDTO toDtoControleContinu(ControleContinu entity);
+    ContinuousAssessmentDTO toDtoControleContinu(ContinuousAssessment entity);
 
     @InheritInverseConfiguration
-    ControleContinu toEntityControleContinu(ControleContinuDTO dto);
+    ContinuousAssessment toEntityControleContinu(ContinuousAssessmentDTO dto);
 
 }

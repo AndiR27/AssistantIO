@@ -5,37 +5,35 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import org.acme.models.CoursDTO;
-import org.acme.models.TypeCoursDTO;
-import org.acme.models.TypeSemestreDTO;
-import org.acme.service.ServiceCours;
+import org.acme.enums.*;
+import org.acme.models.CourseDTO;
+
+import org.acme.service.CourseService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.util.ArrayList;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
 @QuarkusTest
-public class CoursControllerTest {
+public class CourseControllerTest {
 
     @Inject
-    ServiceCours coursService;
+    CourseService coursService;
     @BeforeEach
     @Transactional
     void setup() {
         // 1. Créer un cours en base, si besoin
         // via ServiceCours ou un repository direct
         // ex: coursService.creerCours(...)
-        CoursDTO cours = new CoursDTO(null,
+        CourseDTO cours = new CourseDTO(null,
                 "Programmation collaborative",
-                "63-21", TypeSemestreDTO.Automne, 2025, "Stettler", TypeCoursDTO.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-        CoursDTO coursDTO = coursService.creerCours(cours);
+                "63-21", SemesterType.AUTOMNE, 2025, "Stettler", CourseType.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        CourseDTO courseDTO = coursService.creerCours(cours);
     }
 
     /**
@@ -153,7 +151,7 @@ public class CoursControllerTest {
                 .multiPart("file", file)
                 .contentType("multipart/form-data")
                 .when()
-                .post("/cours/1/TP/1/addRendu")
+                .post("/cours/1/addRendu/1")
                 .then()
                 .statusCode(200)
                 .body(containsString("TP1_RenduCyberlearn.zip"));

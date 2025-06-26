@@ -5,12 +5,10 @@ import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.acme.entity.*;
 
-import java.util.List;
-
 @ApplicationScoped
-public class EtudiantRepository implements PanacheRepository<Etudiant>{
+public class StudentRepository implements PanacheRepository<Student>{
 
-    public Etudiant findByEmail(String email) {
+    public Student findByEmail(String email) {
         return find("email", email).firstResult();
     }
 

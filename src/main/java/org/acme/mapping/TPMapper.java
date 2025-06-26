@@ -5,12 +5,12 @@ import org.acme.models.*;
 import org.mapstruct.*;
 
 @Mapper(config = CentralConfig.class,
-    uses = {RenduMapper.class})
-public interface TravailPratiqueMapper {
+    uses = {SubmissionMapper.class})
+public interface TPMapper {
 
     @Mapping(target = "cours", ignore = true) // On ignore la référence au Cours
-    TravailPratiqueDTO toDto(TravailPratique entity);
+    TP_DTO toDto(TP entity);
 
     @InheritInverseConfiguration
-    TravailPratique toEntity(TravailPratiqueDTO dto);
+    TP toEntity(TP_DTO dto);
 }

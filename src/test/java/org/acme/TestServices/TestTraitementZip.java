@@ -1,17 +1,15 @@
 package org.acme.TestServices;
 
-import io.quarkus.test.TestTransaction;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.acme.entity.*;
-import org.acme.models.CoursDTO;
-import org.acme.models.TravailPratiqueDTO;
-import org.acme.models.TypeCoursDTO;
-import org.acme.models.TypeSemestreDTO;
+import org.acme.models.CourseDTO;
+import org.acme.models.TP_DTO;
+import org.acme.enums.*;
 import org.acme.repository.*;
 import org.acme.service.*;
-import org.acme.service.ServiceTravailPratique;
+import org.acme.service.TPService;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -26,23 +24,23 @@ import java.util.zip.ZipFile;
 public class TestTraitementZip {
 
     @Inject
-    ServiceCours serviceCours;
+    CourseService courseService;
     @Inject
-    ServiceRendu serviceRendu;
+    SubmissionService submissionService;
     @Inject
-    CoursRepository repositoryCours;
+    CourseRepository repositoryCours;
     @Inject
-    ServiceTravailPratique serviceTravailPratique;
+    TPService TPService;
 
     @Inject
-    TP_StatusRepository repositoryTP_Status;
+    TPStatusRepository repositoryTP_Status;
     @Inject
-    EtudiantRepository etudiantRepository;
+    StudentRepository studentRepository;
 
     @Inject
     TPRepository repositoryTravailPratique;
     @Inject
-    RenduRepository renduRepository;
+    SubmissionRepository submissionRepository;
 
     @BeforeEach
     @Transactional
@@ -73,31 +71,31 @@ public class TestTraitementZip {
     @Transactional
     public void testerTraitementZip() throws IOException {
         //Creation des entités
-        CoursDTO cours = new CoursDTO(null,
+        CourseDTO cours = new CourseDTO(null,
                 "Approfondissement de la programmation",
-                "62-21", TypeSemestreDTO.Printemps, 2025, "Stettler", TypeCoursDTO.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-        CoursDTO coursDTO = serviceCours.creerCours(cours);
+                "62-21", SemesterType.PRINTEMPS, 2025, "Stettler", CourseType.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        CourseDTO courseDTO = courseService.creerCours(cours);
 
-        TravailPratiqueDTO tpDTP = serviceCours.ajouterTP(coursDTO, 1);
+        TP_DTO tpDTP = courseService.ajouterTP(courseDTO, 1);
 
         //Creer l'input pour le zip
         Path path = Paths.get("src/test/resources/mockinginputstreams/test_zip.zip");
         InputStream inputStream = Files.newInputStream(path);
 
         //Ajout d'un rendu
-        Cours c = repositoryCours.findById(coursDTO.getId());
-        TravailPratique tp = repositoryCours.findTpByNo(c.id, 1);
+        Course c = repositoryCours.findById(courseDTO.getId());
+        TP tp = repositoryCours.findTpByNo(c.id, 1);
 
-        serviceTravailPratique.creerRenduTP(tpDTP, inputStream);
+        TPService.creerRenduTP(tpDTP, inputStream);
 
         //Lancement de la methode des traitements de zip pour un cours et un TP :
-        serviceCours.lancerTraitementRenduZip(c.id, tp.id);
+        courseService.lancerTraitementRenduZip(c.id, tp.id);
 
         //Vérifier que le rendu a bien été traité
-        Rendu rendu = tp.rendu;
-        Assertions.assertNotNull(rendu);
-        String cheminVersZip = rendu.cheminStockage;
-        String cheminVersZipRestructure = rendu.cheminFichierStructure;
+        Submission submission = tp.submission;
+        Assertions.assertNotNull(submission);
+        String cheminVersZip = submission.pathStorage;
+        String cheminVersZipRestructure = submission.pathFileRestructurated;
         // Normaliser les chemins pour éviter les problèmes de séparateurs ('/' vs '\\')
         Path expectedPath1 = Paths.get("src/test/resources/testZips/62-21/TP1/TP1_RenduCyberlearn.zip");
         Path expectedPath2 = Paths.get("src/test/resources/testZips/62-21/TP1/TP1_RenduRestructuration.zip");
@@ -116,30 +114,30 @@ public class TestTraitementZip {
     @Transactional
     public void testerContenuZip() throws IOException {
         //Creation des entités
-        CoursDTO cours = new CoursDTO(null,
+        CourseDTO cours = new CourseDTO(null,
                 "Python Introduction",
-                "61-13", TypeSemestreDTO.Automne, 2025, "Stettler", TypeCoursDTO.Python, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-        CoursDTO coursDTO = serviceCours.creerCours(cours);
+                "61-13", SemesterType.AUTOMNE, 2025, "Stettler", CourseType.Python, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        CourseDTO courseDTO = courseService.creerCours(cours);
 
-        TravailPratiqueDTO tpDTO = serviceCours.ajouterTP(coursDTO, 1);
+        TP_DTO tpDTO = courseService.ajouterTP(courseDTO, 1);
 
         //Creer l'input pour le zip
         Path path = Paths.get("src/test/resources/mockinginputstreams/test_zip.zip");
         InputStream inputStream = Files.newInputStream(path);
         //Ajout d'un rendu
-        Cours c = repositoryCours.findCoursByCode("61-13");
-        TravailPratique tp = repositoryCours.findTpByNo(c.id, 1);
-        serviceTravailPratique.creerRenduTP(tpDTO, inputStream);
+        Course c = repositoryCours.findCoursByCode("61-13");
+        TP tp = repositoryCours.findTpByNo(c.id, 1);
+        TPService.creerRenduTP(tpDTO, inputStream);
 
         //Lancement de la methode des traitements de zip pour un cours et un TP :
-        serviceCours.lancerTraitementRenduZip(c.id, tp.id);
+        courseService.lancerTraitementRenduZip(c.id, tp.id);
 
         //tests
-        Rendu rendu = tp.rendu;
-        Assertions.assertNotNull(rendu);
+        Submission submission = tp.submission;
+        Assertions.assertNotNull(submission);
 
         //Vérifier si le rendu de george dylan ne contient que des fichiers .py
-        Path pathRendu = Paths.get(rendu.cheminFichierStructure);
+        Path pathRendu = Paths.get(submission.pathFileRestructurated);
         Assertions.assertTrue(Files.exists(pathRendu));
 
         Path etudiantPath = pathRendu.resolve("georgedylan");
@@ -193,12 +191,12 @@ public class TestTraitementZip {
     public void testStatusUpdateEtudiants() throws IOException {
 
         //Créer les données de test
-        CoursDTO cours = new CoursDTO(null,
+        CourseDTO cours = new CourseDTO(null,
                 "Approfondissement de la programmation",
-                "62-21", TypeSemestreDTO.Printemps, 2025, "Stettler", TypeCoursDTO.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-        CoursDTO coursDTO = serviceCours.creerCours(cours);
+                "62-21", SemesterType.PRINTEMPS, 2025, "Stettler", CourseType.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        CourseDTO courseDTO = courseService.creerCours(cours);
 
-        TravailPratiqueDTO tpDTO = serviceCours.ajouterTP(coursDTO, 1);
+        TP_DTO tpDTO = courseService.ajouterTP(courseDTO, 1);
 
         String[] etudiants = {
                 "Scout Mark;mark@hesge.ch;temps_plein",
@@ -206,38 +204,38 @@ public class TestTraitementZip {
                 "George Dylan;dylan@hesge.ch;temps_plein",
                 "Bailiff Irving;irving@hesge.ch;temps_plein",
         };
-        serviceCours.addAllStudentsFromFile(coursDTO, etudiants);
+        courseService.addAllStudentsFromFile(courseDTO, etudiants);
 
         //Utilisation d'un zip pour ajouter un rendu
         Path path = Paths.get("src/test/resources/mockinginputstreams/test_zip.zip");
         InputStream inputStream = Files.newInputStream(path);
 
         //Ajout d'un rendu
-        Cours c = repositoryCours.findById(coursDTO.getId());
-        TravailPratique tp = repositoryCours.findTpByNo(c.id, 1);
-        serviceTravailPratique.creerRenduTP(tpDTO, inputStream);
+        Course c = repositoryCours.findById(courseDTO.getId());
+        TP tp = repositoryCours.findTpByNo(c.id, 1);
+        TPService.creerRenduTP(tpDTO, inputStream);
 
         //Lancement de la methode des traitements de zip pour un cours et un TP :
-        serviceCours.lancerTraitementRenduZip(c.id, tp.id);
+        courseService.lancerTraitementRenduZip(c.id, tp.id);
 
         //tests
-        Rendu rendu = tp.rendu;
-        Assertions.assertNotNull(rendu);
+        Submission submission = tp.submission;
+        Assertions.assertNotNull(submission);
 
         //Lancement de la methode pour traiter les TP_Status avec gestionRendusTP dans serviceTravailPratique
-        tp = serviceTravailPratique.gestionRendusTP(c, tp, c.etudiantsInscrits);
+        tp = TPService.gestionRendusTP(c, tp, c.studentList);
 
         //première vérification : tester si les 4 étudiants ont bien un TP_Status
-        List<TP_Status> tpStatusList = repositoryTP_Status.findByTP(tp.id);
+        List<TPStatus> tpStatusList = repositoryTP_Status.findByTP(tp.id);
         Assertions.assertEquals(4, tpStatusList.size());
 
         //Parcours de la liste : normalement 3 étudiants sur 4 ont rendu, Irvin n'a pas rendu
-        for (TP_Status tpStatus : tpStatusList) {
-            if (tpStatus.etudiant.nom.equals("Bailiff Irving")) {
-                Assertions.assertFalse(tpStatus.renduEtudiant);
+        for (TPStatus tpStatus : tpStatusList) {
+            if (tpStatus.student.name.equals("Bailiff Irving")) {
+                Assertions.assertFalse(tpStatus.studentSubmission);
             }
             else{
-                Assertions.assertTrue(tpStatus.renduEtudiant);
+                Assertions.assertTrue(tpStatus.studentSubmission);
             }
         }
     }

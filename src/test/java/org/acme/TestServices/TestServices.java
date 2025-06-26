@@ -5,6 +5,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.acme.entity.*;
+import org.acme.enums.*;
 import org.acme.models.*;
 import org.acme.repository.*;
 import org.acme.service.*;
@@ -22,17 +23,17 @@ import java.util.List;
 public class TestServices {
 
     @Inject
-    CoursRepository coursRepository;
+    CourseRepository courseRepository;
     @Inject
     TPRepository travailPratiqueRepository;
     @Inject
-    EtudiantRepository etudiantRepository;
+    StudentRepository studentRepository;
     @Inject
-    ServiceCours serviceCours;
+    CourseService courseService;
     @Inject
-    ServiceTravailPratique serviceTravailPratique;
+    TPService TPService;
     @Inject
-    ServiceEtudiant serviceEtudiant;
+    StudentService studentService;
 
 
 
@@ -45,8 +46,8 @@ public class TestServices {
     @Transactional
     void cleanDatabase() {
         travailPratiqueRepository.deleteAll();
-        etudiantRepository.deleteAll();
-        coursRepository.deleteAll();
+        studentRepository.deleteAll();
+        courseRepository.deleteAll();
     }
 
     /**
@@ -82,18 +83,18 @@ public class TestServices {
     @Test
     @TestTransaction
     public void testCreationCours() {
-        CoursDTO cours = new CoursDTO(null,
+        CourseDTO cours = new CourseDTO(null,
                 "Programmation collaborative",
-                "63-21", TypeSemestreDTO.Automne, 2025, "Stettler", TypeCoursDTO.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-        CoursDTO coursDTO = serviceCours.creerCours(cours);
+                "63-21", SemesterType.AUTOMNE, 2025, "Stettler", CourseType.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        CourseDTO courseDTO = courseService.creerCours(cours);
 
         //vérifier le DTO
-        Assertions.assertNotNull(coursDTO);
+        Assertions.assertNotNull(courseDTO);
 
-        Assertions.assertEquals(1, coursRepository.count());
-        Cours c = coursRepository.findCoursByCode("63-21");
+        Assertions.assertEquals(1, courseRepository.count());
+        Course c = courseRepository.findCoursByCode("63-21");
         Assertions.assertEquals("63-21", c.code);
-        Assertions.assertEquals("Programmation collaborative", c.nom);
+        Assertions.assertEquals("Programmation collaborative", c.name);
     }
 
     /**
@@ -103,27 +104,27 @@ public class TestServices {
     @Transactional
     public void testAjoutEtudiants() {
         // Créer un cours
-        CoursDTO cours = new CoursDTO(null,
+        CourseDTO cours = new CourseDTO(null,
                 "Programmation collaborative",
-                "63-21", TypeSemestreDTO.Automne, 2025, "Stettler", TypeCoursDTO.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-        CoursDTO coursDTO = serviceCours.creerCours(cours);
+                "63-21", SemesterType.AUTOMNE, 2025, "Stettler", CourseType.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        CourseDTO courseDTO = courseService.creerCours(cours);
 
-        Cours c = coursRepository.findCoursByCode("63-21");
+        Course c = courseRepository.findCoursByCode("63-21");
 
         // Créer un étudiant en base
-        EtudiantDTO eMark = new EtudiantDTO(null, "Scout Mark", "mark@hesge.ch", TypeEtudeDTO.temps_plein, new ArrayList<>());
-        EtudiantDTO eMarkDTO = serviceEtudiant.addEtudiant(eMark);
+        StudentDTO eMark = new StudentDTO(null, "Scout Mark", "mark@hesge.ch", StudyType.temps_plein, new ArrayList<>());
+        StudentDTO eMarkDTO = studentService.addEtudiant(eMark);
 
         // Ajouter Mark au cours 63-21
-        EtudiantDTO etuAdded = serviceCours.ajouterEtudiant(coursDTO, eMarkDTO);
+        StudentDTO etuAdded = courseService.ajouterEtudiant(courseDTO, eMarkDTO);
 
 
-        Assertions.assertEquals(1, c.etudiantsInscrits.size());
+        Assertions.assertEquals(1, c.studentList.size());
         Assertions.assertNotNull(etuAdded);
 
         // On vérifie qu'il est aussi lié côté Etudiant
-        Assertions.assertEquals(1, etudiantRepository.findByEmail(etuAdded.getEmail()).coursEtudiant.size());
-        Assertions.assertEquals("63-21", etudiantRepository.findByEmail(etuAdded.getEmail()).coursEtudiant.getFirst().code);
+        Assertions.assertEquals(1, studentRepository.findByEmail(etuAdded.getEmail()).courseStudentList.size());
+        Assertions.assertEquals("63-21", studentRepository.findByEmail(etuAdded.getEmail()).courseStudentList.getFirst().code);
 
         // Test d'un ID inexistant
         //Assertions.assertThrows(Exception.class, () -> serviceCours.ajouterEtudiant(new CoursDTO(), new EtudiantDTO()));
@@ -136,22 +137,22 @@ public class TestServices {
     @Transactional
     public void testAjoutEtudiantAvecTxt() {
         // Créer un cours
-        CoursDTO cours = new CoursDTO(null,
+        CourseDTO cours = new CourseDTO(null,
                 "Approfondissement de la programmation",
-                "62-21", TypeSemestreDTO.Printemps, 2025, "Stettler", TypeCoursDTO.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-        CoursDTO coursDTO = serviceCours.creerCours(cours);
-        Cours c = coursRepository.findCoursByCode("62-21");
+                "62-21", SemesterType.PRINTEMPS, 2025, "Stettler", CourseType.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        CourseDTO courseDTO = courseService.creerCours(cours);
+        Course c = courseRepository.findCoursByCode("62-21");
         // Ajout de quelques étudiants via un pseudo-fichier .txt
         String[] data = {
                 "Walter White;w@hesge.ch;temps_plein",
                 "Jesse Pinkman;jesse@hesge.ch;temps_partiel"
         };
-        serviceCours.addAllStudentsFromFile(coursDTO, data);
+        courseService.addAllStudentsFromFile(courseDTO, data);
 
         // Vérifications
-        Assertions.assertNotNull(etudiantRepository.findByEmail("w@hesge.ch"));
-        Assertions.assertNotNull(etudiantRepository.findByEmail("jesse@hesge.ch"));
-        Assertions.assertEquals(2, c.etudiantsInscrits.size());
+        Assertions.assertNotNull(studentRepository.findByEmail("w@hesge.ch"));
+        Assertions.assertNotNull(studentRepository.findByEmail("jesse@hesge.ch"));
+        Assertions.assertEquals(2, c.studentList.size());
     }
 
     /**
@@ -161,25 +162,25 @@ public class TestServices {
     @Transactional
     public void testAjoutTP() {
         // Créer un cours
-        CoursDTO cours = new CoursDTO(null,
+        CourseDTO cours = new CourseDTO(null,
                 "Approfondissement de la programmation",
-                "62-21", TypeSemestreDTO.Printemps, 2025, "Stettler", TypeCoursDTO.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-        CoursDTO coursDTO = serviceCours.creerCours(cours);
+                "62-21", SemesterType.PRINTEMPS, 2025, "Stettler", CourseType.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        CourseDTO courseDTO = courseService.creerCours(cours);
 
 
         // Ajouter un TP
-        TravailPratiqueDTO tpDTO = serviceCours.ajouterTP(coursDTO, 2);
+        TP_DTO tpDTO = courseService.ajouterTP(courseDTO, 2);
 
         // Vérifier la méthode d'ajout du TP avec le DTO
         Assertions.assertNotNull(tpDTO);
-        Assertions.assertEquals(coursDTO.getCode(), travailPratiqueRepository.findById(tpDTO.getId()).cours.code);
+        Assertions.assertEquals(courseDTO.getCode(), travailPratiqueRepository.findById(tpDTO.getId()).course.code);
 
         //Vérification du côté de l'entité cours
-        Cours c = coursRepository.findCoursByCode("62-21");
-        Assertions.assertEquals(1, c.travauxPratiques.size());
+        Course c = courseRepository.findCoursByCode("62-21");
+        Assertions.assertEquals(1, c.tpsList.size());
 
         // Tester si le TP existe bien
-        TravailPratique tp = coursRepository.findTpByNo(c.id, 2);
+        TP tp = courseRepository.findTpByNo(c.id, 2);
         Assertions.assertNotNull(tp);
         Assertions.assertEquals(2, tp.no);
     }
@@ -191,15 +192,15 @@ public class TestServices {
     @Transactional
     public void testAjoutEvaluations() {
         // Créer un cours
-        CoursDTO cours = new CoursDTO(null,
+        CourseDTO cours = new CourseDTO(null,
                 "Approfondissement de la programmation",
-                "62-21", TypeSemestreDTO.Printemps, 2025, "Stettler", TypeCoursDTO.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-        CoursDTO coursDTO = serviceCours.creerCours(cours);
-        Cours c = coursRepository.findCoursByCode("62-21");
+                "62-21", SemesterType.PRINTEMPS, 2025, "Stettler", CourseType.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        CourseDTO courseDTO = courseService.creerCours(cours);
+        Course c = courseRepository.findCoursByCode("62-21");
 
         // Ajout d'un examen et d'un CC
-        ExamenDTO examDTO = serviceCours.ajouterExamen(coursDTO, new ExamenDTO(null, "Examen final", "2025-12-15", coursDTO, null, coursDTO.getSemestre()));
-        ControleContinuDTO ccDTO = serviceCours.addCC(coursDTO, new ControleContinuDTO(null, "CC1", "2025-10-15", coursDTO, null, 2, 1));
+        ExamDTO examDTO = courseService.ajouterExamen(courseDTO, new ExamDTO(null, "Examen final", "2025-12-15", courseDTO, null, courseDTO.getSemestre()));
+        ContinuousAssessmentDTO ccDTO = courseService.addCC(courseDTO, new ContinuousAssessmentDTO(null, "CC1", "2025-10-15", courseDTO, null, 2, 1));
 
         //Tester les DTO :
         Assertions.assertNotNull(examDTO);
@@ -208,8 +209,8 @@ public class TestServices {
 
         // Vérifier
         Assertions.assertEquals(2, c.evaluations.size());
-        Assertions.assertEquals("Examen final", c.evaluations.get(0).nom);
-        Assertions.assertEquals("CC1", c.evaluations.get(1).nom);
+        Assertions.assertEquals("Examen final", c.evaluations.get(0).name);
+        Assertions.assertEquals("CC1", c.evaluations.get(1).name);
     }
 
     /**
@@ -232,15 +233,15 @@ public class TestServices {
         }
 
         // Créer un cours
-        CoursDTO cours = new CoursDTO(null,
+        CourseDTO cours = new CourseDTO(null,
                 "Programmation collaborative",
-                "63-21", TypeSemestreDTO.Automne, 2025, "Stettler", TypeCoursDTO.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-        CoursDTO coursDTO =serviceCours.creerCours(cours);
-        Cours c = coursRepository.findCoursByCode("63-21");
+                "63-21", SemesterType.AUTOMNE, 2025, "Stettler", CourseType.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        CourseDTO courseDTO = courseService.creerCours(cours);
+        Course c = courseRepository.findCoursByCode("63-21");
 
         // Créer un TP et un examen
-        serviceCours.ajouterTP(coursDTO, 1);
-        serviceCours.ajouterExamen(coursDTO,new ExamenDTO(null, "Examen final", "2025-12-15", coursDTO, null, coursDTO.getSemestre()));
+        courseService.ajouterTP(courseDTO, 1);
+        courseService.ajouterExamen(courseDTO,new ExamDTO(null, "Examen final", "2025-12-15", courseDTO, null, courseDTO.getSemestre()));
 
         // Vérifier l'existence des dossiers
         Path tpDir = Paths.get("src/test/resources/testZips", c.code, "TP1");
@@ -257,13 +258,13 @@ public class TestServices {
     @TestTransaction
     public void testRenduTp() throws IOException {
         // Créer un cours et un TP
-        CoursDTO cours = new CoursDTO(null,
+        CourseDTO cours = new CourseDTO(null,
                 "Programmation collaborative",
-                "63-21", TypeSemestreDTO.Automne, 2025, "Stettler", TypeCoursDTO.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-        CoursDTO coursDTO = serviceCours.creerCours(cours);
-        Cours c = coursRepository.findCoursByCode("63-21");
+                "63-21", SemesterType.AUTOMNE, 2025, "Stettler", CourseType.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        CourseDTO courseDTO = courseService.creerCours(cours);
+        Course c = courseRepository.findCoursByCode("63-21");
 
-        TravailPratiqueDTO tp01DTO = serviceCours.ajouterTP(coursDTO, 1);
+        TP_DTO tp01DTO = courseService.ajouterTP(courseDTO, 1);
 
         //TravailPratique tp01 = coursRepository.findTpByNo(c.id, 1);
 
@@ -272,7 +273,7 @@ public class TestServices {
         InputStream inputStream = Files.newInputStream(path);
 
         // Créer le rendu du TP via le service
-        TravailPratiqueDTO tp01DTP = serviceTravailPratique.creerRenduTP(tp01DTO, inputStream);
+        TP_DTO tp01DTP = TPService.creerRenduTP(tp01DTO, inputStream);
 
         // Vérifier
         Assertions.assertNotNull(tp01DTP.getRendu());

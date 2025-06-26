@@ -11,28 +11,29 @@ import jakarta.persistence.*;
  * ajouter un champ pour stocker cette information
  */
 @Entity
-@Table(name = "tp_etudiant_status")
-public class TP_Status extends PanacheEntityBase {
+@Table(name = "tp_student_status")
+public class TPStatus extends PanacheEntityBase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long id;
 
     @ManyToOne
-    @JoinColumn(name = "etudiant_id")
-    public Etudiant etudiant;
+    @JoinColumn(name = "student_id")
+    public Student student;
 
     @ManyToOne
     @JoinColumn(name = "travail_pratique_id")
-    public TravailPratique travailPratique;
+    public TP TP;
 
-    public boolean renduEtudiant;
+    @Column(name = "student_submitted")
+    public boolean studentSubmission;
 
-    public TP_Status(Etudiant etudiant, TravailPratique travailPratique, boolean renduEtudiant) {
-        this.etudiant = etudiant;
-        this.travailPratique = travailPratique;
-        this.renduEtudiant = renduEtudiant;
+    public TPStatus(Student student, TP TP, boolean studentSubmission) {
+        this.student = student;
+        this.TP = TP;
+        this.studentSubmission = studentSubmission;
     }
 
-    public TP_Status() {
+    public TPStatus() {
     }
 }

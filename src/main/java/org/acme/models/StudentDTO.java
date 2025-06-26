@@ -1,19 +1,21 @@
 package org.acme.models;
 
+import org.acme.enums.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class EtudiantDTO {
+public class StudentDTO {
     private Long id;
     private String nom;
     private String email;
-    private TypeEtudeDTO typeEtude;
-    private List<CoursDTO> coursEtudiant = new ArrayList<>();
+    private StudyType typeEtude;
+    private List<CourseDTO> coursEtudiant = new ArrayList<>();
 
     // Constructeurs
-    public EtudiantDTO() {}
+    public StudentDTO() {}
 
-    public EtudiantDTO(Long id, String nom, String email, TypeEtudeDTO typeEtude, List<CoursDTO> coursEtudiant) {
+    public StudentDTO(Long id, String nom, String email, StudyType typeEtude, List<CourseDTO> coursEtudiant) {
         this.id = id;
         this.nom = nom;
         this.email = email;
@@ -31,9 +33,9 @@ public class EtudiantDTO {
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
 
-    public TypeEtudeDTO getTypeEtude() { return typeEtude; }
-    public void setTypeEtude(TypeEtudeDTO typeEtude) { this.typeEtude = typeEtude; }
+    public StudyType getTypeEtude() { return typeEtude; }
+    public void setTypeEtude(StudyType typeEtude) { this.typeEtude = typeEtude; }
 
-    public List<CoursDTO> getCoursEtudiant() { return coursEtudiant; }
-    public void setCoursEtudiant(List<CoursDTO> cours) { this.coursEtudiant = cours; }
+    public List<CourseDTO> getCoursEtudiant() { return coursEtudiant; }
+    public void setCoursEtudiant(List<CourseDTO> cours) { this.coursEtudiant = cours; }
 }

@@ -73,7 +73,7 @@ public class TestTraitementZip {
         //Creation des entités
         CourseDTO cours = new CourseDTO(null,
                 "Approfondissement de la programmation",
-                "62-21", SemesterType.PRINTEMPS, 2025, "Stettler", CourseType.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+                "62-21", SemesterType.PRINTEMPS, 2027, "Stettler", CourseType.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         CourseDTO courseDTO = courseService.creerCours(cours);
 
         TP_DTO tpDTP = courseService.ajouterTP(courseDTO, 1);
@@ -95,7 +95,7 @@ public class TestTraitementZip {
         Submission submission = tp.submission;
         Assertions.assertNotNull(submission);
         String cheminVersZip = submission.pathStorage;
-        String cheminVersZipRestructure = submission.pathFileRestructurated;
+        String cheminVersZipRestructure = submission.pathFileStructured;
         // Normaliser les chemins pour éviter les problèmes de séparateurs ('/' vs '\\')
         Path expectedPath1 = Paths.get("src/test/resources/testZips/62-21/TP1/TP1_RenduCyberlearn.zip");
         Path expectedPath2 = Paths.get("src/test/resources/testZips/62-21/TP1/TP1_RenduRestructuration.zip");
@@ -114,10 +114,10 @@ public class TestTraitementZip {
     @Transactional
     public void testerContenuZip() throws IOException {
         //Creation des entités
-        CourseDTO cours = new CourseDTO(null,
+
+        CourseDTO courseDTO = courseService.creerCours(new CourseDTO(null,
                 "Python Introduction",
-                "61-13", SemesterType.AUTOMNE, 2025, "Stettler", CourseType.Python, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-        CourseDTO courseDTO = courseService.creerCours(cours);
+                "61-13", SemesterType.AUTOMNE, 2025, "Stettler", CourseType.Python, new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
 
         TP_DTO tpDTO = courseService.ajouterTP(courseDTO, 1);
 
@@ -137,7 +137,7 @@ public class TestTraitementZip {
         Assertions.assertNotNull(submission);
 
         //Vérifier si le rendu de george dylan ne contient que des fichiers .py
-        Path pathRendu = Paths.get(submission.pathFileRestructurated);
+        Path pathRendu = Paths.get(submission.pathFileStructured);
         Assertions.assertTrue(Files.exists(pathRendu));
 
         Path etudiantPath = pathRendu.resolve("georgedylan");
@@ -193,7 +193,7 @@ public class TestTraitementZip {
         //Créer les données de test
         CourseDTO cours = new CourseDTO(null,
                 "Approfondissement de la programmation",
-                "62-21", SemesterType.PRINTEMPS, 2025, "Stettler", CourseType.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+                "62-23", SemesterType.PRINTEMPS, 2026, "Stettler", CourseType.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         CourseDTO courseDTO = courseService.creerCours(cours);
 
         TP_DTO tpDTO = courseService.ajouterTP(courseDTO, 1);

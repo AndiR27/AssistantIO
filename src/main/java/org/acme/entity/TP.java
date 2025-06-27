@@ -22,7 +22,7 @@ public class TP extends PanacheEntityBase {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long id;
 
-    @Column(name = "TP_number" ,nullable = false, unique = true)
+    @Column(name = "TP_number" , nullable = false, unique = false)
     public int no;
 
     //pas de cascade : on veut eviter que l'entité enfant ne "pilote" pas la persistance
@@ -36,7 +36,7 @@ public class TP extends PanacheEntityBase {
     @JoinColumn(name = "submission_id")
     public Submission submission;
 
-    @OneToMany(mappedBy = "TP", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "tp", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     public Set<TPStatus> statusStudents;
 
     public TP() {

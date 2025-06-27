@@ -1,36 +1,38 @@
 package org.acme.models;
 
+import java.time.LocalDateTime;
+
 public class EvaluationDTO {
     private Long id;
-    private String nom;
-    private String date;
-    private CourseDTO cours;
-    private SubmissionDTO rendu;
+    private String name;
+    private LocalDateTime date;
+    private CourseDTO course;
+    private SubmissionDTO submission;
 
     // Constructeurs
     public EvaluationDTO() {}
 
-    public EvaluationDTO(Long id, String nom, String date, CourseDTO cours, SubmissionDTO rendu) {
+    public EvaluationDTO(Long id, String name, LocalDateTime date, CourseDTO course, SubmissionDTO submission) {
         this.id = id;
-        this.nom = nom;
+        this.name = name;
         this.date = date;
-        this.cours = cours;
-        this.rendu = rendu;
+        this.course = course;
+        this.submission = submission;
     }
 
     // Getters et Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public String getNom() { return nom; }
-    public void setNom(String nom) { this.nom = nom; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
-    public String getDate() { return date; }
-    public void setDate(String date) { this.date = date; }
+    public LocalDateTime getDate() { return date; }
+    public void setDate(LocalDateTime date) { this.date = date; }
 
-    public CourseDTO getCours() { return cours; }
-    public void setCours(CourseDTO cours) { this.cours = cours; }
+    public CourseDTO getCourse() { return course; }
+    public void setCourse(CourseDTO course) { this.course = course; }
 
-    public SubmissionDTO getRendu() { return rendu; }
-    public void setRendu(SubmissionDTO rendu) { this.rendu = rendu; }
+    public SubmissionDTO getSubmission() { return submission; }
+    public void setSubmission(SubmissionDTO submission) { this.submission = submission; }
 }

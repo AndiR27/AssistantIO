@@ -23,14 +23,14 @@ public class TPStatus extends PanacheEntityBase {
 
     @ManyToOne
     @JoinColumn(name = "travail_pratique_id")
-    public TP TP;
+    public TP tp;
 
     @Column(name = "student_submitted")
     public boolean studentSubmission;
 
-    public TPStatus(Student student, TP TP, boolean studentSubmission) {
+    public TPStatus(Student student, TP tp, boolean studentSubmission) {
         this.student = student;
-        this.TP = TP;
+        this.tp = tp;
         this.studentSubmission = studentSubmission;
     }
 

@@ -57,16 +57,40 @@ public class CourseService {
 
     private static final Logger LOG = Logger.getLogger(CourseService.class);
 
+    // CRUD METHODS //
+    /**
+     * Methode permettant de retrouver un cours selon l'id
+     **/
+    public CourseDTO findCours(Long id) {
+        Course course = courseRepository.findById(id);
+        if (course == null) {
+            throw new NotFoundException("Cours non trouvé (ID=" + id + ")");
+        }
+        return courseMapper.toDto(course);
+    }
+
+    /**
+     * Lister tous les cours
+     */
+    public List<CourseDTO> listCours() {
+        //Récupérer la liste des cours avec le repo et convertir en liste de DTO avec stream
+        return courseRepository.listAll().stream()
+                .map(courseMapper::toDto)
+                .toList();
+    }
+
+
     /**
      * Creation d'un cours
      * Le chemin vers un nouveau dépot pour les zips doit être créé
      */
+    @Transactional
     public CourseDTO creerCours(CourseDTO courseDTO) {
         Course course = courseMapper.toEntity(courseDTO);
         //Cours cours = new Cours(nom, code, TypeSemestre.valueOf(semestre), annee, TypeCours.valueOf(typeCours));
         courseRepository.persist(course);
 
-        LOG.info("Course " + courseDTO.getNom() + " created");
+        LOG.info("Course " + courseDTO.getName() + " created");
 
         //Creation du repertoire servant de depot pour les zips grâce au code
         //On est dans un cours, donc le path est celui de base : "DocumentsZip/"
@@ -75,16 +99,36 @@ public class CourseService {
     }
 
     /**
-     * Methode permettant de retrouver un cours selon l'id
-     **/
-    public CourseDTO findCours(Long id) {
-        Course course = courseRepository.findById(id);
+     * Mettre à jour un cours
+     */
+    @Transactional
+    public CourseDTO updateCourse(CourseDTO courseDTO) {
+        Course course = courseRepository.findById(courseDTO.getId());
+        if (course == null) {
+            throw new NotFoundException("Cours non trouvé (ID=" + courseDTO.getId() + ")");
+        }
+        //Mettre à jour les champs du cours
+        courseMapper.updateEntity(courseDTO, course);
+        courseRepository.persist(course);
+
+        LOG.info("Course " + courseDTO.getName() + " updated");
         return courseMapper.toDto(course);
+    }
+
+    /**
+     * Supprimer un cours
+     */
+    @Transactional
+    public boolean deleteCourse(Long id) {
+        // Supprimer le cours
+        LOG.info("Course with ID " + id + " deleted");
+        return courseRepository.deleteById(id);
     }
 
     /**
      * Méthode permettant d'ajouter un étudiant spécifique existant à un cours existant
      */
+    @Transactional
     public StudentDTO ajouterEtudiant(CourseDTO courseDTO, StudentDTO studentDTO) {
 
         try {
@@ -99,7 +143,7 @@ public class CourseService {
                         .orElseThrow(() -> new NotFoundException("Étudiant non trouvé (ID=" + studentDTO.getId() + ")"));
             } else {
                 // Cas : l'étudiant n'existe pas => on le crée
-                StudentDTO studentDTO1 = studentService.addEtudiant(studentDTO);
+                StudentDTO studentDTO1 = studentService.addEtudiant(studentDTO, course);
                 student = studentMapper.toEntity(studentDTO1);
             }
             // Établir la relation bidirectionnelle
@@ -110,7 +154,7 @@ public class CourseService {
             courseRepository.persist(course);
 
             //etudiantRepository.persistAndFlush(etudiant);
-            LOG.info("Etudiant " + studentDTO.getNom() + " added to course " + courseDTO.getNom());
+            LOG.info("Etudiant " + studentDTO.getName() + " added to course " + courseDTO.getName());
 
             return studentMapper.toDto(student);
 
@@ -131,22 +175,21 @@ public class CourseService {
     @Transactional
     public void addAllStudentsFromFile(CourseDTO courseDTO, String[] data) {
         LOG.debugf("Starting addAllStudentsFromFile for course=%s, incomingRows=%d",
-                courseDTO.getNom(), data.length);
+                courseDTO.getName(), data.length);
         try {
-            Course course = courseMapper.toEntity(courseDTO);
-            //Cours cours = coursRepository.findById(idCours);
+            Course course = courseRepository.findById(courseDTO.getId());
             List<Student> nouveauxStudents = new ArrayList<>();
             for (String row : data) {
                 String[] etudiantData = row.split(";");
                 //Etudiant etudiant = new Etudiant(etudiantData[0], etudiantData[1], TypeEtude.valueOf(etudiantData[2]));
                 StudentDTO studentDTO = new StudentDTO(null, etudiantData[0], etudiantData[1], StudyType.valueOf(etudiantData[2]), new ArrayList<>());
-                StudentDTO etuAdded = studentService.addEtudiant(studentDTO);
+                StudentDTO etuAdded = studentService.addEtudiant(studentDTO, course);
                 ajouterEtudiant(courseDTO, etuAdded);
 
             }
-            LOG.info("All students added to course " + courseDTO.getNom());
+            LOG.info("All students added to course " + courseDTO.getName());
         } catch (RuntimeException e) {
-            LOG.error("Failed to add students to course " + courseDTO.getNom() + "\n--> " + e.getMessage());
+            LOG.error("Failed to add students to course " + courseDTO.getName() + "\n--> " + e.getMessage());
         }
     }
 
@@ -163,8 +206,30 @@ public class CourseService {
     }
 
     /**
+     * Methode permettant de supprimer un étudiant d'un cours
+     */
+    @Transactional
+    public void deleteStudent(CourseDTO courseDto, Long studentId) {
+        try{
+            Course course = courseRepository.findById(courseDto.getId());
+            Student student = studentRepository.findById(studentId);
+            course.removeStudent(student);
+            studentRepository.delete(student);
+            courseRepository.persist(course);
+        }
+        catch(NotFoundException e) {
+            LOG.error("Failed to delete student with ID " + studentId + " from course " + courseDto.getName() + "\n--> " + e.getMessage());
+        }
+        catch (Exception e) {
+            LOG.error("Unexpected error while deleting student from course " + courseDto.getName() + "\n--> " + e.getMessage());
+        }
+    }
+
+
+    /**
      * Methode permettant d'ajouter un TP à un cours en le créant
      */
+    @Transactional
     public TP_DTO ajouterTP(CourseDTO courseDTO, int no) {
         TP_DTO tpDTO = null;
         try {
@@ -181,12 +246,19 @@ public class CourseService {
             creerDossierZip("TP" + no, zipStoragePath + "/" + course.code);
 
             tpDTO = tpMapper.toDto(tp);
-            LOG.info("TP " + no + " added to course " + courseDTO.getNom());
+            LOG.info("TP " + no + " added to course " + courseDTO.getName());
 
         } catch (NotFoundException e) {
-            LOG.error("Failed to add TP " + no + " to course " + courseDTO.getNom() + "\n--> " + e.getMessage());
+            LOG.error("Failed to add TP " + no + " to course " + courseDTO.getName() + "\n--> " + e.getMessage());
         }
         return tpDTO;
+    }
+
+    /**
+     * Methode permettant de lister tous les TP d'un cours
+     */
+    public List<TP_DTO> listTPs(CourseDTO courseDto){
+        return courseRepository.getAllTPs();
     }
 
     /**
@@ -203,6 +275,7 @@ public class CourseService {
     /**
      * Methode permettant d'ajouter une évaluation à un cours en la créant : Examen
      */
+    @Transactional
     public ExamDTO ajouterExamen(CourseDTO courseDTO, ExamDTO examenDTO) {
         ExamDTO examDTO = null;
         try {
@@ -217,9 +290,9 @@ public class CourseService {
             //Creation du repertoire servant de depot pour les zips grâce au nom
             creerDossierZip(exam.name, zipStoragePath + "/" + course.code);
             examDTO = evaluationMapper.toDtoExamen(exam);
-            LOG.info("Examen " + examenDTO.getNom() + " added to course " + courseDTO.getNom());
+            LOG.info("Examen " + examenDTO.getName() + " added to course " + courseDTO.getName());
         } catch (NotFoundException e) {
-            LOG.error("Failed to add examen " + examenDTO.getNom() + "\n--> " + e.getMessage());
+            LOG.error("Failed to add examen " + examenDTO.getName() + "\n--> " + e.getMessage());
         }
         return examDTO;
     }
@@ -228,6 +301,7 @@ public class CourseService {
      * Methode permettant d'ajouter une évaluation à un cours en la créant : Controle
      * Continu
      */
+    @Transactional
     public ContinuousAssessmentDTO addCC(CourseDTO courseDTO, ContinuousAssessmentDTO ccDTO) {
 
         try {
@@ -242,13 +316,20 @@ public class CourseService {
             //Creation du repertoire servant de depot pour les zips grâce au nom : /CC1
             creerDossierZip(cc.name, zipStoragePath + "/" + course.code);
 
-            LOG.info("CC " + ccDTO.getNom() + " added to course " + courseDTO.getNom());
+            LOG.info("CC " + ccDTO.getName() + " added to course " + courseDTO.getName());
             return evaluationMapper.toDtoControleContinu(cc);
         } catch (NotFoundException e) {
-            LOG.error("Failed to add CC " + ccDTO.getNom() + "\n--> " + e.getMessage());
+            LOG.error("Failed to add CC " + ccDTO.getName() + "\n--> " + e.getMessage());
         }
         return null;
     }
+
+    /**
+     * Methode permettant de lister les évaluations d'un cours
+     */
+//    public List<EvaluationDTO> getAllEvaluations(CourseDTO course) {
+//        return courseRepository.getAllEvaluations();
+//    }
 
     /**
      * Methode permettant de lancer le traitement du rendu pour un TP
@@ -261,12 +342,7 @@ public class CourseService {
     }
 
 
-    public List<CourseDTO> listCours() {
-        //Récupérer la liste des cours avec le repo et convertir en liste de DTO avec stream
-        return courseRepository.listAll().stream()
-                .map(courseMapper::toDto)
-                .toList();
-    }
+
 
     //PRIVATE METHODS
 
@@ -287,6 +363,7 @@ public class CourseService {
             LOG.info("Folder " + nomDossier + " already exists");
         }
     }
+
 
 
 }

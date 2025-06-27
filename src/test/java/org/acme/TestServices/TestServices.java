@@ -15,6 +15,7 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -113,7 +114,7 @@ public class TestServices {
 
         // Créer un étudiant en base
         StudentDTO eMark = new StudentDTO(null, "Scout Mark", "mark@hesge.ch", StudyType.temps_plein, new ArrayList<>());
-        StudentDTO eMarkDTO = studentService.addEtudiant(eMark);
+        StudentDTO eMarkDTO = studentService.addEtudiant(eMark, c);
 
         // Ajouter Mark au cours 63-21
         StudentDTO etuAdded = courseService.ajouterEtudiant(courseDTO, eMarkDTO);
@@ -199,8 +200,8 @@ public class TestServices {
         Course c = courseRepository.findCoursByCode("62-21");
 
         // Ajout d'un examen et d'un CC
-        ExamDTO examDTO = courseService.ajouterExamen(courseDTO, new ExamDTO(null, "Examen final", "2025-12-15", courseDTO, null, courseDTO.getSemestre()));
-        ContinuousAssessmentDTO ccDTO = courseService.addCC(courseDTO, new ContinuousAssessmentDTO(null, "CC1", "2025-10-15", courseDTO, null, 2, 1));
+        ExamDTO examDTO = courseService.ajouterExamen(courseDTO, new ExamDTO(null, "Examen final", LocalDateTime.now(), courseDTO, null, courseDTO.getSemester()));
+        ContinuousAssessmentDTO ccDTO = courseService.addCC(courseDTO, new ContinuousAssessmentDTO(null, "CC1", LocalDateTime.now(), courseDTO, null, 2, 1));
 
         //Tester les DTO :
         Assertions.assertNotNull(examDTO);
@@ -241,7 +242,7 @@ public class TestServices {
 
         // Créer un TP et un examen
         courseService.ajouterTP(courseDTO, 1);
-        courseService.ajouterExamen(courseDTO,new ExamDTO(null, "Examen final", "2025-12-15", courseDTO, null, courseDTO.getSemestre()));
+        courseService.ajouterExamen(courseDTO, new ExamDTO(null, "Examen final", LocalDateTime.now(), courseDTO, null, courseDTO.getSemester()));
 
         // Vérifier l'existence des dossiers
         Path tpDir = Paths.get("src/test/resources/testZips", c.code, "TP1");
@@ -273,11 +274,11 @@ public class TestServices {
         InputStream inputStream = Files.newInputStream(path);
 
         // Créer le rendu du TP via le service
-        TP_DTO tp01DTP = TPService.creerRenduTP(tp01DTO, inputStream);
+        TP_DTO tp01_dto = TPService.creerRenduTP(tp01DTO, inputStream);
 
         // Vérifier
-        Assertions.assertNotNull(tp01DTP.getRendu());
-        Assertions.assertEquals("TP1_RenduCyberlearn.zip",tp01DTP.getRendu().getNomFichier());
+        Assertions.assertNotNull(tp01_dto.getSubmission());
+        Assertions.assertEquals("TP1_RenduCyberlearn.zip",tp01_dto.getSubmission().getFileName());
 
         Path tpZipPath = Paths.get("src/test/resources/testZips", c.code, "TP1", "TP1_RenduCyberlearn.zip");
         Assertions.assertTrue(Files.exists(tpZipPath), "Le dossier TP1 devrait exister !");

@@ -1,7 +1,9 @@
 package org.acme.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.acme.entity.*;
+import org.acme.repository.SubmissionRepository;
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
 import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 import org.jboss.logging.Logger;
@@ -23,6 +25,16 @@ public class SubmissionService {
     private String typeCours = "Java";
     private static final Logger LOG = Logger.getLogger(SubmissionService.class);
 
+    @Inject
+    SubmissionRepository submissionRepository;
+
+    /**
+     * CRUD methodes pour les rendus de TP
+     */
+    public Submission findSubmissionById(Long id) {
+        //TODO : implémenter la méthode pour trouver une soumission par son ID
+        return submissionRepository.findById(id);
+    }
 
     /**
      * Methode permettant de restructurer le rendu d'un fichier zip
@@ -95,8 +107,8 @@ public class SubmissionService {
         zip(restructurationDir, zipRestructure);
 
         //Mettre à jour le chemin du zip restructuré
-        submission.pathFileRestructurated = zipRestructure.toString();
-        LOG.info("Submission path with restructurated data updated: " + submission.pathFileRestructurated);
+        submission.pathFileStructured = zipRestructure.toString();
+        LOG.info("Submission path with restructurated data updated: " + submission.pathFileStructured);
         //Nettoyer les dossiers temporaires et le dossier de restructuration
         supprimerRepertoire(tpmExtractDir);
         supprimerRepertoire(restructurationDir);
@@ -109,7 +121,7 @@ public class SubmissionService {
      */
     public List<String> getListRendus(Submission submission) {
         //Récupérer le path du zip restructuré
-        Path zipRestructure = Paths.get(submission.pathFileRestructurated);
+        Path zipRestructure = Paths.get(submission.pathFileStructured);
         List<String> etudiants = new ArrayList<>();
         try {
             //Extraire le zip

@@ -8,7 +8,8 @@ import org.mapstruct.*;
     uses = {SubmissionMapper.class})
 public interface TPMapper {
 
-    @Mapping(target = "cours", ignore = true) // On ignore la référence au Cours
+    @Mapping(source = "submission", target = "submission")
+    @Mapping(target = "course", ignore = true) // On ignore la référence au Cours
     TP_DTO toDto(TP entity);
 
     @InheritInverseConfiguration

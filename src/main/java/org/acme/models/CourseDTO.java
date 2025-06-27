@@ -7,30 +7,30 @@ import java.util.List;
 
 public class CourseDTO {
     private Long id;
-    private String nom;
+    private String name;
     private String code;
-    private SemesterType semestre;
-    private int annee;
-    private String prof;
-    private CourseType typeCours;
-    private List<StudentDTO> etudiantsInscrits;
-    private List<TP_DTO> travauxPratiques;
+    private SemesterType semester;
+    private int year_course;
+    private String teacher;
+    private CourseType courseType;
+    private List<StudentDTO> studentList;
+    private List<TP_DTO> tpsList;
     private List<EvaluationDTO> evaluations;
 
     // Constructeurs
     public CourseDTO() {}
 
-    public CourseDTO(Long id, String nom, String code, SemesterType semestre, int annee, String prof, CourseType typeCours,
-                     List<StudentDTO> etudiantsInscrits, List<TP_DTO> travauxPratiques, List<EvaluationDTO> evaluations) {
+    public CourseDTO(Long id, String name, String code, SemesterType semester, int year_course, String teacher, CourseType typeCours,
+                     List<StudentDTO> studentList, List<TP_DTO> tpsList, List<EvaluationDTO> evaluations) {
         this.id = id;
-        this.nom = nom;
+        this.name = name;
         this.code = code;
-        this.semestre = semestre;
-        this.annee = annee;
-        this.prof = prof;
-        this.typeCours = typeCours;
-        this.etudiantsInscrits = etudiantsInscrits;
-        this.travauxPratiques = travauxPratiques;
+        this.semester = semester;
+        this.year_course = year_course;
+        this.teacher = teacher;
+        this.courseType = typeCours;
+        this.studentList = studentList;
+        this.tpsList = tpsList;
         this.evaluations = evaluations;
     }
 
@@ -38,29 +38,29 @@ public class CourseDTO {
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public String getNom() { return nom; }
-    public void setNom(String nom) { this.nom = nom; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
     public String getCode() { return code; }
     public void setCode(String code) { this.code = code; }
 
-    public SemesterType getSemestre() { return semestre; }
-    public void setSemestre(SemesterType semestre) { this.semestre = semestre; }
+    public SemesterType getSemester() { return semester; }
+    public void setSemester(SemesterType semester) { this.semester = semester; }
 
-    public int getAnnee() { return annee; }
-    public void setAnnee(int annee) { this.annee = annee; }
+    public int getYear_course() { return year_course; }
+    public void setYear_course(int year_course) { this.year_course = year_course; }
 
-    public String getProf() { return prof; }
-    public void setProf(String prof) { this.prof = prof; }
+    public String getTeacher() { return teacher; }
+    public void setTeacher(String teacher) { this.teacher = teacher; }
 
-    public CourseType getTypeCours() { return typeCours; }
-    public void setTypeCours(CourseType typeCours) { this.typeCours = typeCours; }
+    public CourseType getCourseType() { return courseType; }
+    public void setCourseType(CourseType courseType) { this.courseType = courseType; }
 
-    public List<StudentDTO> getEtudiantsInscrits() { return etudiantsInscrits; }
-    public void setEtudiantsInscrits(List<StudentDTO> etudiantsInscrits) { this.etudiantsInscrits = etudiantsInscrits; }
+    public List<StudentDTO> getStudentList() { return studentList; }
+    public void setStudentList(List<StudentDTO> studentList) { this.studentList = studentList; }
 
-    public List<TP_DTO> getTravauxPratiques() { return travauxPratiques; }
-    public void setTravauxPratiques(List<TP_DTO> travauxPratiques) { this.travauxPratiques = travauxPratiques; }
+    public List<TP_DTO> getTpsList() { return tpsList; }
+    public void setTpsList(List<TP_DTO> tpsList) { this.tpsList = tpsList; }
 
     public List<EvaluationDTO> getEvaluations() { return evaluations; }
     public void setEvaluations(List<EvaluationDTO> evaluations) { this.evaluations = evaluations; }

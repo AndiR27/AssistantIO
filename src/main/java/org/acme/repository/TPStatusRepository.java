@@ -11,6 +11,6 @@ public class TPStatusRepository implements PanacheRepository<TPStatus> {
 
     //Retourne la liste des TP Status pour un TP donné
     public List<TPStatus> findByTP(Long tpId) {
-        return find("travailPratique.id", tpId).list();
+        return find("tp.id", tpId).list();
     }
 }

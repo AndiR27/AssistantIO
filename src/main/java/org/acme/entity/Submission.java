@@ -18,18 +18,17 @@ public class Submission extends PanacheEntityBase {
     @Column(name = "file_name", nullable = false)
     public String fileName;
 
-    
     public String pathStorage;
 
-    public String pathFileRestructurated;
+    public String pathFileStructured;
 
     public Submission() {
     }
 
-    public Submission(String fileName, String pathStorage, String pathFileRestructurated) {
+    public Submission(String fileName, String pathStorage, String pathFileStructured) {
         this.fileName = fileName;
         this.pathStorage = pathStorage;
-        this.pathFileRestructurated = pathFileRestructurated;
+        this.pathFileStructured = pathFileStructured;
     }
 
 }

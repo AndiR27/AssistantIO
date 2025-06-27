@@ -14,7 +14,10 @@ import java.util.*;
  * et leurs différents rendus
  */
 @Entity
-@Table(name = "course")
+@Table(name = "course",
+        uniqueConstraints = @UniqueConstraint(
+                columnNames = { "code", "semester", "year_course" }
+        ))
 public class Course extends PanacheEntityBase {
 
     @Id
@@ -64,5 +67,9 @@ public class Course extends PanacheEntityBase {
 
     public void addTravailPratique(TP tp) {
         this.tpsList.add(tp);
+    }
+
+    public void removeStudent(Student student) {
+        this.studentList.remove(student);
     }
 }

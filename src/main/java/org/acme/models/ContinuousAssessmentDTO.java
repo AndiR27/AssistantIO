@@ -1,16 +1,18 @@
 package org.acme.models;
 
+import java.time.LocalDateTime;
+
 public class ContinuousAssessmentDTO extends EvaluationDTO {
     private int coefficient;
-    private int numero;
+    private int number;
 
     public ContinuousAssessmentDTO() {
     }
 
-    public ContinuousAssessmentDTO(Long id, String nom, String date, CourseDTO cours, SubmissionDTO rendu, int coefficient, int numero) {
+    public ContinuousAssessmentDTO(Long id, String nom, LocalDateTime date, CourseDTO cours, SubmissionDTO rendu, int coefficient, int number) {
         super(id, nom, date, cours, rendu);
         this.coefficient = coefficient;
-        this.numero = numero;
+        this.number = number;
     }
 
     public int getCoefficient() {
@@ -21,12 +23,12 @@ public class ContinuousAssessmentDTO extends EvaluationDTO {
         this.coefficient = coefficient;
     }
 
-    public int getNumero() {
-        return numero;
+    public int getNumber() {
+        return number;
     }
 
-    public void setNumero(int numero) {
-        this.numero = numero;
+    public void setNumber(int number) {
+        this.number = number;
     }
 
 }

@@ -9,6 +9,7 @@ import org.acme.mapping.TPMapper;
 import org.acme.models.TP_DTO;
 import org.acme.repository.*;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.logging.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,17 +26,18 @@ public class TPService {
     SubmissionService submissionService;
 
     @Inject
-    TPMapper TPMapper;
+    TPMapper tpMapper;
 
     @Inject
     @ConfigProperty(name = "zip-storage.path")
     String zipStoragePath;
 
+    private static final Logger LOG = Logger.getLogger(TPService.class);
     /**
      * Récupérer un travail pratique depuis la base de données
      */
     public TP_DTO findTravailPratique(Long id) {
-        return TPMapper.toDto(travailPratiqueRepository.findById(id));
+        return tpMapper.toDto(travailPratiqueRepository.findById(id));
     }
 
     /**
@@ -65,15 +67,15 @@ public class TPService {
             Files.copy(zipFile, cheminVersZip, StandardCopyOption.REPLACE_EXISTING);
         }
         catch (IOException e){
-            throw new RuntimeException("Impossible de copier le fichier zip");
+            LOG.error("Unable to copy zip file", e);
         }
 
         //Creation du rendu
         Submission submission = new Submission(nomFichier, cheminVersZip.toString()
                 , null);
         tp.submission = submission;
-        travailPratiqueRepository.persist(tp);
-        return TPMapper.toDto(tp);
+        travailPratiqueRepository.flush();
+        return tpMapper.toDto(tp);
     }
 
     /**

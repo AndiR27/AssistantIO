@@ -3,7 +3,12 @@ package org.acme.repository;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.acme.entity.*;
+import org.acme.mapping.EvaluationMapper;
+import org.acme.mapping.TPMapper;
+import org.acme.models.EvaluationDTO;
+import org.acme.models.TP_DTO;
 
 import java.util.List;
 import java.util.Objects;
@@ -11,6 +16,10 @@ import java.util.Objects;
 @ApplicationScoped
 public class CourseRepository implements PanacheRepository<Course>{
 
+    @Inject
+    TPMapper tpMapper;
+    @Inject
+    EvaluationMapper evaluationMapper;
     //methode permettant de récupérer TOUS les étudiants inscrits à un cours
     public List<Student> findEtudiantsInscrits(Long idCours){
         return find("id", idCours).firstResult().studentList;
@@ -34,4 +43,21 @@ public class CourseRepository implements PanacheRepository<Course>{
                 .findFirst()
                 .get(); // Récupère le premier trouvé sous forme d'Optional
     }
+
+    public List<TP_DTO> getAllTPs() {
+        //return TPlist of a course
+
+        return findAll().stream()
+                .flatMap(course -> course.tpsList.stream())
+                .map(tpMapper::toDto)
+                .toList();
+    }
+
+//    public List<EvaluationDTO> getAllEvaluations() {
+//        //return Evaluation list of a course
+//        return findAll().stream()
+//                .flatMap(course -> course.evaluations.stream())
+//                .map(evaluationMapper::t)
+//                .toList();
+//    }
 }

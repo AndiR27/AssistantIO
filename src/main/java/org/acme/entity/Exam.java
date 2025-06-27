@@ -19,10 +19,9 @@ public class Exam extends Evaluation {
     public SemesterType semester;
 
 
-    public Exam(String nom, LocalDateTime date, Course course, Submission submission,
-                SemesterType semesterType) {
-        super(nom, date, course, submission);
-        this.semester = semesterType;
+    public Exam(String name, LocalDateTime date, Course course, Submission submission, SemesterType semester) {
+        super(name, date, course, submission);
+        this.semester = semester;
     }
 
     public Exam() {

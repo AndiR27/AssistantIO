@@ -4,7 +4,10 @@ import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.core.MediaType;
 import org.jboss.resteasy.annotations.providers.multipart.PartType;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 public class FileUploadForm {
     @FormParam("file")
@@ -29,6 +32,13 @@ public class FileUploadForm {
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
+    }
+
+    public String[] transformData() throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(this.getFile()));
+        // Transformer en tableau de String
+        String[] data = reader.lines().toArray(String[]::new);
+        return data;
     }
 
 }

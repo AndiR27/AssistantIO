@@ -8,19 +8,19 @@ public class TP_DTO {
 
     private Long id;
     private int no;
-    private CourseDTO cours;
-    private SubmissionDTO rendu;
-    private Set<TPStatusDTO> statusEtudiants;
+    private CourseDTO course;
+    private SubmissionDTO submission;
+    private Set<TPStatusDTO> statusStudents;
 
     // Constructeurs
     public TP_DTO() {}
 
-    public TP_DTO(Long id, int no, CourseDTO cours, SubmissionDTO rendu, Set<TPStatusDTO> statusEtudiants) {
+    public TP_DTO(Long id, int no, CourseDTO course, SubmissionDTO submission, Set<TPStatusDTO> statusStudents) {
         this.id = id;
         this.no = no;
-        this.cours = cours;
-        this.rendu = rendu;
-        this.statusEtudiants = statusEtudiants;
+        this.course = course;
+        this.submission = submission;
+        this.statusStudents = statusStudents;
     }
 
     // Getters et Setters
@@ -30,12 +30,12 @@ public class TP_DTO {
     public int getNo() { return no; }
     public void setNo(int no) { this.no = no; }
 
-    public CourseDTO getCours() { return cours; }
-    public void setCours(CourseDTO cours) { this.cours = cours; }
+    public CourseDTO getCourse() { return course; }
+    public void setCourse(CourseDTO course) { this.course = course; }
 
-    public SubmissionDTO getRendu() { return rendu; }
-    public void setRendu(SubmissionDTO rendu) { this.rendu = rendu; }
+    public SubmissionDTO getSubmission() { return submission; }
+    public void setSubmission(SubmissionDTO submission) { this.submission = submission; }
 
-    public Set<TPStatusDTO> getStatusEtudiants() { return statusEtudiants; }
-    public void setStatusEtudiants(Set<TPStatusDTO> statusEtudiants) { this.statusEtudiants = statusEtudiants; }
+    public Set<TPStatusDTO> getStatusStudents() { return statusStudents; }
+    public void setStatusStudents(Set<TPStatusDTO> statusStudents) { this.statusStudents = statusStudents; }
 }

@@ -2,18 +2,20 @@ package org.acme.models;
 
 import org.acme.enums.SemesterType;
 
+import java.time.LocalDateTime;
+
 public class ExamDTO extends EvaluationDTO{
 
-    private SemesterType semestre;
+    private SemesterType semester;
 
     public ExamDTO(){}
 
-    public ExamDTO(Long id, String nom, String date, CourseDTO cours, SubmissionDTO rendu, SemesterType semestre) {
-        super(id, nom, date, cours, rendu);
-        this.semestre = semestre;
+    public ExamDTO(Long id, String name, LocalDateTime date, CourseDTO course, SubmissionDTO rendu, SemesterType semester) {
+        super(id, name, date, course, rendu);
+        this.semester = semester;
     }
 
-    public SemesterType getSemestre() { return semestre; }
-    public void setSemestre(SemesterType semestre) { this.semestre = semestre; }
+    public SemesterType getSemester() { return semester; }
+    public void setSemester(SemesterType semester) { this.semester = semester; }
 
 }

@@ -25,12 +25,12 @@ public class StudentService {
      * Creation d'un etudiant : On laisse la responsabilité à ce
      * service de gérer la création d'un étudiant.
      */
-    public StudentDTO addEtudiant(StudentDTO studentDTO, Course course){
+    public StudentDTO addStudent(StudentDTO studentDTO, Course course){
 
         try {
             Student studentEntity = studentMapper.toEntity(studentDTO);
             // On associe l'étudiant au cours
-            studentEntity.addCours(course);
+            //studentEntity.addCours(course);
             studentRepository.persist(studentEntity);
 
             LOG.info("Student created successfully: " + studentDTO.getId());

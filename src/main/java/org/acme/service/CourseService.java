@@ -61,7 +61,7 @@ public class CourseService {
     /**
      * Methode permettant de retrouver un cours selon l'id
      **/
-    public CourseDTO findCours(Long id) {
+    public CourseDTO findCourse(Long id) {
         Course course = courseRepository.findById(id);
         if (course == null) {
             throw new NotFoundException("Cours non trouvé (ID=" + id + ")");
@@ -72,7 +72,7 @@ public class CourseService {
     /**
      * Lister tous les cours
      */
-    public List<CourseDTO> listCours() {
+    public List<CourseDTO> listCourses() {
         //Récupérer la liste des cours avec le repo et convertir en liste de DTO avec stream
         return courseRepository.listAll().stream()
                 .map(courseMapper::toDto)
@@ -85,7 +85,7 @@ public class CourseService {
      * Le chemin vers un nouveau dépot pour les zips doit être créé
      */
     @Transactional
-    public CourseDTO creerCours(CourseDTO courseDTO) {
+    public CourseDTO addCourse(CourseDTO courseDTO) {
         Course course = courseMapper.toEntity(courseDTO);
         //Cours cours = new Cours(nom, code, TypeSemestre.valueOf(semestre), annee, TypeCours.valueOf(typeCours));
         courseRepository.persist(course);
@@ -129,7 +129,7 @@ public class CourseService {
      * Méthode permettant d'ajouter un étudiant spécifique existant à un cours existant
      */
     @Transactional
-    public StudentDTO ajouterEtudiant(CourseDTO courseDTO, StudentDTO studentDTO) {
+    public StudentDTO addStudentToCourse(CourseDTO courseDTO, StudentDTO studentDTO) {
 
         try {
             // Récupérer le cours, ou lever une NotFoundException si non présent
@@ -143,7 +143,7 @@ public class CourseService {
                         .orElseThrow(() -> new NotFoundException("Étudiant non trouvé (ID=" + studentDTO.getId() + ")"));
             } else {
                 // Cas : l'étudiant n'existe pas => on le crée
-                StudentDTO studentDTO1 = studentService.addEtudiant(studentDTO, course);
+                StudentDTO studentDTO1 = studentService.addStudent(studentDTO, course);
                 student = studentMapper.toEntity(studentDTO1);
             }
             // Établir la relation bidirectionnelle
@@ -178,13 +178,13 @@ public class CourseService {
                 courseDTO.getName(), data.length);
         try {
             Course course = courseRepository.findById(courseDTO.getId());
-            List<Student> nouveauxStudents = new ArrayList<>();
+
             for (String row : data) {
                 String[] etudiantData = row.split(";");
                 //Etudiant etudiant = new Etudiant(etudiantData[0], etudiantData[1], TypeEtude.valueOf(etudiantData[2]));
                 StudentDTO studentDTO = new StudentDTO(null, etudiantData[0], etudiantData[1], StudyType.valueOf(etudiantData[2]), new ArrayList<>());
-                StudentDTO etuAdded = studentService.addEtudiant(studentDTO, course);
-                ajouterEtudiant(courseDTO, etuAdded);
+                StudentDTO etuAdded = studentService.addStudent(studentDTO, course);
+                addStudentToCourse(courseDTO, etuAdded);
 
             }
             LOG.info("All students added to course " + courseDTO.getName());
@@ -196,7 +196,7 @@ public class CourseService {
     /**
      * Methode permettant de récupérer tous les étudiants inscrits à un cours
      */
-    public List<StudentDTO> getEtudiantsInscrits(Long idCours) {
+    public List<StudentDTO> getStudentsCourse(Long idCours) {
         //Récupérer la liste des étudiants inscrits à un cours avec le repo et convertir en liste de DTO
         List<Student> students = courseRepository.findById(idCours).studentList;
         return students.stream()
@@ -230,7 +230,7 @@ public class CourseService {
      * Methode permettant d'ajouter un TP à un cours en le créant
      */
     @Transactional
-    public TP_DTO ajouterTP(CourseDTO courseDTO, int no) {
+    public TP_DTO addTP(CourseDTO courseDTO, int no) {
         TP_DTO tpDTO = null;
         try {
             Course course = courseRepository.findById(courseDTO.getId());
@@ -258,7 +258,7 @@ public class CourseService {
      * Methode permettant de lister tous les TP d'un cours
      */
     public List<TP_DTO> listTPs(CourseDTO courseDto){
-        return courseRepository.getAllTPs();
+        return courseRepository.getAllTPs(courseDto.getId());
     }
 
     /**
@@ -276,7 +276,7 @@ public class CourseService {
      * Methode permettant d'ajouter une évaluation à un cours en la créant : Examen
      */
     @Transactional
-    public ExamDTO ajouterExamen(CourseDTO courseDTO, ExamDTO examenDTO) {
+    public ExamDTO addExam(CourseDTO courseDTO, ExamDTO examenDTO) {
         ExamDTO examDTO = null;
         try {
             Course course = courseRepository.findById(courseDTO.getId());
@@ -334,11 +334,11 @@ public class CourseService {
     /**
      * Methode permettant de lancer le traitement du rendu pour un TP
      */
-    public void lancerTraitementRenduZip(Long idCours, Long idTp) throws IOException {
+    public void startZipProcess(Long idCours, Long idTp) throws IOException {
         Course course = courseRepository.findById(idCours);
         TP tp = travailPratiqueRepository.findById(idTp);
         LOG.debug("Starting traitementRenduZip for course=" + course.name + ", TP no=" + tp.no);
-        submissionService.traitementRenduZip(course, tp);
+        submissionService.processZipSubmission(course, tp);
     }
 
 

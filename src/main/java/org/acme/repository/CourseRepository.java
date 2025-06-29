@@ -20,6 +20,10 @@ public class CourseRepository implements PanacheRepository<Course>{
     TPMapper tpMapper;
     @Inject
     EvaluationMapper evaluationMapper;
+
+    @Inject
+    TPRepository tpRepository;
+
     //methode permettant de récupérer TOUS les étudiants inscrits à un cours
     public List<Student> findEtudiantsInscrits(Long idCours){
         return find("id", idCours).firstResult().studentList;
@@ -44,11 +48,11 @@ public class CourseRepository implements PanacheRepository<Course>{
                 .get(); // Récupère le premier trouvé sous forme d'Optional
     }
 
-    public List<TP_DTO> getAllTPs() {
+    public List<TP_DTO> getAllTPs(Long courseID) {
         //return TPlist of a course
 
-        return findAll().stream()
-                .flatMap(course -> course.tpsList.stream())
+        return tpRepository.findByCourseId(courseID)
+                .stream()
                 .map(tpMapper::toDto)
                 .toList();
     }

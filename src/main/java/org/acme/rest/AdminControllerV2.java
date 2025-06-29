@@ -6,13 +6,10 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.acme.enums.CourseType;
-import org.acme.enums.SemesterType;
 import org.acme.models.CourseDTO;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.acme.service.CourseService;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Path("/admin/v2/courses")
@@ -28,8 +25,11 @@ public class AdminControllerV2 {
     //---------------------------
     @Path("/{id}")
     @GET
+    @APIResponse(
+            responseCode = "200",
+            description = "Get Course by ID")
     public CourseDTO getCourseById(@PathParam("id") Long id) {
-        return courseService.findCours(id);
+        return courseService.findCourse(id);
     }
 
     //---------------------------
@@ -38,7 +38,7 @@ public class AdminControllerV2 {
     @Path("/all")
     @GET
     public List<CourseDTO> getAllCourses() {
-        return courseService.listCours();
+        return courseService.listCourses();
     }
 
     //-------------------
@@ -52,7 +52,7 @@ public class AdminControllerV2 {
             description = "Add Cours")
     public Response addCours(@Valid CourseDTO courseDTO) {
 
-        CourseDTO course = courseService.creerCours(courseDTO);
+        CourseDTO course = courseService.addCourse(courseDTO);
         return Response.ok()
                 .entity(course)
                 .build();

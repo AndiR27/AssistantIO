@@ -26,6 +26,9 @@ public class TPService {
     SubmissionService submissionService;
 
     @Inject
+    TPStatusRepository tpStatusRepository;
+
+    @Inject
     TPMapper tpMapper;
 
     @Inject
@@ -50,7 +53,7 @@ public class TPService {
      */
 
     @Transactional
-    public TP_DTO creerRenduTP(TP_DTO tpDTO, InputStream zipFile){
+    public TP_DTO addSubmissionToTP(TP_DTO tpDTO, InputStream zipFile){
         //Récupérer le TP
         TP tp = travailPratiqueRepository.findById(tpDTO.getId());
         //nom du fichier
@@ -74,7 +77,7 @@ public class TPService {
         Submission submission = new Submission(nomFichier, cheminVersZip.toString()
                 , null);
         tp.submission = submission;
-        travailPratiqueRepository.flush();
+        travailPratiqueRepository.persist(tp);
         return tpMapper.toDto(tp);
     }
 
@@ -88,9 +91,9 @@ public class TPService {
      * 4. Persister la liste des TP_Status
      */
     @Transactional
-    public TP gestionRendusTP(Course course, TP tp,
-                              List<Student> etudiantsList){
-        List<String> rendus = submissionService.getListRendus(tp.submission);
+    public TP manageSubmissionsTP(Course course, TP tp,
+                                  List<Student> etudiantsList){
+        List<String> rendus = submissionService.getStudentsSubmission(tp.submission);
 
         for(Student student : etudiantsList){
             TPStatus tpStatus = new TPStatus(student, tp, false);
@@ -105,4 +108,7 @@ public class TPService {
     }
 
 
+    public List<TPStatus> findByTP(Long id) {
+        return tpStatusRepository.findByTP(id);
+    }
 }

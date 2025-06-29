@@ -1,5 +1,6 @@
 package org.acme.TestServices;
 
+import io.quarkus.test.TestTransaction;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -17,6 +18,7 @@ import java.io.InputStream;
 import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -43,7 +45,7 @@ public class TestTraitementZip {
     SubmissionRepository submissionRepository;
 
     @BeforeEach
-    @Transactional
+    @TestTransaction
     void setUp() throws IOException {
         //Gérer le repository en supprimant les données
         Path testZip = Paths.get("src/test/resources/testZips");
@@ -68,15 +70,15 @@ public class TestTraitementZip {
 
 
     @Test
-    @Transactional
+    @TestTransaction
     public void testerTraitementZip() throws IOException {
         //Creation des entités
         CourseDTO cours = new CourseDTO(null,
                 "Approfondissement de la programmation",
                 "62-21", SemesterType.PRINTEMPS, 2027, "Stettler", CourseType.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-        CourseDTO courseDTO = courseService.creerCours(cours);
+        CourseDTO courseDTO = courseService.addCourse(cours);
 
-        TP_DTO tpDTP = courseService.ajouterTP(courseDTO, 1);
+        TP_DTO tpDTP = courseService.addTP(courseDTO, 1);
 
         //Creer l'input pour le zip
         Path path = Paths.get("src/test/resources/mockinginputstreams/test_zip.zip");
@@ -86,10 +88,10 @@ public class TestTraitementZip {
         Course c = repositoryCours.findById(courseDTO.getId());
         TP tp = repositoryCours.findTpByNo(c.id, 1);
 
-        TPService.creerRenduTP(tpDTP, inputStream);
+        TPService.addSubmissionToTP(tpDTP, inputStream);
 
         //Lancement de la methode des traitements de zip pour un cours et un TP :
-        courseService.lancerTraitementRenduZip(c.id, tp.id);
+        courseService.startZipProcess(c.id, tp.id);
 
         //Vérifier que le rendu a bien été traité
         Submission submission = tp.submission;
@@ -111,15 +113,15 @@ public class TestTraitementZip {
     }
 
     @Test
-    @Transactional
+    @TestTransaction
     public void testerContenuZip() throws IOException {
         //Creation des entités
 
-        CourseDTO courseDTO = courseService.creerCours(new CourseDTO(null,
+        CourseDTO courseDTO = courseService.addCourse(new CourseDTO(null,
                 "Python Introduction",
                 "61-13", SemesterType.AUTOMNE, 2025, "Stettler", CourseType.Python, new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
 
-        TP_DTO tpDTO = courseService.ajouterTP(courseDTO, 1);
+        TP_DTO tpDTO = courseService.addTP(courseDTO, 1);
 
         //Creer l'input pour le zip
         Path path = Paths.get("src/test/resources/mockinginputstreams/test_zip.zip");
@@ -127,10 +129,10 @@ public class TestTraitementZip {
         //Ajout d'un rendu
         Course c = repositoryCours.findCoursByCode("61-13");
         TP tp = repositoryCours.findTpByNo(c.id, 1);
-        TPService.creerRenduTP(tpDTO, inputStream);
+        TPService.addSubmissionToTP(tpDTO, inputStream);
 
         //Lancement de la methode des traitements de zip pour un cours et un TP :
-        courseService.lancerTraitementRenduZip(c.id, tp.id);
+        courseService.startZipProcess(c.id, tp.id);
 
         //tests
         Submission submission = tp.submission;
@@ -187,22 +189,22 @@ public class TestTraitementZip {
      * Tester la mise à jour des status des étudiants pour voir qui a fait et qui a pas fait
      */
     @Test
-    @Transactional
+    @TestTransaction
     public void testStatusUpdateEtudiants() throws IOException {
 
         //Créer les données de test
         CourseDTO cours = new CourseDTO(null,
                 "Approfondissement de la programmation",
-                "62-23", SemesterType.PRINTEMPS, 2026, "Stettler", CourseType.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-        CourseDTO courseDTO = courseService.creerCours(cours);
+                "62-23", SemesterType.PRINTEMPS, 2028, "Stettler", CourseType.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        CourseDTO courseDTO = courseService.addCourse(cours);
 
-        TP_DTO tpDTO = courseService.ajouterTP(courseDTO, 1);
+        TP_DTO tpDTO = courseService.addTP(courseDTO, 1);
 
         String[] etudiants = {
-                "Scout Mark;mark@hesge.ch;temps_plein",
-                "Riggs Helly;helly@hesge.ch;temps_partiel",
-                "George Dylan;dylan@hesge.ch;temps_plein",
-                "Bailiff Irving;irving@hesge.ch;temps_plein",
+                "Scout Mark;Test3mark@hesge.ch;temps_plein",
+                "Riggs Helly;Test3helly@hesge.ch;temps_partiel",
+                "George Dylan;Test3dylan@hesge.ch;temps_plein",
+                "Bailiff Irving;Test3irving@hesge.ch;temps_plein",
         };
         courseService.addAllStudentsFromFile(courseDTO, etudiants);
 
@@ -213,20 +215,20 @@ public class TestTraitementZip {
         //Ajout d'un rendu
         Course c = repositoryCours.findById(courseDTO.getId());
         TP tp = repositoryCours.findTpByNo(c.id, 1);
-        TPService.creerRenduTP(tpDTO, inputStream);
+        TPService.addSubmissionToTP(tpDTO, inputStream);
 
         //Lancement de la methode des traitements de zip pour un cours et un TP :
-        courseService.lancerTraitementRenduZip(c.id, tp.id);
+        courseService.startZipProcess(c.id, tp.id);
 
         //tests
         Submission submission = tp.submission;
         Assertions.assertNotNull(submission);
 
         //Lancement de la methode pour traiter les TP_Status avec gestionRendusTP dans serviceTravailPratique
-        tp = TPService.gestionRendusTP(c, tp, c.studentList);
-
+        tp = TPService.manageSubmissionsTP(c, tp, c.studentList);
+        //repositoryTP_Status.flush();
         //première vérification : tester si les 4 étudiants ont bien un TP_Status
-        List<TPStatus> tpStatusList = repositoryTP_Status.findByTP(tp.id);
+        Set<TPStatus> tpStatusList = tp.statusStudents;
         Assertions.assertEquals(4, tpStatusList.size());
 
         //Parcours de la liste : normalement 3 étudiants sur 4 ont rendu, Irvin n'a pas rendu

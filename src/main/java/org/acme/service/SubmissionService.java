@@ -59,7 +59,7 @@ public class SubmissionService {
      *
      * Une entité Rendu a les infos de stockage du zip d'origine
      */
-    public void traitementRenduZip(Course c, TP tp) throws IOException {
+    public void processZipSubmission(Course c, TP tp) throws IOException {
         //TODO
         Submission submission = tp.submission;
         if (submission == null) {
@@ -81,11 +81,11 @@ public class SubmissionService {
 
         // chemin vers le dossier de restructuration
         Path restructurationDir = tpRoot.resolve("RenduRestructuration");
-        creerRepertoireSilExistePas(restructurationDir);
+        createFolderIfPossible(restructurationDir);
 
         // dossier temporaire pour extraire le zip initial => tpmExtract
         Path tpmExtractDir = tpRoot.resolve("tmpExtract");
-        creerRepertoireSilExistePas(tpmExtractDir);
+        createFolderIfPossible(tpmExtractDir);
 
         // extraire le zip d'origine dans le dossier temporaire
         unzip(originalZip, tpmExtractDir);
@@ -95,7 +95,7 @@ public class SubmissionService {
                 .filter(Files::isDirectory)
                 .forEach(dossierEtudiant -> {
                     try {
-                        gererRenduEtudiant(dossierEtudiant, restructurationDir);
+                        manageStudentSubmission(dossierEtudiant, restructurationDir);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -110,8 +110,8 @@ public class SubmissionService {
         submission.pathFileStructured = zipRestructure.toString();
         LOG.info("Submission path with restructurated data updated: " + submission.pathFileStructured);
         //Nettoyer les dossiers temporaires et le dossier de restructuration
-        supprimerRepertoire(tpmExtractDir);
-        supprimerRepertoire(restructurationDir);
+        deleteFolder(tpmExtractDir);
+        deleteFolder(restructurationDir);
 
     }
 
@@ -119,7 +119,7 @@ public class SubmissionService {
     /**
      * Méthode permettant de retourner la liste des étudiants ayant rendu leur TP
      */
-    public List<String> getListRendus(Submission submission) {
+    public List<String> getStudentsSubmission(Submission submission) {
         //Récupérer le path du zip restructuré
         Path zipRestructure = Paths.get(submission.pathFileStructured);
         List<String> etudiants = new ArrayList<>();
@@ -137,7 +137,7 @@ public class SubmissionService {
                     });
 
             //Supprimer le dossier temporaire
-            supprimerRepertoire(extractDir);
+            deleteFolder(extractDir);
         } catch (IOException e) {
             LOG.error("Error while retrieving the list of students", e);
         }
@@ -153,7 +153,7 @@ public class SubmissionService {
     /**
      * Crée un répertoire s'il n'existe pas déjà.
      */
-    private void creerRepertoireSilExistePas(Path dir) {
+    private void createFolderIfPossible(Path dir) {
         try {
             Files.createDirectories(dir);
         } catch (IOException e) {
@@ -169,7 +169,7 @@ public class SubmissionService {
      * @param etudiantDir
      * @param restructurationDir
      */
-    private void gererRenduEtudiant(Path etudiantDir, Path restructurationDir) throws IOException {
+    private void manageStudentSubmission(Path etudiantDir, Path restructurationDir) throws IOException {
         //Nom du dossier : Nom Prenom_xxxxxxxx (ne pas prendre après le _)
         String nomEtudiant = etudiantDir.getFileName().toString().split("_")[0];
         //Corriger le nom avec un regex pour enlever les caractères spéciaux
@@ -177,10 +177,10 @@ public class SubmissionService {
 
         //Créer le dossier "Nom_Prenom" dans le dossier de restructuration
         Path etudiantDirRestructured = restructurationDir.resolve(nomEtudiant);
-        creerRepertoireSilExistePas(etudiantDirRestructured);
+        createFolderIfPossible(etudiantDirRestructured);
 
         //Gérer le contenu du dossier étudiant pour le restructurer
-        transfererContenuEtudiant(etudiantDir, etudiantDirRestructured);
+        sendStudentContent(etudiantDir, etudiantDirRestructured);
 
     }
 
@@ -190,16 +190,16 @@ public class SubmissionService {
      * @param etudiantDir
      * @param etudiantDirRestructured
      */
-    private void transfererContenuEtudiant(Path etudiantDir, Path etudiantDirRestructured) throws IOException {
+    private void sendStudentContent(Path etudiantDir, Path etudiantDirRestructured) throws IOException {
         //Normalement : le rendu est un zip, mais dans le cas contraire, on récupère
         // juste ce qu'il y a dedans pour le stocker dans le dossier de restructuration
-        Optional<Path> zipEtudiant = trouverSousZip(etudiantDir);
+        Optional<Path> zipEtudiant = findSubFolderZip(etudiantDir);
         if (zipEtudiant.isPresent()) {
             Path zipEtudiantPath = zipEtudiant.get();
 
             //Extraire le contenu dans le dossier temporaire local
             Path projetExtract = etudiantDir.resolve("extractedProject");
-            creerRepertoireSilExistePas(projetExtract);
+            createFolderIfPossible(projetExtract);
             //Gestion des différents types de zip avec une méthode de Quarkus
             //OLD VERSION : unzip(zipEtudiantPath, projetExtract);
             manageExtractionZip(zipEtudiantPath, projetExtract, etudiantDir);
@@ -208,15 +208,15 @@ public class SubmissionService {
             LOG.debug("Manage extraction for student project and typeCours");
             //Gérer le contenu du projet à copier selon le type de cours
             if (typeCours.equals("Java")) {
-                copierProjetJava(projetExtract, etudiantDirRestructured);
+                copyJavaProject(projetExtract, etudiantDirRestructured);
             } else if (typeCours.equals("Python")) {
-                copierProjetPython(projetExtract, etudiantDirRestructured);
+                copyPythonProject(projetExtract, etudiantDirRestructured);
             } else {
                 //les deux set à ignorer sont vides
-                copierTout(projetExtract, etudiantDirRestructured, Set.of(), Set.of());
+                copyAll(projetExtract, etudiantDirRestructured, Set.of(), Set.of());
             }
         } else {
-            copierTout(etudiantDir, etudiantDirRestructured, Set.of(), Set.of());
+            copyAll(etudiantDir, etudiantDirRestructured, Set.of(), Set.of());
         }
 
 
@@ -226,7 +226,7 @@ public class SubmissionService {
      * Trouve un sous-zip (.zip, .7zip ou .rar) dans le dossier d'étudiant, s'il existe
      * .
      */
-    private Optional<Path> trouverSousZip(Path dossierEtudiant) {
+    private Optional<Path> findSubFolderZip(Path dossierEtudiant) {
         try (Stream<Path> files = Files.list(dossierEtudiant)) {
             return files.filter(p -> {
                 String fileName = p.toString().toLowerCase();
@@ -283,24 +283,24 @@ public class SubmissionService {
     /**
      * Copie un projet Java (on filtre .git, .idea, target, etc.).
      */
-    private void copierProjetJava(Path sourceDir, Path targetDir) {
+    private void copyJavaProject(Path sourceDir, Path targetDir) {
         // On peut copier tout en ignorant des dossiers courants : .git, .idea, target, build, etc.
         Set<String> ignoreDirs = Set.of(".git", ".idea", "target", "build", "out");
         Set<String> ignoreFiles = Set.of(".DS_Store", "Thumbs.db", "desktop.ini",
                 ".iml", ".pdf", ".docx", ".txt");
-        copierTout(sourceDir, targetDir, ignoreDirs, ignoreFiles);
+        copyAll(sourceDir, targetDir, ignoreDirs, ignoreFiles);
     }
 
     /**
      * Copie un projet Python (on filtre .git, .idea, etc.).
      */
-    private void copierProjetPython(Path sourceDir, Path targetDir) {
+    private void copyPythonProject(Path sourceDir, Path targetDir) {
         // On peut ignorer .git, .idea, venv, etc.
         //copierTout(sourceDir, targetDir, true);
         Set<String> ignoreDirs = Set.of(".git", ".idea", "venv", "__pycache__");
         Set<String> ignoreFiles = Set.of(".DS_Store", "Thumbs.db", "desktop.ini",
                 ".iml", ".pdf", ".docx", ".txt");
-        copierTout(sourceDir, targetDir, ignoreDirs, ignoreFiles);
+        copyAll(sourceDir, targetDir, ignoreDirs, ignoreFiles);
     }
 
     /**
@@ -311,7 +311,7 @@ public class SubmissionService {
      * @param ignoreDirs  Liste des dossiers à exclure.
      * @param ignoreFiles Liste des fichiers (ou extensions) à exclure.
      */
-    private void copierTout(Path sourceDir, Path targetDir, Set<String> ignoreDirs, Set<String> ignoreFiles) {
+    private void copyAll(Path sourceDir, Path targetDir, Set<String> ignoreDirs, Set<String> ignoreFiles) {
         try (Stream<Path> stream = Files.walk(sourceDir)) {  // 1️⃣
             stream
                     .filter(path -> !path.equals(sourceDir)) // 2️⃣ Ignorer le dossier source lui-même
@@ -349,7 +349,7 @@ public class SubmissionService {
     /**
      * Supprime récursivement un répertoire.
      */
-    private void supprimerRepertoire(Path dir) {
+    private void deleteFolder(Path dir) {
         if (!Files.exists(dir)) {
             return; // rien à faire
         }

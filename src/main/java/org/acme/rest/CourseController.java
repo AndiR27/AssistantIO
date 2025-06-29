@@ -5,7 +5,6 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.acme.entity.Course;
 import org.acme.models.*;
 import org.acme.rest.form.FileUploadForm;
 import org.acme.service.CourseService;
@@ -32,7 +31,7 @@ public class CourseController {
 
     private CourseDTO course() {
         // throws 404 if not found
-        return courseService.findCours(courseId);
+        return courseService.findCourse(courseId);
     }
 
     @GET
@@ -54,7 +53,7 @@ public class CourseController {
             description = "Add Student to Course")
     public Response addStudent(@Valid StudentDTO studentDto) {
         //Récupérer le cours et ajouter l’étudiant via le service
-        StudentDTO result = courseService.ajouterEtudiant(course(), studentDto);
+        StudentDTO result = courseService.addStudentToCourse(course(), studentDto);
 
         return Response.ok()
                 .entity(result)
@@ -72,7 +71,7 @@ public class CourseController {
             description = "Get All Students in Course")
     public List<StudentDTO> getAllStudents() {
         //Récupérer le cours et retourner la liste des étudiants
-        return courseService.getEtudiantsInscrits(courseId);
+        return courseService.getStudentsCourse(courseId);
 
     }
 
@@ -110,7 +109,7 @@ public class CourseController {
         try {
             courseService.addAllStudentsFromFile(course(), form.transformData());
             return Response.ok()
-                    .entity(courseService.getEtudiantsInscrits(courseId))
+                    .entity(courseService.getStudentsCourse(courseId))
                     .build();
         } catch (IOException e) {
             return Response.status(Response.Status.BAD_REQUEST)
@@ -129,7 +128,7 @@ public class CourseController {
             responseCode = "200",
             description = "Add TP to Course")
     public Response addTP(@PathParam("tpNumber") int numTp) {
-        TP_DTO newTp = courseService.ajouterTP(course(), numTp);
+        TP_DTO newTp = courseService.addTP(course(), numTp);
         return Response.ok()
                 .entity(newTp)
                 .build();
@@ -157,7 +156,7 @@ public class CourseController {
             responseCode = "200",
             description = "Add Exam to Course")
     public Response addExam(@Valid ExamDTO examDto) {
-        ExamDTO newExam = courseService.ajouterExamen(course(), examDto);
+        ExamDTO newExam = courseService.addExam(course(), examDto);
         return Response.ok()
                 .entity(newExam)
                 .build();
@@ -201,7 +200,7 @@ public class CourseController {
             description = "Add a submission to a TP in the Course")
     public Response addSubmission(@PathParam("tpNo") int tpNo, @MultipartForm FileUploadForm form) {
         TP_DTO tp = courseService.findTPByNumero(course(), tpNo);
-        TP_DTO tp_rendu = tpService.creerRenduTP(tp, form.getFile());
+        TP_DTO tp_rendu = tpService.addSubmissionToTP(tp, form.getFile());
         return Response.ok()
                 .entity(tp_rendu)
                 .build();

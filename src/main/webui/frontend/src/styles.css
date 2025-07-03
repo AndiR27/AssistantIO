@@ -1,1 +1,183 @@
 /* You can add global styles to this file, and also import other style files */
+  /* RESET BASIQUE / NORMALISATION */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #f9fafb;
+  color: #333;
+  line-height: 1.6;
+}
+
+
+
+/************************
+ *  TABLEAU ETUDIANTS
+ ************************/
+.etudiants-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  background: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+.etudiants-table th, .etudiants-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+.etudiants-table th {
+  background-color: #1f2937;
+  color: #fff;
+}
+.etudiants-table tbody tr:hover {
+  background-color: #f3f4f6;
+}
+
+/************************
+ *  FORMULAIRES
+ ************************/
+form {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  margin-bottom: 1.5rem;
+  max-width: 500px;
+}
+form label {
+  font-weight: bold;
+  margin-top: 0.5rem;
+}
+form input, form select {
+  margin-top: 0.25rem;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+}
+form button {
+  background-color: #2563eb;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+form button:hover {
+  background-color: #1e4db7;
+}
+
+/* .helper-text: petit texte explicatif sous un titre */
+.helper-text {
+  font-size: 0.9rem;
+  color: #6b7280; /* gris */
+  margin-bottom: 1rem;
+}
+
+/* GRILLE POUR DEUX FORMULAIRES (OU PLUS) CÔTE À CÔTE */
+.add-student-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+/* .card-form: style d'une carte pour le formulaire */
+.card-form {
+  background: #fff;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+}
+.card-form label {
+  margin-top: 0.75rem;
+  font-weight: bold;
+}
+.card-form input,
+.card-form select {
+  margin-top: 0.25rem;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+}
+
+/* Sous-titre dans le formulaire (ex. Ajout Manuel / Import via .txt) */
+.form-subtitle {
+  font-size: 1.125rem; /* ~ text-lg */
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #1f2937;
+}
+
+/* BOUTONS PERSONNALISÉS */
+.btn-primary {
+  background-color: #2563eb;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.25rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+.btn-primary:hover {
+  background-color: #1e4ed8;
+}
+.btn-upload {
+  background-color: #10b981; /* vert teal */
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.25rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+.btn-upload:hover {
+  background-color: #059669;
+}
+
+/* input[type='file'] stylisé */
+input[type='file'] {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+  margin-top: 0.5rem;
+}
+
+/************************
+ *  SECTIONS CUSTOM
+ ************************/
+/* .course-header: bloc pour le titre et infos */
+.course-header {
+  margin-bottom: 1rem;
+}
+.course-header .course-details p {
+  margin: 0.25rem 0;
+}
+
+/* .add-section: zone qui regroupe 2-3 formulaires (ex: add manuel, txt, etc.) */
+.add-section {
+  display: flex;
+  flex-wrap: wrap; /* si écran étroit -> ligne suivante */
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+
+

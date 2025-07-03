@@ -22,7 +22,7 @@ import static io.quarkus.fs.util.ZipUtils.*;
 @ApplicationScoped
 public class SubmissionService {
 
-    private String typeCours = "Java";
+    private String typeCours = "JAVA";
     private static final Logger LOG = Logger.getLogger(SubmissionService.class);
 
     @Inject
@@ -207,9 +207,9 @@ public class SubmissionService {
 
             LOG.debug("Manage extraction for student project and typeCours");
             //Gérer le contenu du projet à copier selon le type de cours
-            if (typeCours.equals("Java")) {
+            if (typeCours.equals("JAVA")) {
                 copyJavaProject(projetExtract, etudiantDirRestructured);
-            } else if (typeCours.equals("Python")) {
+            } else if (typeCours.equals("PYTHON")) {
                 copyPythonProject(projetExtract, etudiantDirRestructured);
             } else {
                 //les deux set à ignorer sont vides

@@ -29,7 +29,27 @@ Content-Type: application/json
   "semester": "AUTOMNE",
   "year_course": 2025,
   "teacher": "Stettler",
-  "courseType": "Java",
+  "courseType": "JAVA",
+  "studentList": [],
+  "tpsList": [],
+  "evaluations": []
+}
+
+###
+# 3) Create a new course
+# POST /admin/v2/courses/addCourse
+###
+POST {{base}}/addCourse
+Content-Type: application/json
+
+{
+  "id": null,
+  "name": "Progr",
+  "code": "62-21",
+  "semester": "AUTOMNE",
+  "year_course": 2026,
+  "teacher": "Stettler",
+  "courseType": "JAVA",
   "studentList": [],
   "tpsList": [],
   "evaluations": []

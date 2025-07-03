@@ -57,3 +57,9 @@ Angular CLI does not come with an end-to-end testing framework by default. You c
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+
+# Notes Angular
+
+## Components
+Un Component est une brique de base de l'interface utilisateur dans Angular. Il encapsule la logique, le style et le template HTML pour une partie spécifique de l'application.

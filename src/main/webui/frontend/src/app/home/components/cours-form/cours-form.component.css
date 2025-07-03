@@ -1,0 +1,79 @@
+/* Container principal du formulaire d’ajout de cours */
+.card-form {
+  display: grid;                                        /* mise en grille */
+  grid-template-columns: repeat(3, 1fr);                /* trois colonnes égales */
+  grid-auto-rows: auto;                                 /* hauteur automatique */
+  gap: 0.75rem 1.5rem;                                  /* espacement lignes / colonnes */
+  background: #fff;                                     /* fond blanc */
+  padding: 1rem;                                        /* marge intérieure */
+  border-radius: 0.5rem;                                /* coins arrondis */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);              /* ombre portée */
+  max-width: 800px;                                     /* largeur maximale */
+  margin: 0 auto;                                       /* centré horizontalement */
+}
+
+/* Titre du formulaire, occupe toute la largeur */
+.card-form .title-form {
+  grid-column: 1 / -1;                                  /* s’étend sur les trois colonnes */
+  font-size: 1.25rem;                                   /* taille de police */
+  font-weight: 600;                                     /* graisse de police */
+  color: #1f2937;                                       /* couleur du texte */
+  margin-bottom: 0.5rem;                                /* espace sous le titre */
+}
+
+/* Conteneur label + contrôle pour chaque champ */
+.card-form .field {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Style des étiquettes de champ */
+.card-form label {
+  font-weight: 600;                                     /* semi-gras */
+  font-size: 0.9rem;                                    /* taille de police */
+  color: #374151;                                       /* gris foncé */
+  margin-bottom: 0.25rem;                               /* petit espace */
+}
+
+/* Style des champs de saisie et listes déroulantes */
+.card-form input,
+.card-form select {
+  width: 100%;                                          /* toute la largeur de la colonne */
+  padding: 0.5rem;                                      /* marge intérieure */
+  border: 1px solid #d1d5db;                            /* bord léger */
+  border-radius: 0.25rem;                               /* coins arrondis */
+  font-size: 0.9rem;                                    /* cohérence typographique */
+}
+
+/* Texte d’aide ou d’erreur sous un champ (s’étend sur 3 colonnes si besoin) */
+.card-form .helper-text {
+  grid-column: span 3;                                  /* texte d’erreur en plein rang */
+  font-size: 0.8rem;                                    /* plus petit */
+  color: #dc2626;                                       /* rouge d’erreur */
+  margin-top: 0.25rem;                                  /* espace au-dessus */
+}
+
+/* Bouton de soumission du formulaire */
+.card-form .btn-primary {
+  grid-column: 3 / 4;                                   /* placé dans la 3ᵉ colonne */
+  justify-self: end;                                    /* aligné à droite */
+  padding: 0.5rem 1rem;                                 /* zone cliquable */
+  background-color: #2563eb;                            /* bleu primaire */
+  color: #fff;                                          /* texte blanc */
+  border: none;                                         /* sans bordure */
+  border-radius: 0.25rem;                               /* coins arrondis */
+  font-weight: 600;                                     /* semi-gras */
+  cursor: pointer;                                      /* pointeur cliquable */
+}
+
+/* Effet au survol du bouton */
+.card-form .btn-primary:hover {
+  background-color: #1e4ed8;                            /* bleu foncé */
+}
+
+/* Apparence du bouton désactivé */
+.card-form .btn-primary[disabled],
+.card-form button[disabled] {
+  opacity: 0.6;                                         /* grisé */
+  cursor: not-allowed;                                  /* indicateur d’interdiction */
+}

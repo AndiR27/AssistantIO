@@ -3,7 +3,6 @@ package org.acme.TestServices;
 import io.quarkus.test.TestTransaction;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 import org.acme.entity.Course;
 import org.acme.entity.TP;
 import org.acme.enums.CourseType;
@@ -85,7 +84,7 @@ public class TestServicesV2 {
                 SemesterType.AUTOMNE,
                 2025,
                 "Stettler",
-                CourseType.Java,
+                CourseType.JAVA,
                 new ArrayList<>(),
                 new ArrayList<>(),
                 new ArrayList<>()
@@ -114,7 +113,7 @@ public class TestServicesV2 {
                 SemesterType.AUTOMNE,
                 2025,
                 "Stettler",
-                CourseType.Java,
+                CourseType.JAVA,
                 new ArrayList<>(),
                 new ArrayList<>(),
                 new ArrayList<>()
@@ -152,7 +151,7 @@ public class TestServicesV2 {
                 SemesterType.PRINTEMPS,
                 2025,
                 "Stettler",
-                CourseType.Java,
+                CourseType.JAVA,
                 new ArrayList<>(),
                 new ArrayList<>(),
                 new ArrayList<>()
@@ -187,7 +186,7 @@ public class TestServicesV2 {
                 SemesterType.PRINTEMPS,
                 2025,
                 "Stettler",
-                CourseType.Java,
+                CourseType.JAVA,
                 new ArrayList<>(),
                 new ArrayList<>(),
                 new ArrayList<>()
@@ -225,7 +224,7 @@ public class TestServicesV2 {
                 SemesterType.PRINTEMPS,
                 2025,
                 "Stettler",
-                CourseType.Java,
+                CourseType.JAVA,
                 new ArrayList<>(),
                 new ArrayList<>(),
                 new ArrayList<>()
@@ -261,7 +260,7 @@ public class TestServicesV2 {
                 SemesterType.AUTOMNE,
                 2025,
                 "Stettler",
-                CourseType.Java,
+                CourseType.JAVA,
                 new ArrayList<>(),
                 new ArrayList<>(),
                 new ArrayList<>()
@@ -297,7 +296,7 @@ public class TestServicesV2 {
                 SemesterType.AUTOMNE,
                 2025,
                 "Stettler",
-                CourseType.Java,
+                CourseType.JAVA,
                 new ArrayList<>(),
                 new ArrayList<>(),
                 new ArrayList<>()

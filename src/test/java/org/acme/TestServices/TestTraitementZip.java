@@ -3,7 +3,6 @@ package org.acme.TestServices;
 import io.quarkus.test.TestTransaction;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 import org.acme.entity.*;
 import org.acme.models.CourseDTO;
 import org.acme.models.TP_DTO;
@@ -17,7 +16,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.*;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -75,7 +73,7 @@ public class TestTraitementZip {
         //Creation des entités
         CourseDTO cours = new CourseDTO(null,
                 "Approfondissement de la programmation",
-                "62-21", SemesterType.PRINTEMPS, 2027, "Stettler", CourseType.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+                "62-21", SemesterType.PRINTEMPS, 2027, "Stettler", CourseType.JAVA, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         CourseDTO courseDTO = courseService.addCourse(cours);
 
         TP_DTO tpDTP = courseService.addTP(courseDTO, 1);
@@ -119,7 +117,7 @@ public class TestTraitementZip {
 
         CourseDTO courseDTO = courseService.addCourse(new CourseDTO(null,
                 "Python Introduction",
-                "61-13", SemesterType.AUTOMNE, 2025, "Stettler", CourseType.Python, new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
+                "61-13", SemesterType.AUTOMNE, 2025, "Stettler", CourseType.PYTHON, new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
 
         TP_DTO tpDTO = courseService.addTP(courseDTO, 1);
 
@@ -195,7 +193,7 @@ public class TestTraitementZip {
         //Créer les données de test
         CourseDTO cours = new CourseDTO(null,
                 "Approfondissement de la programmation",
-                "62-23", SemesterType.PRINTEMPS, 2028, "Stettler", CourseType.Java, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+                "62-23", SemesterType.PRINTEMPS, 2028, "Stettler", CourseType.JAVA, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         CourseDTO courseDTO = courseService.addCourse(cours);
 
         TP_DTO tpDTO = courseService.addTP(courseDTO, 1);

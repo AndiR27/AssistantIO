@@ -1,4 +1,4 @@
-# Todo Quarkus Angular Application
+# AssistantIO : Fullstack App 
 
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/ashusharmatech/todo-quarkus-angular/issues)  
 ![Java CI with Maven](https://github.com/ashusharmatech/todo-quarkus-angular/workflows/Java%20CI%20with%20Maven/badge.svg)  
@@ -8,7 +8,12 @@
 
 ## Description
 
-Cette application fullstack est conçue avec **Quarkus** pour le backend (REST API) et **Angular** pour le frontend (interface utilisateur). Elle permet de gérer une liste de tâches avec des opérations CRUD et une interface utilisateur élégante.
+Cette application fullstack est conçue avec **Quarkus** pour le backend (REST API), **Angular** pour le frontend (interface utilisateur)
+et PostgreSQL pour la base de données.
+Elle permet de gérer d'automatiser la gestion des cours, de ses étudiants et des rendus de travaux pratiques 
+avec des opérations CRUD et une interface utilisateur simple mais efficace.
+L'idée principale est de se débarrasser de la gestion de ses tâches via des tableaux excels et
+de les gérer de manière centralisée.
 
 ---
 

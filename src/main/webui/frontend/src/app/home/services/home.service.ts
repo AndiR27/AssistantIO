@@ -24,7 +24,7 @@ import {CourseType} from '../models/courseType.model';
 
 export class HomeService{
   coursePreviews: CoursePreview[] = []; // Propriété pour stocker la liste des cours
-
+  private baseURL = '/admin/v2/courses';
   constructor(private api: ApiService) {
     // Le constructeur initialise le service avec HttpClient pour faire des requêtes HTTP
   }
@@ -34,7 +34,7 @@ export class HomeService{
   getCoursePreviews(): Observable<CoursePreview[]> {
     console.log('getCoursePreviews called');
     return this.api.getAllCourses().pipe(
-      tap(res => console.log('API ', this.api.getRoute(),' raw response:', res)),
+      tap(res => console.log('API ', this.api.getRoute(this.baseURL + "/all"),' raw response:', res)),
       map((res: any) => {
         const arr: any[] = Array.isArray(res)
           ? res
@@ -62,6 +62,7 @@ export class HomeService{
 
   // Add a course
   addCourse(course : CoursePreview): Observable<CoursePreview> {
+    console.log('addCourse called');
     return this.api.addCourse(course).pipe(
       map(dto => ({
         id: 0, // Assuming the backend will return the new ID after creation
@@ -78,4 +79,7 @@ export class HomeService{
       })
     );
   }
+
+  // Fetch a course by ID
+
 }

@@ -1,0 +1,72 @@
+/* Conteneur général */
+.course-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* En-tête du cours */
+.course-header-card {
+  padding: 1rem;
+}
+.course-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+/* Section d’ajouts */
+/* GRID POUR LES 2 CARTES CÔTE-À-CÔTE */
+.add-section-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Cartes d’ajout */
+.add-card {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Tableau responsive */
+.table-section .title-form {
+  margin-bottom: 1rem;
+}
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: 0.5rem;
+}
+.etudiants-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+}
+.etudiants-table th,
+.etudiants-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  text-align: left;
+}
+.etudiants-table thead th {
+  background: #f5f5f5;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+.etudiants-table tbody tr:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+.tp-header,
+.tp-cell {
+  white-space: nowrap;
+}
+
+/* Lien de retour */
+.back-link {
+  text-align: right;
+}

@@ -1,0 +1,27 @@
+/* Garde la même classe pour l’alignement et la taille max */
+.card-form {
+  max-width: 500px;
+  margin: 0 auto 1.5rem;
+}
+
+/* Chaque champ prend toute la largeur disponible */
+.full-width {
+  width: 100%;
+}
+
+/* Un peu d’espace entre champs */
+mat-form-field.full-width {
+  margin-bottom: 1rem;
+}
+
+/* Le bouton aussi plein écran et marge supérieure */
+button.full-width {
+  margin-top: 1rem;
+}
+
+/* On peut conserver helper-text si besoin ailleurs */
+.helper-text {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin-bottom: 1rem;
+}

@@ -1,79 +1,81 @@
-/* Container principal du formulaire d’ajout de cours */
+/* ========================================================
+   Container principal : grille à 6 colonnes pour les inputs
+   ======================================================== */
 .card-form {
-  display: grid;                                        /* mise en grille */
-  grid-template-columns: repeat(3, 1fr);                /* trois colonnes égales */
-  grid-auto-rows: auto;                                 /* hauteur automatique */
-  gap: 0.75rem 1.5rem;                                  /* espacement lignes / colonnes */
-  background: #fff;                                     /* fond blanc */
-  padding: 1rem;                                        /* marge intérieure */
-  border-radius: 0.5rem;                                /* coins arrondis */
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);              /* ombre portée */
-  max-width: 800px;                                     /* largeur maximale */
-  margin: 0 auto;                                       /* centré horizontalement */
+  width: 100%;
+  max-width: none;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);  /* 6 colonnes égales */
+  grid-auto-rows: auto;
+  gap: 0.75rem 1.5rem;
+  background: #fff;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+
+  margin: 0 auto;
 }
 
-/* Titre du formulaire, occupe toute la largeur */
+/* Titre : occupe toutes les colonnes */
 .card-form .title-form {
-  grid-column: 1 / -1;                                  /* s’étend sur les trois colonnes */
-  font-size: 1.25rem;                                   /* taille de police */
-  font-weight: 600;                                     /* graisse de police */
-  color: #1f2937;                                       /* couleur du texte */
-  margin-bottom: 0.5rem;                                /* espace sous le titre */
+  grid-column: 1 / -1;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
 }
 
-/* Conteneur label + contrôle pour chaque champ */
+/* Chaque champ (label + contrôle) */
 .card-form .field {
   display: flex;
   flex-direction: column;
 }
 
-/* Style des étiquettes de champ */
+/* Label : semi-gras, taille réduite */
 .card-form label {
-  font-weight: 600;                                     /* semi-gras */
-  font-size: 0.9rem;                                    /* taille de police */
-  color: #374151;                                       /* gris foncé */
-  margin-bottom: 0.25rem;                               /* petit espace */
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #374151;
+  margin-bottom: 0.25rem;
 }
 
-/* Style des champs de saisie et listes déroulantes */
+/* Inputs & selects : bord léger, coins arrondis */
 .card-form input,
 .card-form select {
-  width: 100%;                                          /* toute la largeur de la colonne */
-  padding: 0.5rem;                                      /* marge intérieure */
-  border: 1px solid #d1d5db;                            /* bord léger */
-  border-radius: 0.25rem;                               /* coins arrondis */
-  font-size: 0.9rem;                                    /* cohérence typographique */
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.25rem;
+  font-size: 0.9rem;
 }
 
-/* Texte d’aide ou d’erreur sous un champ (s’étend sur 3 colonnes si besoin) */
+/* Texte d’erreur : s’étend sur toute la largeur */
 .card-form .helper-text {
-  grid-column: span 3;                                  /* texte d’erreur en plein rang */
-  font-size: 0.8rem;                                    /* plus petit */
-  color: #dc2626;                                       /* rouge d’erreur */
-  margin-top: 0.25rem;                                  /* espace au-dessus */
+  grid-column: 1 / -1;
+  font-size: 0.8rem;
+  color: #dc2626;
+  margin-top: 0.25rem;
 }
 
-/* Bouton de soumission du formulaire */
+/* Bouton : placé sous la 6ᵉ colonne, aligné à droite */
 .card-form .btn-primary {
-  grid-column: 3 / 4;                                   /* placé dans la 3ᵉ colonne */
-  justify-self: end;                                    /* aligné à droite */
-  padding: 0.5rem 1rem;                                 /* zone cliquable */
-  background-color: #2563eb;                            /* bleu primaire */
-  color: #fff;                                          /* texte blanc */
-  border: none;                                         /* sans bordure */
-  border-radius: 0.25rem;                               /* coins arrondis */
-  font-weight: 600;                                     /* semi-gras */
-  cursor: pointer;                                      /* pointeur cliquable */
+  grid-column: 6;
+  justify-self: end;
+  padding: 0.5rem 1rem;
+  background-color: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 0.25rem;
+  font-weight: 600;
+  cursor: pointer;
 }
 
-/* Effet au survol du bouton */
+/* Hover & disabled states */
 .card-form .btn-primary:hover {
-  background-color: #1e4ed8;                            /* bleu foncé */
+  background-color: #1e4ed8;
+}
+.card-form .btn-primary[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-/* Apparence du bouton désactivé */
-.card-form .btn-primary[disabled],
-.card-form button[disabled] {
-  opacity: 0.6;                                         /* grisé */
-  cursor: not-allowed;                                  /* indicateur d’interdiction */
-}

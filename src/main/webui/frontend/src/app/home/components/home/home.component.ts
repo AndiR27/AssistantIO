@@ -1,4 +1,4 @@
-import {Component, inject} from '@angular/core';
+import {Component, inject, Input} from '@angular/core';
 import {CoursePreview} from '../../models/coursePreview.model';
 import {HomeService} from '../../services/home.service';
 import {CommonModule} from '@angular/common';
@@ -28,6 +28,8 @@ export class HomeComponent {
   // Propriété pour stocker une liste de course
   courseList : CoursePreview[] = []
   homeService = inject(HomeService); // Injection du service HomeService
+
+  @Input() course!: CoursePreview;
   // Constructeur pour initialiser le composant
   constructor() {
     console.log('HomeComponent initialized');
@@ -37,7 +39,6 @@ export class HomeComponent {
   //Récupérer la liste des cours avec ngOnInit : cela permet de charger les données dès que le composant est initialisé.
   ngOnInit() {
     this.homeService.getCoursePreviews().subscribe((courseList) =>{this.courseList = courseList;});
-
   }
 
 

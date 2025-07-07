@@ -6,11 +6,12 @@ import { HomeService }           from '../../services/home.service';
 import {CourseType} from '../../models/courseType.model';
 import {SemesterType} from '../../models/semesterType.model';
 import {CoursePreview} from '../../models/coursePreview.model';
+import {MatButton} from '@angular/material/button';
 
 @Component({
   selector: 'app-cours-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, MatButton],
   templateUrl: './cours-form.component.html',
   styleUrls: ['./cours-form.component.css']
 })
@@ -53,7 +54,15 @@ export class CoursFormComponent{
       });
       console.log('Course added successfully:', payload);
     });
+    this.refreshPage();
   }
+
+  refreshPage(){
+    // Rafraîchit la page actuelle
+    window.location.reload();
+  }
+
+
 
 
 }

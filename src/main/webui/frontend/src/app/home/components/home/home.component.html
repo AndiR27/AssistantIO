@@ -13,7 +13,7 @@
   <section class="courses-grid" id="courses-list">
     @for (course of courseList; track course.id) {
       <article class="course-card">
-        <a class="course-link" [routerLink]="['/courses', course.id]">
+        <a [routerLink]="['courses', course.id]" class="card-link">
           <h2>{{ course.name }}</h2>
           <p>Code : {{ course.code }}</p>
           <p>Prof : {{ course.teacher }}</p>

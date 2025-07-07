@@ -1,0 +1,42 @@
+<form (ngSubmit)="onSubmit()" class="upload-form">
+  <h3 class="form-subtitle">Ajout d'étudiants (fichier .txt)</h3>
+
+  <div class="file-input-wrapper">
+    <input
+      type="file"
+      id="txtFile"
+      #fileInputRef
+      (change)="onFileSelected($event)"
+      accept=".txt"
+      hidden
+    />
+    <button
+      type="button"
+      class="choose-btn mat-stroked-button mat-primary"
+      (click)="fileInputRef.click()"
+    >
+      <mat-icon>attach_file</mat-icon>
+      {{ file ? 'Changer de fichier' : 'Choisir un fichier .txt' }}
+    </button>
+    @if (file) {
+      <mat-chip class="file-chip">{{ file.name }}</mat-chip>
+    }
+  </div>
+
+  <button
+    button
+    mat-raised-button
+    color="accent"
+    class="import-btn"
+    type="submit"
+    [disabled]="!file || isUploading"
+  >
+    {{ isUploading ? 'Import en cours…' : 'Importer' }}
+  </button>
+
+  @if (lineCount() !== null) {
+    <p class="success-text">
+      {{ lineCount() }} étudiant{{ lineCount()! > 1 ? 's' : '' }} importé{{ lineCount()! > 1 ? 's' : '' }} !
+    </p>
+  }
+</form>

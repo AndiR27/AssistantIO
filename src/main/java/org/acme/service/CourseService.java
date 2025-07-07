@@ -185,7 +185,6 @@ public class CourseService {
                 StudentDTO studentDTO = new StudentDTO(null, etudiantData[0], etudiantData[1], StudyType.valueOf(etudiantData[2]), new ArrayList<>());
                 StudentDTO etuAdded = studentService.addStudent(studentDTO, course);
                 addStudentToCourse(courseDTO, etuAdded);
-
             }
             LOG.info("All students added to course " + courseDTO.getName());
         } catch (RuntimeException e) {

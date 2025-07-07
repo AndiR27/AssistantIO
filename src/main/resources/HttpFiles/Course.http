@@ -13,6 +13,7 @@ Accept: application/json
 ###
 # 2) Add Student to Course
 # POST /course/{courseId}/addStudent
+#http://localhost:8088/course/1/addStudent
 ###
 POST {{base}}/{{courseId}}/addStudent
 Content-Type: application/json

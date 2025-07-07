@@ -3,11 +3,12 @@
       (ngSubmit)="submit()"
       class="card-form">
 
-  <h2 class="title-form">Ajouter un Cours</h2>
+  <!-- Titre (sur toute la largeur) -->
+  <h2 class="title-form">Ajouter un cours</h2>
 
-  <!-- 1ᵉ ligne : Nom, Code, Semestre -->
+  <!-- Champs : Nom | Code | Semestre | Année | Professeur | Type -->
   <div class="field">
-    <label for="name">Nom du cours :</label>
+    <label for="name">Nom du cours</label>
     <input id="name" formControlName="name" />
     @if (form.controls.name.touched && form.controls.name.invalid) {
       <div class="helper-text">Le nom du cours est requis.</div>
@@ -15,7 +16,7 @@
   </div>
 
   <div class="field">
-    <label for="code">Code du cours :</label>
+    <label for="code">Code du cours</label>
     <input id="code" formControlName="code" />
     @if (form.controls.code.touched && form.controls.code.invalid) {
       <div class="helper-text">Le code du cours est requis.</div>
@@ -23,7 +24,7 @@
   </div>
 
   <div class="field">
-    <label for="semester">Semestre :</label>
+    <label for="semester">Semestre</label>
     <select id="semester" formControlName="semester">
       @for (s of semesterOptions; track s) {
         <option [value]="s">{{ s }}</option>
@@ -31,9 +32,8 @@
     </select>
   </div>
 
-  <!-- 2ᵉ ligne : Année, Professeur, Type -->
   <div class="field">
-    <label for="year_course">Année :</label>
+    <label for="year_course">Année</label>
     <input type="number" id="year_course" formControlName="year_course" />
     @if (form.controls.year_course.touched && form.controls.year_course.invalid) {
       <div class="helper-text">Entrer une année valide (≥ 2000).</div>
@@ -41,7 +41,7 @@
   </div>
 
   <div class="field">
-    <label for="teacher">Professeur :</label>
+    <label for="teacher">Professeur</label>
     <input id="teacher" formControlName="teacher" />
     @if (form.controls.teacher.touched && form.controls.teacher.invalid) {
       <div class="helper-text">Le nom du professeur est requis.</div>
@@ -49,7 +49,7 @@
   </div>
 
   <div class="field">
-    <label for="courseType">Type :</label>
+    <label for="courseType">Type</label>
     <select id="courseType" formControlName="courseType">
       @for (t of courseTypeOptions; track t) {
         <option [value]="t">{{ t }}</option>
@@ -57,8 +57,8 @@
     </select>
   </div>
 
-  <!-- Bouton en bas à droite -->
-  <button type="submit"
+  <!-- Bouton Ajouter (sous le dernier champ, aligné à droite) -->
+  <button mat-button type="submit"
           class="btn-primary"
           [disabled]="form.invalid">
     Ajouter

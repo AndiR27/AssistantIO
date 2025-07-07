@@ -1,0 +1,86 @@
+@if (course.id != null) {
+  <app-header></app-header>
+
+  <div class="course-container">
+    <!-- ▶︎ En-tête du cours -->
+    <mat-card class="course-header-card mat-elevation-z1">
+      <mat-card-title class="title-large">{{ course.name }}</mat-card-title>
+      <mat-card-content>
+        <div class="course-info-grid">
+          <div><strong>Code :</strong> {{ course.code }}</div>
+          <div><strong>Professeur :</strong> {{ course.teacher }}</div>
+          <div><strong>Semestre :</strong> {{ course.semester }}</div>
+          <div><strong>Année académique :</strong> {{ course.year_course }}</div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- ▶︎ Section d’ajouts : jusqu’à 4 cartes côte à côte -->
+    <div class="add-section-grid">
+      <mat-card class="add-card mat-elevation-z1">
+        <mat-card-header>
+          <mat-card-title>Ajouts manuels</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <app-add-student
+            [courseId]="course.id"
+            (added)="loadStudents($event)">
+          </app-add-student>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Exemple de placeholder pour futur composant -->
+
+      <mat-card class="add-card mat-elevation-z1">
+        <mat-card-header>
+          <mat-card-title>Ajout via file.txt</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+           <app-upload-file-txt></app-upload-file-txt>
+      </mat-card-content>
+      </mat-card>
+
+      <!-- Vous pourrez ajouter jusqu’à 4 cartes ici -->
+    </div>
+
+    <!-- ▶︎ Tableau des étudiants vs TPs -->
+    <div class="table-section">
+      <h2 class="title-form">Étudiants & Travaux Pratiques</h2>
+      <div class="table-wrapper mat-elevation-z1">
+        <table class="etudiants-table">
+          <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Email</th>
+            @for (tp of course.tpsList; track tp.no) {
+              <th class="tp-header">TP {{ tp.no }}
+                <!-- <app-rendu [tp]="tp" [student]="..."></app-rendu> -->
+              </th>
+            }
+          </tr>
+          </thead>
+          <tbody>
+            @for (etudiant of course.studentList; track etudiant.id) {
+              <tr>
+                <td>{{ etudiant.name }}</td>
+                <td>{{ etudiant.email }}</td>
+                @for (tp of course.tpsList; track tp.no) {
+                  <td class="tp-cell">0</td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ▶︎ Lien de retour -->
+    <div class="back-link">
+      <button mat-stroked-button color="primary" routerLink="/admin/home">
+        ← Retour à la liste des cours
+      </button>
+    </div>
+  </div>
+
+  <app-footer></app-footer>
+}

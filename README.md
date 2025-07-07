@@ -1,78 +1,165 @@
-# assistant-io
+# Todo Quarkus Angular Application
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/ashusharmatech/todo-quarkus-angular/issues)  
+![Java CI with Maven](https://github.com/ashusharmatech/todo-quarkus-angular/workflows/Java%20CI%20with%20Maven/badge.svg)  
+![Node.js CI](https://github.com/ashusharmatech/todo-quarkus-angular/workflows/Node.js%20CI/badge.svg)
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+---
 
-## Running the application in dev mode
+## Description
 
-You can run your application in dev mode that enables live coding using:
+Cette application fullstack est conçue avec **Quarkus** pour le backend (REST API) et **Angular** pour le frontend (interface utilisateur). Elle permet de gérer une liste de tâches avec des opérations CRUD et une interface utilisateur élégante.
 
-```shell script
+---
+
+## Technologies
+
+### Backend (Quarkus)
+
+- Java 17+
+- Quarkus
+- RESTEasy Reactive
+- Hibernate ORM avec Panache
+- JPA / PostgreSQL
+- MapStruct
+- Validation Jakarta
+- Swagger (OpenAPI)
+- JUnit, REST Assured
+
+### Frontend (Angular)
+
+- Angular 17+
+- Angular Material
+- RxJS
+- SCSS
+- Formulaires réactifs
+- HttpClient
+- Lazy loading
+- Environnement dev/prod
+
+---
+
+## Prérequis
+
+- **Java 17+**
+- **Maven 3.8+**
+- **Node.js 18+**
+- **Angular CLI**
+- **PostgreSQL** (ou H2 pour test)
+- Docker (optionnel)
+
+---
+
+## Installation
+
+### 1. Backend
+
+```bash
+cd backend
+./mvnw clean install
 ./mvnw quarkus:dev
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+- Accès Swagger : http://localhost:8080/q/swagger-ui
 
-## Packaging and running the application
+### 2. Frontend
 
-The application can be packaged using:
-
-```shell script
-./mvnw package
+```bash
+cd frontend
+npm install
+ng serve
 ```
 
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
+- Accès Angular : http://localhost:4200/
 
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
+---
 
-If you want to build an _über-jar_, execute the following command:
+## Structure du Projet
 
-```shell script
-./mvnw package -Dquarkus.package.jar.type=uber-jar
+```text
+todo-quarkus-angular/
+│
+├── backend/           → Projet Quarkus (Java)
+│   ├── src/main/java/
+│   ├── src/test/java/
+│   ├── application.properties
+│   └── pom.xml
+│
+├── frontend/          → Projet Angular
+│   ├── src/app/
+│   ├── angular.json
+│   └── package.json
+│
+└── README.md
 ```
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
+---
 
-## Creating a native executable
+## Fonctionnalités
 
-You can create a native executable using:
+### Backend
 
-```shell script
-./mvnw package -Dnative
+- Création, mise à jour, suppression, consultation de tâches
+- Architecture RESTful
+- DTO + Mapping via MapStruct
+- Tests unitaires et d’intégration
+- Validation d’entrée
+
+### Frontend
+
+- Interface Material Design
+- Ajout / modification / suppression de tâches
+- Notification utilisateur
+- Formulaires dynamiques avec validation
+- Communication avec l’API via HttpClient
+- Routing et composants modulaires
+
+---
+
+## Lancement avec Docker
+
+> À configurer selon vos images préférées de PostgreSQL et front-end.
+
+```bash
+docker-compose up --build
 ```
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
+---
 
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
+## Tests
+
+### Backend
+
+```bash
+./mvnw test
 ```
 
-You can then execute your native executable with: `./target/assistant-io-1.0.0-SNAPSHOT-runner`
+### Frontend
 
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
+```bash
+ng test
+```
 
-## Related Guides
+---
 
-- RESTEasy Classic Multipart ([guide](https://quarkus.io/guides/rest-json#multipart-support)): Multipart support for RESTEasy Classic
-- Hibernate ORM with Panache ([guide](https://quarkus.io/guides/hibernate-orm-panache)): Simplify your persistence code for Hibernate ORM via the active record or the repository pattern
-- RESTEasy Classic ([guide](https://quarkus.io/guides/resteasy)): REST endpoint framework implementing Jakarta REST and more
-- JDBC Driver - PostgreSQL ([guide](https://quarkus.io/guides/datasource)): Connect to the PostgreSQL database via JDBC
+## Auteurs
 
-## Provided Code
+- Andi R. – [Développeur Fullstack Java & Angular]
 
-### Hibernate ORM
+---
 
-Create your first JPA entity
+## Contribuer
 
-[Related guide section...](https://quarkus.io/guides/hibernate-orm)
+Les contributions sont les bienvenues !
 
-[Related Hibernate with Panache section...](https://quarkus.io/guides/hibernate-orm-panache)
+1. Fork du repo
+2. Crée une branche : `git checkout -b feature/ton-idee`
+3. Commit : `git commit -m 'Ajoute une nouvelle fonctionnalité'`
+4. Push : `git push origin feature/ton-idee`
+5. Crée une pull request
 
+---
 
-### RESTEasy JAX-RS
+## Licence
 
-Easily start your RESTful Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started#the-jax-rs-resources)
+Ce projet est sous licence MIT – voir le fichier `LICENSE` pour plus de détails.

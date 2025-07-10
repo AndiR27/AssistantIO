@@ -133,18 +133,16 @@ public class CourseService {
 
         try {
             // Récupérer le cours, ou lever une NotFoundException si non présent
-            Course course = courseRepository.findByIdOptional(courseDTO.getId())
-                    .orElseThrow(() -> new NotFoundException("Cours non trouvé (ID=" + courseDTO.getId() + ")"));
+            Course course = courseRepository.findById(courseDTO.getId());
 
             Student student;
-            if (studentDTO.getId() != null) {
+            if (studentRepository.existsByEmail(studentDTO.getEmail())) {
                 // Cas : l'étudiant existe déjà
-                student = studentRepository.findByIdOptional(studentDTO.getId())
-                        .orElseThrow(() -> new NotFoundException("Étudiant non trouvé (ID=" + studentDTO.getId() + ")"));
+                student = studentRepository.findByEmail(studentDTO.getEmail());
             } else {
                 // Cas : l'étudiant n'existe pas => on le crée
                 StudentDTO studentDTO1 = studentService.addStudent(studentDTO, course);
-                student = studentMapper.toEntity(studentDTO1);
+                student = studentRepository.findById(studentDTO1.getId());
             }
             // Établir la relation bidirectionnelle
             course.addEtudiant(student);
@@ -152,6 +150,7 @@ public class CourseService {
 
             // Persister en base
             courseRepository.persist(course);
+            //studentRepository.persist(student);
 
             //etudiantRepository.persistAndFlush(etudiant);
             LOG.info("Etudiant " + studentDTO.getName() + " added to course " + courseDTO.getName());
@@ -159,7 +158,7 @@ public class CourseService {
             return studentMapper.toDto(student);
 
         } catch (NotFoundException e) {
-            System.out.println("Erreur : " + e.getMessage());
+            System.out.println("Impossible de trouver l'etudiant : " + e.getMessage());
         } catch (Exception e) {
             // Pour toute autre erreur imprévue
             System.out.print("Erreur inattendue lors de l'ajout de l'étudiant au cours" + e.getMessage());
@@ -333,6 +332,7 @@ public class CourseService {
     /**
      * Methode permettant de lancer le traitement du rendu pour un TP
      */
+    @Transactional
     public void startZipProcess(Long idCours, Long idTp) throws IOException {
         Course course = courseRepository.findById(idCours);
         TP tp = travailPratiqueRepository.findById(idTp);

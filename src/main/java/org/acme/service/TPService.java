@@ -5,7 +5,10 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import org.acme.entity.*;
 import org.acme.entity.TP;
+import org.acme.mapping.StudentMapper;
 import org.acme.mapping.TPMapper;
+import org.acme.models.CourseDTO;
+import org.acme.models.StudentDTO;
 import org.acme.models.TP_DTO;
 import org.acme.repository.*;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -23,6 +26,9 @@ public class TPService {
     TPRepository travailPratiqueRepository;
 
     @Inject
+    CourseRepository courseRepository;
+
+    @Inject
     SubmissionService submissionService;
 
     @Inject
@@ -30,6 +36,8 @@ public class TPService {
 
     @Inject
     TPMapper tpMapper;
+    @Inject
+    StudentMapper studentMapper;
 
     @Inject
     @ConfigProperty(name = "zip-storage.path")
@@ -67,6 +75,9 @@ public class TPService {
 
         //Copier le stream
         try{
+            if (zipFile == null) {
+                LOG.info("Zip file is null");
+            }
             Files.copy(zipFile, cheminVersZip, StandardCopyOption.REPLACE_EXISTING);
         }
         catch (IOException e){
@@ -74,9 +85,8 @@ public class TPService {
         }
 
         //Creation du rendu
-        Submission submission = new Submission(nomFichier, cheminVersZip.toString()
+        tp.submission = new Submission(nomFichier, cheminVersZip.toString()
                 , null);
-        tp.submission = submission;
         travailPratiqueRepository.persist(tp);
         return tpMapper.toDto(tp);
     }
@@ -91,11 +101,14 @@ public class TPService {
      * 4. Persister la liste des TP_Status
      */
     @Transactional
-    public TP manageSubmissionsTP(Course course, TP tp,
-                                  List<Student> etudiantsList){
+    public TP_DTO manageSubmissionsTP(CourseDTO courseDto, int tp_no){
+        //Récupérer le TP
+        TP tp = courseRepository.findTpByNo(courseDto.getId(), tp_no);
         List<String> rendus = submissionService.getStudentsSubmission(tp.submission);
-
+        List<Student> etudiantsList = courseRepository.findEtudiantsInscrits(courseDto.getId());
         for(Student student : etudiantsList){
+            //map du student
+            LOG.info("Infos TpStatus : " + " TP numéro : " + tp.no + student.name);
             TPStatus tpStatus = new TPStatus(student, tp, false);
             String nomEtudiantRefomated = student.name.replaceAll(" ", "").toLowerCase();
             if(rendus.contains(nomEtudiantRefomated)){
@@ -104,7 +117,7 @@ public class TPService {
             tp.addTPStatus(tpStatus);
         }
         travailPratiqueRepository.persist(tp);
-        return tp;
+        return tpMapper.toDto(tp);
     }
 
 

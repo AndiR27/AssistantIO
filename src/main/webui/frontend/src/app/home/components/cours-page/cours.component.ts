@@ -5,7 +5,7 @@ import {FooterComponent} from '../../../shared/components/footer/footer.componen
 import {HeaderComponent} from '../../../shared/components/header/header.component';
 import {FormsModule} from '@angular/forms';
 import {AddStudent} from './Forms/add-student/add-student';
-import {Rendu} from './Forms/rendu/rendu';
+import {AddTP} from './Forms/rendu/addTP';
 import {MatCard, MatCardContent, MatCardHeader, MatCardTitle} from '@angular/material/card';
 import {CourseService} from '../../services/course.service';
 import {CommonModule} from '@angular/common';
@@ -29,7 +29,8 @@ import {UploadFileTxt} from './Forms/upload-file-txt/upload-file-txt';
     MatCard,
     MatButton,
     RouterLink,
-    UploadFileTxt
+    UploadFileTxt,
+    AddTP
   ]
 })
 
@@ -44,15 +45,17 @@ export class CoursComponent implements OnInit{
 
   courseId = signal<number | undefined>(undefined);
   course!: CourseDetailsModel;
+  students: StudentModel[] = [];
 
   ngOnInit(): void{
     const params = this.route.snapshot.params;
     this.courseId.set(params['id'] ? parseInt(params['id']) : undefined);
     this.course = this.route.snapshot.data['course'];
     // Charge les étudiants dès l'init
+    this.loadStudents();
   }
 
-  loadStudents(student: StudentModel): void {
+  loadStudents(): void {
     // Vérification si courseId est défini
     if (this.courseId() === undefined) {
       console.error('Course ID is not defined');
@@ -60,12 +63,10 @@ export class CoursComponent implements OnInit{
     }
     // Logique pour charger les étudiants du cours
     console.log('Chargement des étudiants pour le cours ID:', this.courseId());
-
-    //To Correct
-    // rebuild your list
-    this.course = {
-      ...this.course,
-      studentList: [...this.course.studentList, student]
-    };
+    this.courseService.getStudentsByCourseId(this.courseId() as number).subscribe(
+      students =>{
+          this.students = students;
+      }
+    );
   }
 }

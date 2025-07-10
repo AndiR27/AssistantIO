@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { Rendu } from './rendu';
+import { AddTP } from './addTP';
 
 describe('Rendu', () => {
-  let component: Rendu;
-  let fixture: ComponentFixture<Rendu>;
+  let component: AddTP;
+  let fixture: ComponentFixture<AddTP>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Rendu]
+      imports: [AddTP]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(Rendu);
+    fixture = TestBed.createComponent(AddTP);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

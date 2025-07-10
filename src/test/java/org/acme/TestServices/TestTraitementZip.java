@@ -5,6 +5,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.acme.entity.*;
 import org.acme.models.CourseDTO;
+import org.acme.models.TPStatusDTO;
 import org.acme.models.TP_DTO;
 import org.acme.enums.*;
 import org.acme.repository.*;
@@ -223,10 +224,12 @@ public class TestTraitementZip {
         Assertions.assertNotNull(submission);
 
         //Lancement de la methode pour traiter les TP_Status avec gestionRendusTP dans serviceTravailPratique
-        tp = TPService.manageSubmissionsTP(c, tp, c.studentList);
+        TP_DTO tp_dto = TPService.manageSubmissionsTP(courseDTO, tp.no);
         //repositoryTP_Status.flush();
         //première vérification : tester si les 4 étudiants ont bien un TP_Status
-        Set<TPStatus> tpStatusList = tp.statusStudents;
+        Assertions.assertNotNull(tp_dto);
+        TP tp_updated = repositoryTravailPratique.findById(tp_dto.getId());
+        Set<TPStatus> tpStatusList = tp_updated.statusStudents;
         Assertions.assertEquals(4, tpStatusList.size());
 
         //Parcours de la liste : normalement 3 étudiants sur 4 ont rendu, Irvin n'a pas rendu

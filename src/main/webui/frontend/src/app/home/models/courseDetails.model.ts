@@ -36,11 +36,11 @@ interface EvaluationModel{
 
 
 
-interface TP_Model{
+export interface TP_Model{
 
   id?: number;
   no: number;
-  courseId?: number; // Assuming CourseDTO is represented by its ID
+  course: CourseDetailsModel
   submission: SubmissionModel;
   statusStudents: TPStatusModel[];
 }

@@ -4,6 +4,7 @@ import io.quarkus.test.TestTransaction;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.acme.entity.Course;
+import org.acme.entity.Student;
 import org.acme.entity.TP;
 import org.acme.enums.CourseType;
 import org.acme.enums.SemesterType;
@@ -135,6 +136,66 @@ public class TestServicesV2 {
         // Vérifie la relation inverse
         assertEquals(1, studentRepository.findByEmail(email).courseStudentList.size());
         assertEquals(code, studentRepository.findByEmail(email).courseStudentList.getFirst().code);
+
+    }
+
+    @Test
+    @TestTransaction
+    /**
+     * Test de l'ajout d'etudiant à plusieurs cours via addEtudiantToCourses
+     */
+    public void testAjoutStudents() {
+        //Ajouter mark à un autre cours
+        String code = uniqueCode();
+        CourseDTO cours1 = new CourseDTO(
+                null,
+                "Prog 1",
+                code,
+                SemesterType.AUTOMNE,
+                2026,
+                "Test",
+                CourseType.JAVA,
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>()
+        );
+        CourseDTO courseDTO1 = courseService.addCourse(cours1);
+
+        //Créer un étudiant en base
+        // Créer un étudiant en base
+        String email = "mark-" + UUID.randomUUID().toString().substring(0,6) + "@hesge.ch";
+        StudentDTO eMark = new StudentDTO(null, "Scout Mark", email, StudyType.temps_plein, new ArrayList<>());
+        StudentDTO etuAdded1 = courseService.addStudentToCourse(courseDTO1, eMark);
+
+        //tester le cours de mark
+        assertNotNull(etuAdded1);
+        assertNotNull(studentRepository.findByEmail(email));
+        //verifier le nombre de cours de Mark
+        Student etu = studentRepository.findByEmail(etuAdded1.getEmail());
+        System.out.println("Cours de Mark : " + etu.courseStudentList);
+        assertEquals(1, etu.courseStudentList.size());
+
+        //Creer un autre cours
+        String code2 = uniqueCode();
+        CourseDTO cours2 = new CourseDTO(
+                null,
+                "Prog 2",
+                code2,
+                SemesterType.AUTOMNE,
+                2026,
+                "Test",
+                CourseType.JAVA,
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>()
+        );
+        CourseDTO courseDTO2 = courseService.addCourse(cours2);
+        StudentDTO etuAdded2 = courseService.addStudentToCourse(courseDTO2, eMark);
+
+        //tester les cours de mark
+        assertNotNull(etuAdded2);
+        //verifier le nombre de cours de Mark
+        assertEquals(2, studentRepository.findByEmail(email).courseStudentList.size());
     }
 
     /**

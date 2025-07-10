@@ -6,7 +6,7 @@ import {map} from 'rxjs/operators';
 import {SemesterType} from '../models/semesterType.model';
 import {CourseType} from '../models/courseType.model';
 import {CoursePreview} from '../models/coursePreview.model';
-import {CourseDetailsModel, StudentModel} from '../models/courseDetails.model';
+import {CourseDetailsModel, StudentModel, TP_Model} from '../models/courseDetails.model';
 
 @Injectable({ providedIn: 'root' })
 export class CourseService {
@@ -114,7 +114,20 @@ export class CourseService {
     );
   }
 
-
+  // Add a TP to a course (and add submission directly to it)
+  addTpToCourse(courseId: number, tpNo: number, file: File): Observable<TP_Model>{
+    return this.api.addTpToCourse(courseId, tpNo, file).pipe(
+      tap(res => console.log('API', this.api.getRoute("/course/{courseId}/addTP"), 'raw response:', res)),
+      catchError(err => {
+        console.error('Error in addTpToCourse():', err);
+        return throwError(() => err);
+      })
+    );
+  }
 
 }
+
+
+
+
 

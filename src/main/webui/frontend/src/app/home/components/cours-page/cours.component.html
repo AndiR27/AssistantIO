@@ -21,26 +21,34 @@
         <mat-card-header>
           <mat-card-title>Ajouts manuels</mat-card-title>
         </mat-card-header>
+
         <mat-card-content>
           <app-add-student
-            [courseId]="course.id"
-            (added)="loadStudents($event)">
+
+            (added)="loadStudents()">
           </app-add-student>
         </mat-card-content>
       </mat-card>
-
-      <!-- Exemple de placeholder pour futur composant -->
 
       <mat-card class="add-card mat-elevation-z1">
         <mat-card-header>
           <mat-card-title>Ajout via file.txt</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-           <app-upload-file-txt></app-upload-file-txt>
+           <app-upload-file-txt (uploaded)="loadStudents()"></app-upload-file-txt>
       </mat-card-content>
       </mat-card>
 
-      <!-- Vous pourrez ajouter jusqu’à 4 cartes ici -->
+      <mat-card class="add-card mat-elevation-z1">
+        <mat-card-header>
+          <mat-card-title>Ajout d'un TP</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <app-rendu-tp (uploaded)="loadStudents()"></app-rendu-tp>
+        </mat-card-content>
+      </mat-card>
+
+
     </div>
 
     <!-- ▶︎ Tableau des étudiants vs TPs -->
@@ -52,7 +60,7 @@
           <tr>
             <th>Nom</th>
             <th>Email</th>
-            @for (tp of course.tpsList; track tp.no) {
+            @for (tp of course.tpsList; track tp.id) {
               <th class="tp-header">TP {{ tp.no }}
                 <!-- <app-rendu [tp]="tp" [student]="..."></app-rendu> -->
               </th>
@@ -60,7 +68,7 @@
           </tr>
           </thead>
           <tbody>
-            @for (etudiant of course.studentList; track etudiant.id) {
+            @for (etudiant of students; track etudiant.id) {
               <tr>
                 <td>{{ etudiant.name }}</td>
                 <td>{{ etudiant.email }}</td>

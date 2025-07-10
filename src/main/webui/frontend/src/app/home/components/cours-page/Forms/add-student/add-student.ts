@@ -22,7 +22,7 @@ import {MATERIAL_MODULES} from '../../../../../shared/imports/material-imports';
 export class AddStudent {
   //Form pour ajouter un étudiant à un cours
   @Input() courseId!: number;
-  @Output() added = new EventEmitter<StudentModel>();
+  @Output() added = new EventEmitter<void>();
   private fb = inject(FormBuilder);
   private courseService = inject(CourseService);
   private route = inject(ActivatedRoute);
@@ -65,7 +65,7 @@ export class AddStudent {
             //log
 
             this.addedStudent.set(student);
-            this.added.emit(student);
+            this.added.emit();
             console.log('Emit Etudiant avec succès:', student);
             this.form.reset({studyType: StudyType.TEMPLS_PLEIN})
 

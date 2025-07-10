@@ -1,4 +1,4 @@
-import {Component, inject} from '@angular/core';
+import {Component, EventEmitter, inject, Output} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import { CommonModule }          from '@angular/common';
 import { ReactiveFormsModule }   from '@angular/forms';
@@ -20,6 +20,7 @@ export class CoursFormComponent{
   // FormGroup pour gérer le formulaire réactif
   private fb = inject(FormBuilder);
   private homeService = inject(HomeService);
+  @Output() courseAdded = new EventEmitter<void>();
   // utilisation de FormBuilder pour créer un formulaire réactif
   // Options extraites directement des enums
   semesterOptions = Object.values(SemesterType);
@@ -53,8 +54,10 @@ export class CoursFormComponent{
         courseType:  this.courseTypeOptions[0]
       });
       console.log('Course added successfully:', payload);
+      // Émettre l'événement pour notifier le composant parent
+      this.courseAdded.emit();
     });
-    this.refreshPage();
+
   }
 
   refreshPage(){

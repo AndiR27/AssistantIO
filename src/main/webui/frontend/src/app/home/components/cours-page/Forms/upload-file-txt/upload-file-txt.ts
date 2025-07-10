@@ -62,8 +62,8 @@ export class UploadFileTxt {
       .subscribe({
         next: () => {
           console.log(`Importé ${this.lineCount()} ligne(s).`);
-          this.clearFileInput();
           this.uploaded.emit();
+          this.clearFileInput();
           // masquer le message après 5s
           setTimeout(() => this.lineCount.set(null), 5000);
         },

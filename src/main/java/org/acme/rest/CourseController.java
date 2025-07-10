@@ -135,7 +135,7 @@ public class CourseController {
     }
 
     //---------------------------
-    // 6) Get All TPs in Course
+    // 7) Get All TPs in Course
     //---------------------------
     @Path("/tps")
     @GET
@@ -147,7 +147,7 @@ public class CourseController {
     }
 
     //---------------------------
-    // 7) Add Exam to Course
+    // 8) Add Exam to Course
     //---------------------------
 
     @Path("/addExam")
@@ -163,7 +163,7 @@ public class CourseController {
     }
 
     //---------------------------
-    // 8) Add CC to Course
+    // 9) Add CC to Course
     //---------------------------
     @Path("/addCC")
     @POST
@@ -205,6 +205,50 @@ public class CourseController {
                 .entity(tp_rendu)
                 .build();
     }
+
+    //----------------------------
+    // 11) Start process submission for a TP in the Course
+    //----------------------------
+    @Path("/startProcessSubmission/{tpNo}")
+    @POST
+    @APIResponse(
+            responseCode = "200",
+            description = "Start process submission for a TP in the Course")
+    public Response startProcessSubmission(@PathParam("tpNo") int tpNo){
+        try {
+            courseService.startZipProcess(courseId, (long) tpNo);
+            return Response.ok()
+                    .entity("Submission processing started for TP number: " + tpNo)
+                    .build();
+        } catch (IOException e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Error processing submission: " + e.getMessage())
+                    .build();
+        }
+    }
+
+    //----------------------------
+    // 12) Manage submissions for a TP in the Course
+    //----------------------------
+    @Path("/manageTP/{tpNo}")
+    @POST
+    @APIResponse(
+            responseCode = "200",
+            description = "Manage submissions for a TP in the Course")
+    public Response manageSubmissions(@PathParam("tpNo") int tpNo) {
+        TP_DTO tp_updated = tpService.manageSubmissionsTP(course(), tpNo);
+        //manage errors :
+        if (tp_updated == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("TP not found or no submissions to manage")
+                    .build();
+        }
+
+        return Response.ok()
+                .entity(tp_updated)
+                .build();
+    }
+
 
 
 

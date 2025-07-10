@@ -32,8 +32,8 @@ public class StudentService {
             // On associe l'étudiant au cours
             //studentEntity.addCours(course);
             studentRepository.persist(studentEntity);
-
-            LOG.info("Student created successfully: " + studentDTO.getId());
+            studentRepository.flush();
+            LOG.info("Student created successfully: " + studentEntity.id + " - " + studentEntity.email);
             return studentMapper.toDto(studentEntity);
         } catch (ConstraintViolationException e) {
             LOG.error("Constraint violation while creating student: " + e.getMessage());

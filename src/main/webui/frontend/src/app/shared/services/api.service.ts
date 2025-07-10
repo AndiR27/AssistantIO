@@ -1,10 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { Observable, throwError, of } from 'rxjs';
+import {Observable, throwError, of, switchMap, tap} from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { CoursePreview } from '../../home/models/coursePreview.model';
-import { CourseDetailsModel, StudentModel } from '../../home/models/courseDetails.model';
+import {CourseDetailsModel, StudentModel, TP_Model} from '../../home/models/courseDetails.model';
 
 const API_URL = environment.apiUrl;
 
@@ -115,6 +115,27 @@ export class ApiService {
         })
       );
   }
+  /** POST add a TP to a course + add submission to it; on error, alert + re-throw */
+  addTpToCourse(courseId: number, tpNo: number, file: File): Observable<TP_Model> {
+    // Création du TP
+    return this.http.post<TP_Model>(`${API_URL}/course/${courseId}/addTP/${tpNo}`, {}).pipe(
+      tap({
+        next: resp => console.log('Réponse du backend à addTP:', resp),
+        error: err => console.error('Erreur sur addTP:', err)
+      }),
+      switchMap((tp) => {
+        // Upload du rendu ZIP associé au TP
+        const formData = new FormData();
+        formData.append('file', file);
+        return this.http.post<TP_Model>(`${API_URL}/course/${courseId}/addRendu/${tpNo}`, formData);
+      }),
+      catchError((error) => {
+        alert('Erreur lors de la création du TP ou de l\'upload du rendu.');
+        return throwError(() => error);
+      })
+    );
+  }
+
 
   /** Affiche une alert() et ne retourne rien */
   private handleError(error: HttpErrorResponse): void {
@@ -124,4 +145,6 @@ export class ApiService {
         : `Erreur serveur (code = ${error.status})\nMessage : ${error.message}`;
     window.alert(msg);
   }
+
+
 }

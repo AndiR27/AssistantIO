@@ -4,7 +4,7 @@
   <!-- SECTION POUR AJOUTER UN COURS -->
   <section class="add-section">
     <div class="mini-card">
-      <app-cours-form></app-cours-form>
+      <app-cours-form (courseAdded)="refreshCourses()"></app-cours-form>
     </div>
   </section>
   <!-- TITRE PRINCIPAL -->

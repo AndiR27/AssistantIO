@@ -25,7 +25,7 @@ Content-Type: application/json
 {
   "id": null,
   "name": "Programmation collaborative",
-  "code": "63-21",
+  "code": "62-23",
   "semester": "AUTOMNE",
   "year_course": 2025,
   "teacher": "Stettler",

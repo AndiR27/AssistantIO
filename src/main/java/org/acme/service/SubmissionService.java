@@ -2,8 +2,10 @@ package org.acme.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import org.acme.entity.*;
 import org.acme.repository.SubmissionRepository;
+import org.acme.repository.TPRepository;
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
 import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 import org.jboss.logging.Logger;
@@ -27,6 +29,9 @@ public class SubmissionService {
 
     @Inject
     SubmissionRepository submissionRepository;
+
+    @Inject
+    TPRepository tpRepository;
 
     /**
      * CRUD methodes pour les rendus de TP
@@ -57,8 +62,9 @@ public class SubmissionService {
      * - si java avancé, il faudrait récupérer aussi des fichiers supplémentaires tel
      * que les tests unitaires ou dossiers ressources et pom.xml
      *
-     * Une entité Rendu a les infos de stockage du zip d'origine
+     * Une entité AddTP a les infos de stockage du zip d'origine
      */
+    @Transactional
     public void processZipSubmission(Course c, TP tp) throws IOException {
         //TODO
         Submission submission = tp.submission;
@@ -112,6 +118,10 @@ public class SubmissionService {
         //Nettoyer les dossiers temporaires et le dossier de restructuration
         deleteFolder(tpmExtractDir);
         deleteFolder(restructurationDir);
+
+        // Enregistrer la soumission restructurée
+        //submissionRepository.persist(submission);
+
 
     }
 

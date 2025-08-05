@@ -1,0 +1,81 @@
+/* ========================================================
+   Container principal : grille à 6 colonnes pour les inputs
+   ======================================================== */
+.card-form {
+  width: 100%;
+  max-width: none;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);  /* 6 colonnes égales */
+  grid-auto-rows: auto;
+  gap: 0.75rem 1.5rem;
+  background: #fff;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+
+  margin: 0 auto;
+}
+
+/* Titre : occupe toutes les colonnes */
+.card-form .title-form {
+  grid-column: 1 / -1;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+/* Chaque champ (label + contrôle) */
+.card-form .field {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Label : semi-gras, taille réduite */
+.card-form label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #374151;
+  margin-bottom: 0.25rem;
+}
+
+/* Inputs & selects : bord léger, coins arrondis */
+.card-form input,
+.card-form select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.25rem;
+  font-size: 0.9rem;
+}
+
+/* Texte d’erreur : s’étend sur toute la largeur */
+.card-form .helper-text {
+  grid-column: 1 / -1;
+  font-size: 0.8rem;
+  color: #dc2626;
+  margin-top: 0.25rem;
+}
+
+/* Bouton : placé sous la 6ᵉ colonne, aligné à droite */
+.card-form .btn-primary {
+  grid-column: 6;
+  justify-self: end;
+  padding: 0.5rem 1rem;
+  background-color: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 0.25rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Hover & disabled states */
+.card-form .btn-primary:hover {
+  background-color: #1e4ed8;
+}
+.card-form .btn-primary[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+

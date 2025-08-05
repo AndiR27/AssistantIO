@@ -36,7 +36,7 @@ public class TP extends PanacheEntityBase {
     @JoinColumn(name = "submission_id")
     public Submission submission;
 
-    @OneToMany(mappedBy = "tp", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "tp", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     public Set<TPStatus> statusStudents;
 
     public TP() {

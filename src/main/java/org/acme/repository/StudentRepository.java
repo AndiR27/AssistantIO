@@ -12,4 +12,9 @@ public class StudentRepository implements PanacheRepository<Student>{
         return find("email", email).firstResult();
     }
 
+    // Method to check if student exists by email
+    public boolean existsByEmail(String email) {
+        return find("email", email).count() > 0;
+    }
+
 }

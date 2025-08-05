@@ -1,6 +1,6 @@
 @host = http://localhost:8088
 @base = {{host}}/course
-@courseId = 1
+@courseId = 2
 @studentId = 1
 
 ###
@@ -13,6 +13,7 @@ Accept: application/json
 ###
 # 2) Add Student to Course
 # POST /course/{courseId}/addStudent
+#http://localhost:8088/course/1/addStudent
 ###
 POST {{base}}/{{courseId}}/addStudent
 Content-Type: application/json
@@ -117,12 +118,23 @@ Content-Type: application/json
 # POST /course/{courseId}/addRendu/{tpNo}
 ###
 POST {{base}}/{{courseId}}/addRendu/1
-Content-Type: multipart/form-data; boundary=---011000010111000001101001
+Content-Type: multipart/form-data; boundary=...
 
----011000010111000001101001
+--...
 Content-Disposition: form-data; name="file"; filename="test_zip.zip"
 Content-Type: application/zip
 
 < D:/AssistannatProg/AssistantIO/src/test/resources/mockinginputstreams/test_zip.zip
----011000010111000001101001--
+--...--
 
+###
+# 13) start TP submission
+# POST /course/{courseId}/startProcessSubmission/{tpNo}
+###
+POST {{base}}/{{courseId}}/startProcessSubmission/1
+
+###
+# 13) manage TP submission
+# POST /course/{courseId}/manageTP/{tpNo}
+###
+POST {{base}}/{{courseId}}/manageTP/1

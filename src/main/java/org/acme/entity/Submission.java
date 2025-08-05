@@ -20,6 +20,7 @@ public class Submission extends PanacheEntityBase {
 
     public String pathStorage;
 
+    @Column(name = "path_file_structured")
     public String pathFileStructured;
 
     public Submission() {

@@ -1,0 +1,124 @@
+/* Conteneur général */
+.course-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* En-tête du cours */
+.course-header-card {
+  padding: 1rem 1.5rem;
+  background: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+}
+
+.course-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+/* Section d’ajouts */
+.add-section-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+
+}
+
+/* Cartes d’ajout */
+.add-card {
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  background: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s;
+
+}
+.add-card:hover {
+  background-color: rgba(37, 99, 235, 0.08);
+}
+
+/* Titres (pour harmoniser avec .title-large) */
+.title-large, .title-form, .course-header-card h1 {
+  margin-top: 1rem;
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  color: #1f2937;
+}
+
+/* Tableau responsive */
+.table-section .title-form {
+  margin-bottom: 1rem;
+  color: #1f2937;
+  font-weight: bold;
+}
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: 0.5rem;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  margin-bottom: 2rem;
+}
+.etudiants-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+  background: #fff;
+}
+.etudiants-table th,
+.etudiants-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  text-align: left;
+  color: #4b5563;
+}
+.etudiants-table thead th {
+  background: #f5f5f5;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  color: #2563eb;
+  font-weight: bold;
+}
+.etudiants-table tbody tr:hover {
+  background: rgba(37, 99, 235, 0.06);
+}
+.tp-header{
+  /** affiche le no du TP et le boutton d'action : doivent etre alignés et sérés */
+
+}
+.tp-cell {
+  white-space: nowrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.tp-actions{
+  display: flex;
+  gap: 0.1rem;
+  margin : 0.1rem;
+}
+
+/* Lien de retour */
+.back-link {
+  text-align: right;
+  margin-top: 1.5rem;
+}
+.back-link a {
+  text-decoration: none;
+  color: #2563eb;
+  font-weight: bold;
+}
+.back-link a:hover {
+  text-decoration: underline;
+}

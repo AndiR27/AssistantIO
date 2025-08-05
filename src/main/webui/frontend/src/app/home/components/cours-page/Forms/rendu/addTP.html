@@ -1,0 +1,63 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="upload-form">
+  <h3 class="form-subtitle">Ajout d'un TP & rendu (.zip)</h3>
+
+  <!-- Numéro du TP -->
+  <div class="tp-input-wrapper">
+    <label for="noTp">Numéro du TP</label>
+    <input
+      type="number"
+      id="noTp"
+      formControlName="noTp"
+      min="1"
+      required
+      class="tp-input"
+      [class.input-error]="form.controls.noTp.touched && form.controls.noTp.invalid"
+    />
+    @if (form.controls.noTp.touched && form.controls.noTp.invalid) {
+      <div class="helper-text">Le numéro du TP est requis.</div>
+    }
+  </div>
+
+  <!-- Sélection du fichier ZIP -->
+  <div class="file-input-wrapper">
+    <input
+      type="file"
+      id="zipFile"
+      #fileInputRef
+      (change)="onFileChange($event)"
+      accept=".zip"
+      hidden
+    />
+    <button
+      type="button"
+      class="choose-btn mat-stroked-button mat-primary"
+      (click)="fileInputRef.click()"
+    >
+      <mat-icon >attach_file</mat-icon>
+      {{ file ? 'Changer de fichier' : 'Choisir un fichier .zip' }}
+    </button>
+      @if (file) {
+        <mat-chip class="file-chip">{{ file.name }}</mat-chip>
+      }
+  </div>
+
+  <!-- Bouton de soumission -->
+  <button
+    mat-raised-button
+    color="accent"
+    class="import-btn"
+    type="submit"
+    [disableRipple]="true"
+    [disabled]="form.invalid || !file || isUploading"
+  >
+    {{ isUploading ? 'Ajout en cours…' : 'Ajouter le TP' }}
+  </button>
+
+  <!-- Message de succès ou erreur -->
+  @if (successMsg) {
+    <p class="success-text">{{ successMsg }}</p>
+  }
+  @if (errorMsg) {
+    <p class="error-msg">{{ errorMsg }}</p>
+  }
+</form>

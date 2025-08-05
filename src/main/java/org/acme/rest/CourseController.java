@@ -12,8 +12,11 @@ import org.acme.service.TPService;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
+
+import static java.lang.System.out;
 
 @Path("/course/{courseId}")
 @Produces(MediaType.APPLICATION_JSON)
@@ -100,7 +103,7 @@ public class CourseController {
             description = "Add Students from File to Course")
     public Response addStudentsFromFile(@MultipartForm FileUploadForm form) {
         //Vérifier que le fichier est bien un fichier texte
-        if(form == null){
+        if (form == null) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("File is required")
                     .build();
@@ -135,7 +138,7 @@ public class CourseController {
     }
 
     //---------------------------
-    // 6) Get All TPs in Course
+    // 7) Get All TPs in Course
     //---------------------------
     @Path("/tps")
     @GET
@@ -147,7 +150,7 @@ public class CourseController {
     }
 
     //---------------------------
-    // 7) Add Exam to Course
+    // 8) Add Exam to Course
     //---------------------------
 
     @Path("/addExam")
@@ -163,7 +166,7 @@ public class CourseController {
     }
 
     //---------------------------
-    // 8) Add CC to Course
+    // 9) Add CC to Course
     //---------------------------
     @Path("/addCC")
     @POST
@@ -204,6 +207,78 @@ public class CourseController {
         return Response.ok()
                 .entity(tp_rendu)
                 .build();
+    }
+
+    //----------------------------
+    // 11) Start process submission for a TP in the Course
+    //----------------------------
+    @Path("/startProcessSubmission/{tpNo}")
+    @POST
+    @APIResponse(
+            responseCode = "200",
+            description = "Start process submission for a TP in the Course")
+    public Response startProcessSubmission(@PathParam("tpNo") int tpNo) {
+        try {
+            courseService.startZipProcess(courseId, tpNo);
+            return Response.ok()
+                    .entity("Submission processing started for TP number: " + tpNo)
+                    .build();
+        } catch (IOException e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Error processing submission: " + e.getMessage())
+                    .build();
+        }
+    }
+
+    //----------------------------
+    // 12) Manage submissions for a TP in the Course
+    //----------------------------
+    @Path("/manageTP/{tpNo}")
+    @POST
+    @APIResponse(
+            responseCode = "200",
+            description = "Manage submissions for a TP in the Course")
+    public Response manageSubmissions(@PathParam("tpNo") int tpNo) {
+        TP_DTO tp_updated = tpService.manageSubmissionsTP(course(), tpNo);
+        //manage errors :
+        if (tp_updated == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("TP not found or no submissions to manage")
+                    .build();
+        }
+
+        return Response.ok()
+                .entity(tp_updated)
+                .build();
+    }
+
+    //----------------------------
+    // 13) Download restructured ZIP for a TP in the Course
+    //----------------------------
+    @Path("/downloadRestructuredZip/{tpNo}")
+    @GET
+    @Produces("application/zip")
+    @APIResponse(
+            responseCode = "200",
+            description = "Download restructured ZIP for a TP in the Course")
+    public Response downloadRestructuredZip(@PathParam("tpNo") int tpNo) {
+        try {
+            TP_DTO tp = courseService.findTPByNumero(course(), tpNo);
+            if (tp == null || tp.getSubmission() == null || tp.getSubmission().getPathFileStructured() == null) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("TP or restructured ZIP not found")
+                        .build();
+            }
+            File zipFile = tpService.getSubmissionFileRestructurated(tp);
+            return Response.ok(zipFile)
+                    .type("application/zip")
+                    .header("Content-Disposition", "attachment; filename=\"" + zipFile.getName() + "\"")
+                    .build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Error downloading restructured ZIP: " + e.getMessage())
+                    .build();
+        }
     }
 
 

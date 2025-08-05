@@ -1,0 +1,51 @@
+/* FORMULAIRE D’UPLOAD */
+.upload-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+/* WRAPPER DU FILE INPUT */
+.file-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* BOUTON “Choisir un fichier” */
+.choose-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background-color 0.2s;
+}
+.choose-btn mat-icon {
+  font-size: 1.2rem;
+}
+.choose-btn:hover {
+  background-color: rgba(33, 150, 243, 0.1);
+}
+
+/* CHIP POUR NOM DE FICHIER */
+.file-chip {
+  background-color: #e0f2f1;
+  color: #004d40;
+  font-style: italic;
+}
+
+/* BOUTON D’IMPORT */
+.import-btn {
+  transition: background-color 0.2s;
+}
+.import-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* MESSAGE DE SUCCÈS */
+.success-text {
+  color: #2e7d32;
+  font-weight: 500;
+  margin-top: 0.5rem;
+}

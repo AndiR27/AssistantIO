@@ -1,0 +1,36 @@
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <label for="name">Nom</label>
+    <input id="name" formControlName="name" placeholder="Nom de l’étudiant" />
+    @if (form.controls.name.touched && form.controls.name.invalid) {
+      <div class="helper-text">Le nom est requis.</div>
+    }
+
+    <label for="email">Email</label>
+    <input
+      id="email"
+      type="email"
+      formControlName="email"
+      placeholder="exemple@domaine.com"
+    />
+    @if (form.controls.email.touched && form.controls.email.invalid) {
+      <div class="helper-text">Adresse email invalide.</div>
+    }
+
+    <label for="studyType">Type d’études</label>
+    <select id="studyType" formControlName="studyType">
+      @for (type of studyTypes(); track type) {
+        <option [value]="type">{{ type }}</option>
+      }
+    </select>
+
+    <button
+      mat-raised-button
+      type="submit"
+      class="btn-primary"
+      [disabled]="form.invalid || !canSubmit()"
+    >
+      {{ isSubmitting() ? 'En cours...' : 'Ajouter l’étudiant' }}
+    </button>
+  </form>
+

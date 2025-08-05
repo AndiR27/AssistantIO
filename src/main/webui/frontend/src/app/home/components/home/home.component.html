@@ -1,0 +1,34 @@
+<app-header></app-header>
+<div class="container">
+
+  <!-- SECTION POUR AJOUTER UN COURS -->
+  <section class="add-section">
+    <div class="mini-card">
+      <app-cours-form (courseAdded)="refreshCourses()"></app-cours-form>
+    </div>
+  </section>
+  <!-- TITRE PRINCIPAL -->
+  <h1 class="title-large">Liste des Cours</h1>
+  <!-- SECTION D’AFFICHAGE DES COURS -->
+  <section class="courses-grid" id="courses-list">
+    @for (course of courseList; track course.id) {
+      <article class="course-card">
+        <a [routerLink]="['courses', course.id]" class="card-link">
+          <h2>{{ course.name }}</h2>
+          <p>Code : {{ course.code }}</p>
+          <p>Prof : {{ course.teacher }}</p>
+          <p class="last-info">
+            Semestre : {{ course.semester }} — Année : {{ course.year_course }}
+          </p>
+        </a>
+      </article>
+    } @empty {
+      <p>Aucun cours trouvé.</p>
+    }
+  </section>
+
+
+
+
+</div>
+<app-footer></app-footer>

@@ -46,10 +46,14 @@ public class AdminControllerV2 {
     //-------------------
     @POST
     @Path("/addCourse")
-    @Transactional
     @APIResponse(
             responseCode = "200",
-            description = "Add Cours")
+            description = "Add Cours"
+    )
+    @APIResponse(
+            responseCode = "400",
+            description = "Validation error"
+    )
     public Response addCours(@Valid CourseDTO courseDTO) {
 
         CourseDTO course = courseService.addCourse(courseDTO);

@@ -6,6 +6,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import {MatIcon} from '@angular/material/icon';
 import {MatChip} from '@angular/material/chips';
+import {MatTooltip} from '@angular/material/tooltip';
+import {MatProgressBar} from '@angular/material/progress-bar';
+import {MatProgressSpinner} from '@angular/material/progress-spinner';
 
 /**
  * Tableau regroupant tous les modules Angular Material utilisés dans le projet.
@@ -18,5 +21,7 @@ export const MATERIAL_MODULES = [
   MatSelectModule,
   MatButtonModule,
   MatIcon,
-  MatChip
+  MatChip,
+  MatTooltip,
+  MatProgressSpinner
 ];

@@ -25,7 +25,7 @@ Content-Type: application/json
 {
   "id": null,
   "name": "Programmation collaborative",
-  "code": "62-23",
+  "code": "69-23",
   "semester": "AUTOMNE",
   "year_course": 2025,
   "teacher": "Stettler",
@@ -45,7 +45,7 @@ Content-Type: application/json
 {
   "id": null,
   "name": "Progr",
-  "code": "62-21",
+  "code": "68-21",
   "semester": "AUTOMNE",
   "year_course": 2026,
   "teacher": "Stettler",
@@ -65,7 +65,7 @@ Content-Type: application/json
 {
   "id": 1,
   "name": "Programmation collaborative avancée",
-  "code": "63-21",
+  "code": "67-21",
   "semester": "PRINTEMPS",
   "year_course": 2025,
   "teacher": "Dupont",

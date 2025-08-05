@@ -1,5 +1,6 @@
 package org.acme.models;
 
+import jakarta.validation.constraints.NotBlank;
 import org.acme.enums.CourseType;
 import org.acme.enums.SemesterType;
 
@@ -9,6 +10,8 @@ import java.util.List;
 public class CourseDTO {
     private Long id;
     private String name;
+
+    @NotBlank(message = "Code is mandatory")
     private String code;
     private SemesterType semester;
     private int year_course;

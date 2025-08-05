@@ -136,6 +136,64 @@ export class ApiService {
     );
   }
 
+  /** GET all TPs of a course; on error, alert + return [] */
+  getTPsByCourseId(courseId: number): Observable<TP_Model[]> {
+    return this.http
+      .get<TP_Model[]>(
+        `${API_URL}/course/${courseId}/tps`,
+        this.httpOptions
+      )
+      .pipe(
+        retry(1),
+        catchError((err: HttpErrorResponse) => {
+          this.handleError(err);
+          return of([] as TP_Model[]);
+        })
+      );
+  }
+
+  /** POST start the submission process for a TP + manage TPstatus of it; on error, alert + re-throw */
+  manageTPsubmissionv2(courseId: number, tpNo: number) {
+    // Démarrage du process de submission pour le TP
+    return this.http
+      .post<TP_Model>(
+        `${API_URL}/course/${courseId}/startProcessSubmission/${tpNo}`,
+        {},
+        this.httpOptions
+      )
+      .pipe(
+        tap({
+          next: resp => console.log('Réponse du backend à startProcessZip:', resp),
+          error: err => console.error('Erreur sur startProcessZip:', err)
+        }),
+        switchMap((tp) => {
+          // Gestion des TPstatus pour chaque étudiant
+          return this.http.post<TP_Model>(`${API_URL}/course/${courseId}/manageTP/${tpNo}`, {});
+        }),
+        catchError((err: HttpErrorResponse) => {
+          this.handleError(err);
+          return throwError(() => err);
+        })
+      );
+  }
+  /** POST start the submission process for a TP + manage TPstatus of it; on error, alert + re-throw */
+  manageTPsubmission(courseId: number, tpNo: number): Observable<TP_Model> {
+    const startUrl = `${API_URL}/course/${courseId}/startProcessSubmission/${tpNo}`;
+    const manageUrl = `${API_URL}/course/${courseId}/manageTP/${tpNo}`;
+
+    return this.http.post(startUrl, {}, { responseType: 'text' as const }).pipe(
+      switchMap(() => this.http.post<TP_Model>(manageUrl, {})),
+      catchError(err => {
+        this.handleError(err);
+        return throwError(() => err);
+      })
+    );
+  }
+  /** GET download a TP structured file; on error, alert + re-throw */
+  downloadTP(courseId: number, tpNo: number) {
+    const downloadUrl = `${API_URL}/course/${courseId}/downloadRestructuredZip/${tpNo}`;
+    return this.http.get(downloadUrl, {responseType: 'blob'});
+  }
 
   /** Affiche une alert() et ne retourne rien */
   private handleError(error: HttpErrorResponse): void {
@@ -145,6 +203,7 @@ export class ApiService {
         : `Erreur serveur (code = ${error.status})\nMessage : ${error.message}`;
     window.alert(msg);
   }
+
 
 
 }

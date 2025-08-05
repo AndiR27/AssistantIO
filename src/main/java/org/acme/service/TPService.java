@@ -14,6 +14,7 @@ import org.acme.repository.*;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.*;
@@ -102,16 +103,18 @@ public class TPService {
      */
     @Transactional
     public TP_DTO manageSubmissionsTP(CourseDTO courseDto, int tp_no){
+        LOG.info("Gestion des rendus pour le TP numéro : " + tp_no + " du cours : " + courseDto.getCode());
         //Récupérer le TP
         TP tp = courseRepository.findTpByNo(courseDto.getId(), tp_no);
         List<String> rendus = submissionService.getStudentsSubmission(tp.submission);
         List<Student> etudiantsList = courseRepository.findEtudiantsInscrits(courseDto.getId());
         for(Student student : etudiantsList){
             //map du student
-            LOG.info("Infos TpStatus : " + " TP numéro : " + tp.no + student.name);
+            LOG.info("Infos TpStatus : " + " TP numéro : " + tp.no + ", Student : " + student.name);
             TPStatus tpStatus = new TPStatus(student, tp, false);
             String nomEtudiantRefomated = student.name.replaceAll(" ", "").toLowerCase();
             if(rendus.contains(nomEtudiantRefomated)){
+                LOG.info("Rendu etudiantRefomated : " + student.name);
                 tpStatus.studentSubmission = true;
             }
             tp.addTPStatus(tpStatus);
@@ -123,5 +126,27 @@ public class TPService {
 
     public List<TPStatus> findByTP(Long id) {
         return tpStatusRepository.findByTP(id);
+    }
+
+    public File getSubmissionFileRestructurated(TP_DTO tp) {
+        //Récupérer le TP
+        TP travailPratique = travailPratiqueRepository.findById(tp.getId());
+        if (travailPratique == null || travailPratique.submission == null) {
+            LOG.error("TP or submission not found for id: " + tp.getId());
+            return null;
+        }
+
+        //Chemin vers le fichier de rendu
+        String cheminFichier = travailPratique.submission.pathFileStructured;
+        Path path = Paths.get(cheminFichier);
+
+        //Vérifier si le fichier existe
+        if (!Files.exists(path)) {
+            LOG.error("File does not exist at path: " + cheminFichier);
+            return null;
+        }
+
+        //Retourner le fichier
+        return path.toFile();
     }
 }

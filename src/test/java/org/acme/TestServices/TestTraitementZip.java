@@ -90,7 +90,7 @@ public class TestTraitementZip {
         TPService.addSubmissionToTP(tpDTP, inputStream);
 
         //Lancement de la methode des traitements de zip pour un cours et un TP :
-        courseService.startZipProcess(c.id, tp.id);
+        courseService.startZipProcess(c.id, tp.no);
 
         //Vérifier que le rendu a bien été traité
         Submission submission = tp.submission;
@@ -131,7 +131,7 @@ public class TestTraitementZip {
         TPService.addSubmissionToTP(tpDTO, inputStream);
 
         //Lancement de la methode des traitements de zip pour un cours et un TP :
-        courseService.startZipProcess(c.id, tp.id);
+        courseService.startZipProcess(c.id, tp.no);
 
         //tests
         Submission submission = tp.submission;
@@ -217,7 +217,7 @@ public class TestTraitementZip {
         TPService.addSubmissionToTP(tpDTO, inputStream);
 
         //Lancement de la methode des traitements de zip pour un cours et un TP :
-        courseService.startZipProcess(c.id, tp.id);
+        courseService.startZipProcess(c.id, tp.no);
 
         //tests
         Submission submission = tp.submission;

@@ -1,6 +1,6 @@
 @host = http://localhost:8088
 @base = {{host}}/course
-@courseId = 1
+@courseId = 2
 @studentId = 1
 
 ###

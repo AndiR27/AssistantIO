@@ -78,7 +78,7 @@ public class SubmissionService {
             typeCours = String.valueOf(c.courseType);
         }
 
-        LOG.debug("Starting restructuring for TP: " + tp.no + " of course: " + c.code);
+        LOG.info("Starting restructuring for TP: " + tp.no + " of course: " + c.code + "\n" + c.id + " . " + tp.id + " . " + submission.id );
         // chemin vers le zip d'origine
         Path originalZip = Paths.get(submission.pathStorage);
 

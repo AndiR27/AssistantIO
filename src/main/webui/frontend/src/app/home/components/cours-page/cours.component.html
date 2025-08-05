@@ -24,7 +24,6 @@
 
         <mat-card-content>
           <app-add-student
-
             (added)="loadStudents()">
           </app-add-student>
         </mat-card-content>
@@ -35,8 +34,8 @@
           <mat-card-title>Ajout via file.txt</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-           <app-upload-file-txt (uploaded)="loadStudents()"></app-upload-file-txt>
-      </mat-card-content>
+          <app-upload-file-txt (uploaded)="loadStudents()"></app-upload-file-txt>
+        </mat-card-content>
       </mat-card>
 
       <mat-card class="add-card mat-elevation-z1">
@@ -44,7 +43,7 @@
           <mat-card-title>Ajout d'un TP</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <app-rendu-tp (uploaded)="loadStudents()"></app-rendu-tp>
+          <app-rendu-tp (uploaded)="loadTPInfos()"></app-rendu-tp>
         </mat-card-content>
       </mat-card>
 
@@ -60,11 +59,32 @@
           <tr>
             <th>Nom</th>
             <th>Email</th>
-            @for (tp of course.tpsList; track tp.id) {
+            @for (tp of tps; track tp.id) {
               <th class="tp-header">TP {{ tp.no }}
                 <!-- <app-rendu [tp]="tp" [student]="..."></app-rendu> -->
+                <div class="tp-actions">
+                  @if (shouldShowDownload(tp)) {
+                    <button mat-icon-button color="primary" [disabled]="isDownloading" (click)="onDownloadClick(tp)"
+                            matTooltip="Télécharger le ZIP">
+                      @if(!isDownloading) {
+                        <mat-icon>download</mat-icon>
+                      } @else {
+                        <mat-progress-spinner mode="indeterminate" diameter="20"></mat-progress-spinner>
+                      }
+
+                    </button>
+                  } @else {
+                    <button mat-icon-button color="warn" (click)="startProcessSubmission(tp)"
+                            matTooltip="Recreer le ZIP">
+                      <mat-icon>autorenew</mat-icon>
+                    </button>
+                  }
+                </div>
+
               </th>
             }
+            <th>Actions</th>
+
           </tr>
           </thead>
           <tbody>
@@ -72,8 +92,14 @@
               <tr>
                 <td>{{ etudiant.name }}</td>
                 <td>{{ etudiant.email }}</td>
-                @for (tp of course.tpsList; track tp.no) {
-                  <td class="tp-cell">0</td>
+                @for (tp of tps; track tp.no) {
+                  <td class="tp-cell">
+                    <!-- <span [ngClass]="getStatutClass(getStatutForStudent(tp, etudiant.id))">
+                    </span>
+                    -->
+                    {{ formatStatut(getStatutForStudent(tp, etudiant.id)) }}
+
+                  </td>
                 }
               </tr>
             }
@@ -84,7 +110,7 @@
 
     <!-- ▶︎ Lien de retour -->
     <div class="back-link">
-      <button mat-stroked-button color="primary" routerLink="/admin/home">
+      <button mat-stroked-button color="primary" routerLink="/home">
         ← Retour à la liste des cours
       </button>
     </div>

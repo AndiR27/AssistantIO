@@ -54,7 +54,7 @@ interface SubmissionModel {
 
 interface TPStatusModel {
   id?: number;
-  studentId: number; // Assuming StudentDTO is represented by its ID
-  tpId: number; // Assuming TP_Model is represented by its ID
-  status: boolean; // Could be an enum or string depending on your design
+  studentId: number;
+  tpId: number;
+  studentSubmission: boolean; // Could be an enum or string depending on your design
 }

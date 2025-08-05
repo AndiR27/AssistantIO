@@ -68,7 +68,6 @@ export class AddStudent {
             this.added.emit();
             console.log('Emit Etudiant avec succès:', student);
             this.form.reset({studyType: StudyType.TEMPLS_PLEIN})
-
           },
           error: err => {
             console.error('Error adding student:', err);

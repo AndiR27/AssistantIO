@@ -2,30 +2,51 @@ package org.acme.models;
 
 public class TPStatusDTO {
     private Long id;
-    private StudentDTO etudiant;
-    private TP_DTO travailPratique;
-    private boolean renduEtudiant;
+    public Long studentId;          // ← just the ID
+    public Long tpId;               // ← just the ID
+    private boolean studentSubmission;
 
     // Constructeurs
     public TPStatusDTO() {}
 
-    public TPStatusDTO(Long id, StudentDTO etudiant, TP_DTO travailPratique, boolean renduEtudiant) {
+    public TPStatusDTO(Long id, Long studentId, Long tpId, boolean studentSubmission) {
         this.id = id;
-        this.etudiant = etudiant;
-        this.travailPratique = travailPratique;
-        this.renduEtudiant = renduEtudiant;
+        this.studentId = studentId;
+        this.tpId = tpId;
+        this.studentSubmission = studentSubmission;
     }
 
     // Getters et Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
 
-    public StudentDTO getEtudiant() { return etudiant; }
-    public void setEtudiant(StudentDTO etudiant) { this.etudiant = etudiant; }
+    public Long getId() {
+        return id;
+    }
 
-    public TP_DTO getTravailPratique() { return travailPratique; }
-    public void setTravailPratique(TP_DTO travailPratique) { this.travailPratique = travailPratique; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public boolean isRenduEtudiant() { return renduEtudiant; }
-    public void setRenduEtudiant(boolean renduEtudiant) { this.renduEtudiant = renduEtudiant; }
+    public Long getStudentId() {
+        return studentId;
+    }
+
+    public void setStudentId(Long studentId) {
+        this.studentId = studentId;
+    }
+
+    public Long getTpId() {
+        return tpId;
+    }
+
+    public void setTpId(Long tpId) {
+        this.tpId = tpId;
+    }
+
+    public boolean isStudentSubmission() {
+        return studentSubmission;
+    }
+
+    public void setStudentSubmission(boolean studentSubmission) {
+        this.studentSubmission = studentSubmission;
+    }
 }

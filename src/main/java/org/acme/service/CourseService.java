@@ -39,7 +39,6 @@ public class CourseService {
 
     @Inject
     SubmissionService submissionService;
-
     @Inject
     @ConfigProperty(name = "zip-storage.path")
     String zipStoragePath;
@@ -333,10 +332,10 @@ public class CourseService {
      * Methode permettant de lancer le traitement du rendu pour un TP
      */
     @Transactional
-    public void startZipProcess(Long idCours, Long idTp) throws IOException {
+    public void startZipProcess(Long idCours, int idTp) throws IOException {
         Course course = courseRepository.findById(idCours);
-        TP tp = travailPratiqueRepository.findById(idTp);
-        LOG.debug("Starting traitementRenduZip for course=" + course.name + ", TP no=" + tp.no);
+        TP tp = courseRepository.findTpByNo(idCours, idTp);
+        LOG.info("Starting traitementRenduZip for course id :" + course.id +", name : " + course.code + " " + course.name + ", TP no : " + tp.no);
         submissionService.processZipSubmission(course, tp);
     }
 

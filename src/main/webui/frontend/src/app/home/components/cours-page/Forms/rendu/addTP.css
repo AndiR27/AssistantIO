@@ -27,7 +27,7 @@
 
 .tp-input {
   padding: 0.6rem 1rem;
-  font-size: 1rem;
+  font-size: 0.8rem;
   border: 1.5px solid #cfd8dc;
   border-radius: 0.5rem;
   background: #f5f7fa;
@@ -43,15 +43,20 @@
 
 .file-input-wrapper {
   display: flex;
-  align-items: center;
+  flex-direction: column-reverse; /* empile du bas vers le haut */
   gap: 0.9rem;
+  align-items: center; /* ou center selon l'alignement souhaité */
+  box-sizing: border-box; /* prend en compte les padding/border dans la taille */
 }
 
 .choose-btn {
   min-width: 170px;
   font-weight: 500;
   letter-spacing: 0.01em;
+  display: flex;
+  align-items: center;
 }
+
 
 .file-chip {
   background: #f1f8e9;
@@ -59,13 +64,22 @@
   font-size: 0.97rem;
   border-radius: 1.5rem;
   padding: 0 1rem;
-  height: 32px;
-  display: flex;
+  height: auto;                     /* permet la hauteur variable si le texte revient à la ligne */
+  display: inline-flex;             /* bon comportement avec mat-chip */
   align-items: center;
   font-weight: 500;
   margin-left: 0.5rem;
+
+  max-width: 100%;                  /* ne dépasse pas le parent */
+  white-space: normal;              /* retour à la ligne autorisé */
+  word-break: break-word;           /* casse les mots si trop longs */
+  overflow-wrap: break-word;        /* idem */
+  overflow: hidden;                 /* masque le débordement si jamais */
 }
 
+.file-change{
+
+}
 .import-btn {
   min-width: 210px;
   font-size: 1rem;

@@ -33,12 +33,12 @@
       class="choose-btn mat-stroked-button mat-primary"
       (click)="fileInputRef.click()"
     >
-      <mat-icon>attach_file</mat-icon>
+      <mat-icon >attach_file</mat-icon>
       {{ file ? 'Changer de fichier' : 'Choisir un fichier .zip' }}
     </button>
-    @if (file) {
-      <mat-chip class="file-chip">{{ file.name }}</mat-chip>
-    }
+      @if (file) {
+        <mat-chip class="file-chip">{{ file.name }}</mat-chip>
+      }
   </div>
 
   <!-- Bouton de soumission -->

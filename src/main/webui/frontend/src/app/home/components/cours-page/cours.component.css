@@ -41,6 +41,7 @@
   border-radius: 0.5rem;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   transition: background-color 0.2s;
+
 }
 .add-card:hover {
   background-color: rgba(37, 99, 235, 0.08);
@@ -92,9 +93,20 @@
 .etudiants-table tbody tr:hover {
   background: rgba(37, 99, 235, 0.06);
 }
-.tp-header,
+.tp-header{
+  /** affiche le no du TP et le boutton d'action : doivent etre alignés et sérés */
+
+}
 .tp-cell {
   white-space: nowrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.tp-actions{
+  display: flex;
+  gap: 0.1rem;
+  margin : 0.1rem;
 }
 
 /* Lien de retour */

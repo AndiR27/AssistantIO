@@ -125,6 +125,52 @@ export class CourseService {
     );
   }
 
+  // Get all TPs of a course
+  getTPsByCourseId(courseId: number): Observable<TP_Model[]> {
+    return this.api.getTPsByCourseId(courseId).pipe(
+      tap(res => console.log('API', this.api.getRoute("/course/{courseId}/tps"), 'raw response:', res)),
+      map((res: any) => {
+        // On reconstruit notre modèle
+        return res.map((tp: any) => ({
+          id: tp.id,
+          no: tp.no,
+          course: tp.course,
+          submission: tp.submission,
+          statusStudents: tp.statusStudents || []
+        } as TP_Model));
+      }),
+      catchError(err => {
+        console.error('Error in getTPsByCourseId():', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  //start process submission and manage TPstatus for every student for a given TP and course
+  startProcessSubmission(courseId: number, tpNo: number): Observable<any>{
+    return this.api.manageTPsubmission(courseId, tpNo).pipe(
+      tap(res => console.log('API', this.api.getRoute("/course/{courseId}/addTP"), 'raw response:', res)),
+      catchError(err => {
+        console.error('Error in addTpToCourse():', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+
+  //Download the structured file of a TP
+  downloadStructuredFile(courseId: number, tpNo: number): Observable<Blob> {
+    return this.api.downloadTP(courseId, tpNo).pipe(
+      catchError(err => {
+        console.error('Error in downloadTP():', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+
+
+
 }
 
 

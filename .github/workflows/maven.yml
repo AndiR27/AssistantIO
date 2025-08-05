@@ -30,6 +30,11 @@ jobs:
           cache: 'npm'
           cache-dependency-path: src/main/webui/frontend/package-lock.json # adapte si ton front est ailleurs
 
+      # Install frontend deps
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: src/main/webui/frontend
+      
       # 3. Installer Java 21
       - name: Set up JDK 21
         uses: actions/setup-java@v4

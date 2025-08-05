@@ -48,3 +48,4 @@ nb-configuration.xml
 # Manage resources
 # ignore all in testZips, but not the parent folder
 !testZips/
+!DocumentsZip/

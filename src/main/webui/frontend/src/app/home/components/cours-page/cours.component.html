@@ -1,0 +1,120 @@
+@if (course.id != null) {
+  <app-header></app-header>
+
+  <div class="course-container">
+    <!-- ▶︎ En-tête du cours -->
+    <mat-card class="course-header-card mat-elevation-z1">
+      <mat-card-title class="title-large">{{ course.name }}</mat-card-title>
+      <mat-card-content>
+        <div class="course-info-grid">
+          <div><strong>Code :</strong> {{ course.code }}</div>
+          <div><strong>Professeur :</strong> {{ course.teacher }}</div>
+          <div><strong>Semestre :</strong> {{ course.semester }}</div>
+          <div><strong>Année académique :</strong> {{ course.year_course }}</div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- ▶︎ Section d’ajouts : jusqu’à 4 cartes côte à côte -->
+    <div class="add-section-grid">
+      <mat-card class="add-card mat-elevation-z1">
+        <mat-card-header>
+          <mat-card-title>Ajouts manuels</mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content>
+          <app-add-student
+            (added)="loadStudents()">
+          </app-add-student>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="add-card mat-elevation-z1">
+        <mat-card-header>
+          <mat-card-title>Ajout via file.txt</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <app-upload-file-txt (uploaded)="loadStudents()"></app-upload-file-txt>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="add-card mat-elevation-z1">
+        <mat-card-header>
+          <mat-card-title>Ajout d'un TP</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <app-rendu-tp (uploaded)="loadTPInfos()"></app-rendu-tp>
+        </mat-card-content>
+      </mat-card>
+
+
+    </div>
+
+    <!-- ▶︎ Tableau des étudiants vs TPs -->
+    <div class="table-section">
+      <h2 class="title-form">Étudiants & Travaux Pratiques</h2>
+      <div class="table-wrapper mat-elevation-z1">
+        <table class="etudiants-table">
+          <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Email</th>
+            @for (tp of tps; track tp.id) {
+              <th class="tp-header">TP {{ tp.no }}
+                <!-- <app-rendu [tp]="tp" [student]="..."></app-rendu> -->
+                <div class="tp-actions">
+                  @if (shouldShowDownload(tp)) {
+                    <button mat-icon-button color="primary" [disabled]="isDownloading" (click)="onDownloadClick(tp)"
+                            matTooltip="Télécharger le ZIP">
+                      @if(!isDownloading) {
+                        <mat-icon>download</mat-icon>
+                      } @else {
+                        <mat-progress-spinner mode="indeterminate" diameter="20"></mat-progress-spinner>
+                      }
+
+                    </button>
+                  } @else {
+                    <button mat-icon-button color="warn" (click)="startProcessSubmission(tp)"
+                            matTooltip="Recreer le ZIP">
+                      <mat-icon>autorenew</mat-icon>
+                    </button>
+                  }
+                </div>
+
+              </th>
+            }
+            <th>Actions</th>
+
+          </tr>
+          </thead>
+          <tbody>
+            @for (etudiant of students; track etudiant.id) {
+              <tr>
+                <td>{{ etudiant.name }}</td>
+                <td>{{ etudiant.email }}</td>
+                @for (tp of tps; track tp.no) {
+                  <td class="tp-cell">
+                    <!-- <span [ngClass]="getStatutClass(getStatutForStudent(tp, etudiant.id))">
+                    </span>
+                    -->
+                    {{ formatStatut(getStatutForStudent(tp, etudiant.id)) }}
+
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ▶︎ Lien de retour -->
+    <div class="back-link">
+      <button mat-stroked-button color="primary" routerLink="/home">
+        ← Retour à la liste des cours
+      </button>
+    </div>
+  </div>
+
+  <app-footer></app-footer>
+}

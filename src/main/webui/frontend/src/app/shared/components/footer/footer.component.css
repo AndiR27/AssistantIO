@@ -1,0 +1,26 @@
+/************************
+         *       FOOTER         *
+         ************************/
+footer.site-footer {
+  background-color: #1f2937;
+  padding: 1rem 0;
+  margin-top: 2rem; /* espace au-dessus du footer */
+}
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  text-align: center;
+}
+.footer-inner p {
+  color: #fff;
+  font-size: 0.9rem;
+}
+.footer-inner a {
+  color: #93c5fd; /* bleu clair */
+  text-decoration: none;
+  font-weight: 500;
+}
+.footer-inner a:hover {
+  text-decoration: underline;
+}

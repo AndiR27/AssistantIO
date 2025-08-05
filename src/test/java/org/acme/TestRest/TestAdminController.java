@@ -34,7 +34,7 @@ public class TestAdminController {
                   "semester": "AUTOMNE",
                   "year_course": 2025,
                   "teacher": "Prof Test",
-                  "courseType": "Java",
+                  "courseType": "JAVA",
                   "studentList": [],
                   "tpsList": [],
                   "evaluations": []
@@ -61,7 +61,7 @@ public class TestAdminController {
                           "semester": "AUTOMNE",
                           "year_course": 2024,
                           "teacher": "Stettler",
-                          "courseType": "Java",
+                          "courseType": "JAVA",
                           "studentList": [],
                           "tpsList": [],
                           "evaluations": []
@@ -86,7 +86,7 @@ public class TestAdminController {
                               "semester": "PRINTEMPS",
                               "year_course": 2025,
                               "teacher": "Testeur",
-                              "courseType": "Java",
+                              "courseType": "JAVA",
                               "studentList": [],
                               "tpsList": [],
                               "evaluations": []
@@ -136,7 +136,7 @@ public class TestAdminController {
                           "semester": "PRINTEMPS",
                           "year_course": 2025,
                           "teacher": "Dupont",
-                          "courseType": "Java",
+                          "courseType": "JAVA",
                           "studentList": [],
                           "tpsList": [],
                           "evaluations": []
@@ -161,7 +161,7 @@ public class TestAdminController {
                           "semester": "AUTOMNE",
                           "year_course": 2025,
                           "teacher": "Inconnu",
-                          "courseType": "Java",
+                          "courseType": "JAVA",
                           "studentList": [],
                           "tpsList": [],
                           "evaluations": []
@@ -186,7 +186,7 @@ public class TestAdminController {
                           "semester": "AUTOMNE",
                           "year_course": 2025,
                           "teacher": "Test",
-                          "courseType": "Java",
+                          "courseType": "JAVA",
                           "studentList": [],
                           "tpsList": [],
                           "evaluations": []

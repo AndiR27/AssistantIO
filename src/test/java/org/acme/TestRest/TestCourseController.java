@@ -34,7 +34,7 @@ public class TestCourseController {
                       "semester": "AUTOMNE",
                       "year_course": 2025,
                       "teacher": "Test Prof",
-                      "courseType": "Java",
+                      "courseType": "JAVA",
                       "studentList": [],
                       "tpsList": [],
                       "evaluations": []

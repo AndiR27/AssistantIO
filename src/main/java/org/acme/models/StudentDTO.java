@@ -23,6 +23,14 @@ public class StudentDTO {
         this.courseStudentList = courseStudentList;
     }
 
+    public StudentDTO(Long id, String name, String email, StudyType studyType) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.studyType = studyType;
+        this.courseStudentList = new ArrayList<>();
+    }
+
     // Getters et Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

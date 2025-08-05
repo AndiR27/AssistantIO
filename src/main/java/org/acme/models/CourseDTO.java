@@ -1,13 +1,17 @@
 package org.acme.models;
 
+import jakarta.validation.constraints.NotBlank;
 import org.acme.enums.CourseType;
 import org.acme.enums.SemesterType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CourseDTO {
     private Long id;
     private String name;
+
+    @NotBlank(message = "Code is mandatory")
     private String code;
     private SemesterType semester;
     private int year_course;
@@ -32,6 +36,19 @@ public class CourseDTO {
         this.studentList = studentList;
         this.tpsList = tpsList;
         this.evaluations = evaluations;
+    }
+
+    public CourseDTO(Long id, String name, String code, SemesterType semester, int year_course, String teacher, CourseType courseType) {
+        this.id = id;
+        this.name = name;
+        this.code = code;
+        this.semester = semester;
+        this.year_course = year_course;
+        this.teacher = teacher;
+        this.courseType = courseType;
+        this.studentList = new ArrayList<>();
+        this.tpsList = new ArrayList<>();
+        this.evaluations = new ArrayList<>();
     }
 
     // Getters et Setters

@@ -1,0 +1,119 @@
+/* CONTAINER PRINCIPAL */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+/* TITRES */
+.title-large {
+  /*Ajouter de la marge en haut*/
+  margin-top: 1rem;
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  color: #1f2937;
+}
+
+/* GRID DES COURS */
+.courses-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* CARTES DE COURS */
+.course-card {
+  padding: 1.5rem;
+  background-color: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+.course-card h2 {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+.course-card p {
+  margin: 0.25rem 0;
+  color: #4b5563;
+}
+.course-card p.last-info {
+  margin-top: auto;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+/* LIEN VERS LE DÉTAIL DU COURS */
+.course-details {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  margin-top: 1rem;
+}
+.course-details p {
+  font-size: 1rem;
+  color: #333;
+  margin: 0.5rem 0;
+}
+
+.back-link {
+  margin-top: 1.5rem;
+}
+.back-link a {
+  text-decoration: none;
+  color: #2563eb;
+  font-weight: bold;
+}
+.back-link a:hover {
+  text-decoration: underline;
+}
+
+
+
+.course-card {
+  padding: 1.5rem;
+  background-color: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s;
+
+  /*hover : fond bleu semi-transparent*/
+  &:hover {
+    background-color: rgba(37, 99, 235, 0.1);
+  }
+
+  .card-link {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: #2563eb;
+  }
+
+  p {
+    margin: 0.25rem 0;
+    color: #4b5563;
+
+    &.last-info {
+      margin-top: auto;
+      font-size: 0.875rem;
+      color: #6b7280;
+    }
+  }
+}
+
+

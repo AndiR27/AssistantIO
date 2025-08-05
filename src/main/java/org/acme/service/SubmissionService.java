@@ -2,8 +2,10 @@ package org.acme.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import org.acme.entity.*;
 import org.acme.repository.SubmissionRepository;
+import org.acme.repository.TPRepository;
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
 import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 import org.jboss.logging.Logger;
@@ -22,11 +24,14 @@ import static io.quarkus.fs.util.ZipUtils.*;
 @ApplicationScoped
 public class SubmissionService {
 
-    private String typeCours = "Java";
+    private String typeCours = "JAVA";
     private static final Logger LOG = Logger.getLogger(SubmissionService.class);
 
     @Inject
     SubmissionRepository submissionRepository;
+
+    @Inject
+    TPRepository tpRepository;
 
     /**
      * CRUD methodes pour les rendus de TP
@@ -57,8 +62,9 @@ public class SubmissionService {
      * - si java avancé, il faudrait récupérer aussi des fichiers supplémentaires tel
      * que les tests unitaires ou dossiers ressources et pom.xml
      *
-     * Une entité Rendu a les infos de stockage du zip d'origine
+     * Une entité AddTP a les infos de stockage du zip d'origine
      */
+    @Transactional
     public void processZipSubmission(Course c, TP tp) throws IOException {
         //TODO
         Submission submission = tp.submission;
@@ -72,7 +78,7 @@ public class SubmissionService {
             typeCours = String.valueOf(c.courseType);
         }
 
-        LOG.debug("Starting restructuring for TP: " + tp.no + " of course: " + c.code);
+        LOG.info("Starting restructuring for TP: " + tp.no + " of course: " + c.code + "\n" + c.id + " . " + tp.id + " . " + submission.id );
         // chemin vers le zip d'origine
         Path originalZip = Paths.get(submission.pathStorage);
 
@@ -112,6 +118,10 @@ public class SubmissionService {
         //Nettoyer les dossiers temporaires et le dossier de restructuration
         deleteFolder(tpmExtractDir);
         deleteFolder(restructurationDir);
+
+        // Enregistrer la soumission restructurée
+        //submissionRepository.persist(submission);
+
 
     }
 
@@ -207,9 +217,9 @@ public class SubmissionService {
 
             LOG.debug("Manage extraction for student project and typeCours");
             //Gérer le contenu du projet à copier selon le type de cours
-            if (typeCours.equals("Java")) {
+            if (typeCours.equals("JAVA")) {
                 copyJavaProject(projetExtract, etudiantDirRestructured);
-            } else if (typeCours.equals("Python")) {
+            } else if (typeCours.equals("PYTHON")) {
                 copyPythonProject(projetExtract, etudiantDirRestructured);
             } else {
                 //les deux set à ignorer sont vides

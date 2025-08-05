@@ -39,7 +39,6 @@ public class CourseService {
 
     @Inject
     SubmissionService submissionService;
-
     @Inject
     @ConfigProperty(name = "zip-storage.path")
     String zipStoragePath;
@@ -133,18 +132,16 @@ public class CourseService {
 
         try {
             // Récupérer le cours, ou lever une NotFoundException si non présent
-            Course course = courseRepository.findByIdOptional(courseDTO.getId())
-                    .orElseThrow(() -> new NotFoundException("Cours non trouvé (ID=" + courseDTO.getId() + ")"));
+            Course course = courseRepository.findById(courseDTO.getId());
 
             Student student;
-            if (studentDTO.getId() != null) {
+            if (studentRepository.existsByEmail(studentDTO.getEmail())) {
                 // Cas : l'étudiant existe déjà
-                student = studentRepository.findByIdOptional(studentDTO.getId())
-                        .orElseThrow(() -> new NotFoundException("Étudiant non trouvé (ID=" + studentDTO.getId() + ")"));
+                student = studentRepository.findByEmail(studentDTO.getEmail());
             } else {
                 // Cas : l'étudiant n'existe pas => on le crée
                 StudentDTO studentDTO1 = studentService.addStudent(studentDTO, course);
-                student = studentMapper.toEntity(studentDTO1);
+                student = studentRepository.findById(studentDTO1.getId());
             }
             // Établir la relation bidirectionnelle
             course.addEtudiant(student);
@@ -152,6 +149,7 @@ public class CourseService {
 
             // Persister en base
             courseRepository.persist(course);
+            //studentRepository.persist(student);
 
             //etudiantRepository.persistAndFlush(etudiant);
             LOG.info("Etudiant " + studentDTO.getName() + " added to course " + courseDTO.getName());
@@ -159,7 +157,7 @@ public class CourseService {
             return studentMapper.toDto(student);
 
         } catch (NotFoundException e) {
-            System.out.println("Erreur : " + e.getMessage());
+            System.out.println("Impossible de trouver l'etudiant : " + e.getMessage());
         } catch (Exception e) {
             // Pour toute autre erreur imprévue
             System.out.print("Erreur inattendue lors de l'ajout de l'étudiant au cours" + e.getMessage());
@@ -185,7 +183,6 @@ public class CourseService {
                 StudentDTO studentDTO = new StudentDTO(null, etudiantData[0], etudiantData[1], StudyType.valueOf(etudiantData[2]), new ArrayList<>());
                 StudentDTO etuAdded = studentService.addStudent(studentDTO, course);
                 addStudentToCourse(courseDTO, etuAdded);
-
             }
             LOG.info("All students added to course " + courseDTO.getName());
         } catch (RuntimeException e) {
@@ -334,10 +331,11 @@ public class CourseService {
     /**
      * Methode permettant de lancer le traitement du rendu pour un TP
      */
-    public void startZipProcess(Long idCours, Long idTp) throws IOException {
+    @Transactional
+    public void startZipProcess(Long idCours, int idTp) throws IOException {
         Course course = courseRepository.findById(idCours);
-        TP tp = travailPratiqueRepository.findById(idTp);
-        LOG.debug("Starting traitementRenduZip for course=" + course.name + ", TP no=" + tp.no);
+        TP tp = courseRepository.findTpByNo(idCours, idTp);
+        LOG.info("Starting traitementRenduZip for course id :" + course.id +", name : " + course.code + " " + course.name + ", TP no : " + tp.no);
         submissionService.processZipSubmission(course, tp);
     }
 

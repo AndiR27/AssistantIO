@@ -6,20 +6,31 @@
 # Otherwise, it is possible remove all the containers + images with the command: docker-compose down --rmi all
 
 version: '3.8'
+volumes:
+  db_data:
+networks:
+  app-network:
+
 services:
   db:
     image: postgres:latest
+    container_name: quarkus_db
     environment:
       POSTGRES_USER: postgre
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: AssistantIO
     ports:
       - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+    - app-network
 
   app:
     build:
       context: .
       dockerfile: src/main/docker/Dockerfile.jvm
+    container_name: quarkus_app
     environment:
       # Needs to be the same as the db container values
       # It will override the application.properties values
@@ -30,3 +41,5 @@ services:
       - "8088:8088"
     depends_on:
       - db
+    networks:
+      - app-network

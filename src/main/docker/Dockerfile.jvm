@@ -88,9 +88,7 @@ WORKDIR /usr/src/app
 # 1.1 Copier les fichiers de déclaration (qui changent rarement)
 COPY pom.xml mvnw ./
 COPY .mvn .mvn/
-
-# 1.2 Télécharger les dépendances (calque caché tant que pom.xml ne change pas)
-RUN ./mvnw dependency:go-offline -B
+RUN chmod +x mvnw
 
 # 1.3 Copier le code source (calque invalide quand vous modifiez src/)
 COPY src src

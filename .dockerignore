@@ -2,3 +2,7 @@
 !target/*-runner.jar
 !target/lib/*
 !target/quarkus-app/*
+
+# Ignorer les dépendances locales Windows/Mac/Linux
+**/node_modules
+**/dist

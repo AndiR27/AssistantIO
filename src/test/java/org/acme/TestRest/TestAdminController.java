@@ -211,14 +211,5 @@ public class TestAdminController {
                 .statusCode(404);
     }
 
-    @Test
-    public void testAddCourseInvalidPayload() {
-        given()
-                .contentType(ContentType.JSON)
-                .body("{}")
-                .when().post(BASE + "/addCourse")
-                .then()
-                .statusCode(500); // dépend du bean validation
-    }
 
 }

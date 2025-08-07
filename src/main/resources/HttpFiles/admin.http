@@ -69,7 +69,7 @@ Content-Type: application/json
   "semester": "PRINTEMPS",
   "year_course": 2025,
   "teacher": "Dupont",
-  "courseType": "Java",
+  "courseType": "JAVA",
   "studentList": [],
   "tpsList": [],
   "evaluations": []

@@ -30,6 +30,7 @@ services:
     build:
       context: .
       dockerfile: src/main/docker/Dockerfile.jvm
+    image: AndiR27/assistantio:latest
     container_name: quarkus_app
     environment:
       # Needs to be the same as the db container values

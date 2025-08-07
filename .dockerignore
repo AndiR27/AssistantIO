@@ -1,4 +1,8 @@
-!target/*-runner
-!target/*-runner.jar
-!target/lib/*
-!target/quarkus-app/*
+# Exclure tout target/
+target/
+
+# Ignorer IDE, logs, VCS, etc.
+.git
+.gitignore
+.idea/
+*.log

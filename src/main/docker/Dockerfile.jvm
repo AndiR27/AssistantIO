@@ -18,7 +18,8 @@ COPY src/main/webui/frontend/ ./
 EXPOSE 4200
 
 # Démarre ng serve comme en local
-CMD ["ng", "serve", "--host", "0.0.0.0", "--port", "4200"]
+#CMD ["ng", "build", "--host", "0.0.0.0", "--port", "4200", "-c prod"]
+RUN npm run build -- --configuration production
 
 #########################################
 # Étape 2 : build de Quarkus

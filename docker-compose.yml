@@ -11,7 +11,7 @@ services:
     ports:
       - "2665:5432"
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - pg_data_v2:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL","pg_isready -U postgre -d AssistantIO"]
       interval: 10s
@@ -49,7 +49,7 @@ services:
       - app-network
 
 volumes:
-  db_data:
+  pg_data_v2:
 
 networks:
   app-network:

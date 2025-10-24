@@ -7,7 +7,6 @@ services:
       POSTGRES_USER: postgre
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: AssistantIO
-      PGDATA: /var/lib/postgresql/data/pgdata
     ports:
       - "2665:5432"
     volumes:

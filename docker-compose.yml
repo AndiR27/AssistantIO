@@ -35,18 +35,20 @@ services:
     networks:
       - app-network
 
-  frontend:
-    build:
-      context: .
-      dockerfile: src/main/docker/Dockerfile.jvm
-      target: ui-build
-    image: zackrey27/assistantio-frontend:latest
-    container_name: assistantio_frontend
-    ports:
-      - "4200:4200"
-    networks:
-      - app-network
-
+  
+ 
+  # frontend:
+  #   build:
+  #     context: .
+  #     dockerfile: src/main/docker/Dockerfile.jvm
+  #     target: ui-build
+  #   image: zackrey27/assistantio-frontend:latest
+  #   container_name: assistantio_frontend
+  #   ports:
+  #     - "4200:4200"
+  #   networks:
+  #     - app-network
+ 
 volumes:
   pg_data_v2:
 

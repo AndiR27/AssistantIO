@@ -35,9 +35,11 @@ RUN mvn dependency:go-offline -B
 # Copier le code Quarkus
 COPY src src
 
-# Copier les assets Angular buildés dans le dossier statique de Quarkus
-#RUN mkdir -p src/main/resources/META-INF/resources
-#COPY --from=ui-build /usr/src/app/frontend/dist/ src/main/resources/META-INF/resources/
+# Injecter les fichiers statiques Angular dans les ressources Quarkus
+# (Seront servis sur / par le backend)
+RUN mkdir -p src/main/resources/META-INF/resources
+COPY --from=ui-build /usr/src/app/src/main/webui/frontend/dist/frontend/browser/* src/main/resources/META-INF/resources/
+
 
 # Compiler Quarkus en fast-jar
 #RUN mvn package -Dquarkus.package.type=fast-jar -Dquarkus.native.container-build=false -Dquarkus.native.additional-build-args=--enable-http2 -Dquarkus.native.additional-build-args=--enable-https -Dquarkus.native.additional-build-args=--enable-http3 -Dquarkus.native.additional-build-args=--enable-quic -Dquarkus.native.additional-build-args=--enable-websockets -Dquarkus.quinoa=false

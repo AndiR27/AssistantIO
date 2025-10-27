@@ -38,7 +38,7 @@ COPY src src
 # Injecter les fichiers statiques Angular dans les ressources Quarkus
 # (Seront servis sur / par le backend)
 RUN mkdir -p src/main/resources/META-INF/resources
-COPY --from=ui-build /usr/src/app/src/main/webui/frontend/dist/frontend/browser/* src/main/resources/META-INF/resources/
+COPY --from=ui-build /usr/src/app/src/main/webui/frontend/dist/frontend/* src/main/resources/META-INF/resources/
 
 
 # Compiler Quarkus en fast-jar

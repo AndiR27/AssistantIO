@@ -11,11 +11,8 @@ import java.util.List;
 @Mapper(config = CentralConfig.class)
 public interface TPStatusMapper {
      // Prevent recursion
-     @Mapping(source = "student.id",target = "studentId")
+     @Mapping(source = "student.id",       target = "studentId")
      @Mapping(source = "tp.id", target = "tpId")
-     TPStatusDTO toDTO(TPStatus tpStatus);
-
-    @InheritInverseConfiguration
-    TPStatus toEntity(TPStatusDTO tpStatusDTO);
+    TPStatusDTO toDTO(TPStatus tpStatus);
 
 }

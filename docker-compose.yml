@@ -1,18 +1,19 @@
+version: "3.9"
 
 services:
   db:
-    image: postgres:latest
+    image: postgres:16
     container_name: quarkus_db
     environment:
-      POSTGRES_USER: postgre
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: AssistantIO
     ports:
-      - "2665:5432"
+      - "5432:5432"
     volumes:
       - pg_data_v2:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL","pg_isready -U postgre -d AssistantIO"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d AssistantIO" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -21,7 +22,7 @@ services:
 
   backend:
     build:
-      context: .
+      context: ./Backend
       dockerfile: src/main/docker/Dockerfile.jvm
       target: runtime
     image: zackrey27/assistantio-backend:latest
@@ -31,26 +32,30 @@ services:
     ports:
       - "8088:8088"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    networks:
+      - app-network
+    volumes:
+      - aio_data:/opt/app/data
+
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+    image: zackrey27/assistantio-frontend:latest
+    container_name: assistantio_frontend
+    depends_on:
+      - backend
+    ports:
+      - "4200:80"
     networks:
       - app-network
 
-  
- 
-  # frontend:
-  #   build:
-  #     context: .
-  #     dockerfile: src/main/docker/Dockerfile.jvm
-  #     target: ui-build
-  #   image: zackrey27/assistantio-frontend:latest
-  #   container_name: assistantio_frontend
-  #   ports:
-  #     - "4200:4200"
-  #   networks:
-  #     - app-network
- 
 volumes:
+
   pg_data_v2:
+  aio_data:
 
 networks:
   app-network:

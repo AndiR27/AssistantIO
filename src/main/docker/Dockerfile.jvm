@@ -1,28 +1,5 @@
 #########################################
-# Étape 1 : build de l'UI Angular
-#########################################
-FROM node:20-alpine AS ui-build
-WORKDIR /usr/src/app/src/main/webui/frontend
-
-# Installez l’Angular CLI globalement
-RUN npm install -g @angular/cli
-
-# Copier seulement les manifestes pour installer propres dépendances
-COPY src/main/webui/frontend/package.json   src/main/webui/frontend/package-lock.json ./
-RUN npm ci
-
-# Copier tout le code Angular
-COPY src/main/webui/frontend/ ./
-
-# Expose le port du dev-server Angular
-EXPOSE 4200
-
-# Démarre ng serve comme en local
-#CMD ["ng", "build", "--host", "0.0.0.0", "--port", "4200", "-c prod"]
-RUN npm run build -- --configuration production
-
-#########################################
-# Étape 2 : build de Quarkus
+# Étape 1 : build de Quarkus
 #########################################
 # Utiliser un JDK 21 pour matcher le release dans pom.xml
 FROM maven:3.9.8-eclipse-temurin-21 AS build
@@ -35,17 +12,12 @@ RUN mvn dependency:go-offline -B
 # Copier le code Quarkus
 COPY src src
 
-# Injecter les fichiers statiques Angular dans les ressources Quarkus
-# (Seront servis sur / par le backend)
-RUN mkdir -p src/main/resources/META-INF/resources
-COPY --from=ui-build /usr/src/app/src/main/webui/frontend/dist/frontend/* src/main/resources/META-INF/resources/
-
-
 # Compiler Quarkus en fast-jar
 #RUN mvn package -Dquarkus.package.type=fast-jar -Dquarkus.native.container-build=false -Dquarkus.native.additional-build-args=--enable-http2 -Dquarkus.native.additional-build-args=--enable-https -Dquarkus.native.additional-build-args=--enable-http3 -Dquarkus.native.additional-build-args=--enable-quic -Dquarkus.native.additional-build-args=--enable-websockets -Dquarkus.quinoa=false
-RUN mvn package -Dquarkus.profile=prod -Dquarkus.quinoa=false
+RUN mvn package -Dquarkus.profile=prod
+
 #########################################
-# Étape 3 : image de runtime
+# Étape 2 : image de runtime
 #########################################
 # Utiliser une image JRE basée sur Alpine pour légèreté et disponibilité
 FROM eclipse-temurin:21-jre-alpine AS runtime

@@ -44,6 +44,11 @@ nb-configuration.xml
 # TLS Certificates
 .certs/
 
+#Angular
+/node_modules/
+/dist/
+
+
 
 # Manage resources
 # ignore all in testZips, but not the parent folder

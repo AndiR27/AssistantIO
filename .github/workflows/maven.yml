@@ -28,12 +28,12 @@ jobs:
         with:
           node-version: '22' # Angular 20 compatible
           cache: 'npm'
-          cache-dependency-path: src/main/webui/frontend/package-lock.json # adapte si ton front est ailleurs
+          cache-dependency-path: Frontend/package-lock.json
 
       # Install frontend deps
       - name: Install frontend dependencies
         run: npm ci
-        working-directory: src/main/webui/frontend
+        working-directory: Frontend
       
       # 3. Installer Java 21
       - name: Set up JDK 21

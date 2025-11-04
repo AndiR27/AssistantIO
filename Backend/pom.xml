@@ -42,6 +42,12 @@
 
         <dependency>
             <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-resteasy-jackson</artifactId>
+        </dependency>
+
+
+        <dependency>
+            <groupId>io.quarkus</groupId>
             <artifactId>quarkus-hibernate-orm-panache</artifactId>
         </dependency>
 
@@ -116,6 +122,13 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-hibernate-orm-rest-data-panache</artifactId>
+        </dependency>
+
+        <!-- Problèmes RESTEasy -->
+        <dependency>
+            <groupId>com.tietoevry.quarkus</groupId>
+            <artifactId>quarkus-resteasy-problem</artifactId>
+            <version>3.9.0</version>
         </dependency>
 
     </dependencies>

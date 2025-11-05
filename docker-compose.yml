@@ -16,9 +16,6 @@ services:
       - QUARKUS_DATASOURCE_USERNAME=${QUARKUS_DATASOURCE_USERNAME}
       - QUARKUS_DATASOURCE_PASSWORD=${QUARKUS_DATASOURCE_PASSWORD}
 
-      # ======== CORS  ========
-      - PROD_CORS_ORIGINS=${PROD_CORS_ORIGINS}
-
       # ======== Logging Level  ========
       - LOG_LEVEL=${LOG_LEVEL}
 

@@ -59,3 +59,4 @@ nb-configuration.xml
 .env
 *.env
 stack.env
+docker-compose.local.yml

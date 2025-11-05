@@ -55,6 +55,7 @@ nb-configuration.xml
 !testZips/
 !DocumentsZip/
 
-# Ignore environment files
+# Fichiers d'environnement sensibles
 .env
+*.env
 stack.env

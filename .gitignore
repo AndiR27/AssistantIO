@@ -54,3 +54,7 @@ nb-configuration.xml
 # ignore all in testZips, but not the parent folder
 !testZips/
 !DocumentsZip/
+
+# Ignore environment files
+.env
+stack.env

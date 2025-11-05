@@ -1,25 +1,6 @@
 version: "3.9"
 
 services:
-  db:
-    image: postgres:16
-    container_name: quarkus_db
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: admin
-      POSTGRES_DB: AssistantIO
-    ports:
-      - "5432:5432"
-    volumes:
-      - pg_data_v2:/var/lib/postgresql/data
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d AssistantIO" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - app-network
-
   backend:
     build:
       context: ./Backend
@@ -29,15 +10,30 @@ services:
     container_name: assistantio_backend
     environment:
       - QUARKUS_PROFILE=prod
+
+      # ======== DATABASE ========
+      - QUARKUS_DATASOURCE_JDBC_URL=${QUARKUS_DATASOURCE_JDBC_URL}
+      - QUARKUS_DATASOURCE_USERNAME=${QUARKUS_DATASOURCE_USERNAME}
+      - QUARKUS_DATASOURCE_PASSWORD=${QUARKUS_DATASOURCE_PASSWORD}
+
+      # ======== CORS  ========
+      - PROD_CORS_ORIGINS=${PROD_CORS_ORIGINS}
+
+      # ======== Logging Level  ========
+      - LOG_LEVEL=${LOG_LEVEL}
+
+      # ======== ZIP STORAGE ========
+      # Always mapped to the volume, path referenced in application.properties
+      - ZIP_STORAGE_PATH=/opt/app/data/zips
+
     ports:
-      - "8088:8088"
-    depends_on:
-      db:
-        condition: service_healthy
+      - "${HTTP_PORT:-8088}:8088"
+    restart: unless-stopped
     networks:
       - app-network
+      - db-network
     volumes:
-      - aio_data:/opt/app/data
+      - /volume1/docker/assistantio/data:/opt/app/data
 
   frontend:
     build:
@@ -53,9 +49,10 @@ services:
       - app-network
 
 volumes:
-
-  pg_data_v2:
   aio_data:
 
 networks:
   app-network:
+  db-network:
+    external: true
+    name: postgresql_default

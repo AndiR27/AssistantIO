@@ -6,7 +6,7 @@ services:
       context: ./Backend
       dockerfile: src/main/docker/Dockerfile.jvm
       target: runtime
-    image: zackrey27/assistantio-backend:latest
+    image: zackrey27/assistantio-backend
     container_name: assistantio_backend
     environment:
       - QUARKUS_PROFILE=prod
@@ -39,7 +39,7 @@ services:
     build:
       context: ./Frontend
       dockerfile: Dockerfile
-    image: zackrey27/assistantio-frontend:latest
+    image: zackrey27/assistantio-frontend
     container_name: assistantio_frontend
     depends_on:
       - backend

@@ -14,8 +14,8 @@ import java.util.*;
  */
 @Entity
 @Table(name = "course",
-        uniqueConstraints = @UniqueConstraint(
-                columnNames = { "code", "semester", "year_course" }
+            uniqueConstraints = @UniqueConstraint(
+                    columnNames = { "code", "semester", "year_course" }
         ))
 public class Course extends PanacheEntityBase {
 

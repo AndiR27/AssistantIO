@@ -1,6 +1,7 @@
 package heg.backendspring.entity;
 
 
+import heg.backendspring.enums.CourseType;
 import heg.backendspring.enums.SemesterType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -31,6 +32,9 @@ public class Course {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private SemesterType semester;
+
+    @Enumerated(EnumType.STRING)
+    private CourseType courseType;
 
     @Column(nullable = false)
     private int year_course;

@@ -11,4 +11,5 @@ public interface RepositoryTP extends JpaRepository<TP, Long> {
 
     List<TP> findAllByCourseId(Long courseId);
 
+
 }

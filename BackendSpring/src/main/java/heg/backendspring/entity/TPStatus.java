@@ -16,16 +16,25 @@ public class TPStatus {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @ManyToOne
     @JoinColumn(name = "student_id")
+    @EqualsAndHashCode.Include
     private Student student;
 
     @ManyToOne
     @JoinColumn(name = "tp_id")
+    @EqualsAndHashCode.Include
     private TP tp;
 
     @Column(name = "student_submitted")
     private boolean studentSubmission;
+
+    public TPStatus(Student student, TP tp, boolean studentSubmission) {
+        this.student = student;
+        this.tp = tp;
+        this.studentSubmission = studentSubmission;
+    }
 }

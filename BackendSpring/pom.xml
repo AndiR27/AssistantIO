@@ -83,9 +83,8 @@
 		<!-- Dependancy pour MapStruct -->
 		<dependency>
 			<groupId>org.mapstruct</groupId>
-			<artifactId>mapstruct-processor</artifactId>
+			<artifactId>mapstruct</artifactId>
 			<version>1.6.3</version>
-			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
@@ -94,6 +93,19 @@
 			<version>0.2.0</version>
 			<scope>provided</scope>
 		</dependency>
+
+		<!-- Dependances pour la compression de fichiers -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-compress</artifactId>
+			<version>1.28.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.tukaani</groupId>
+			<artifactId>xz</artifactId>
+			<version>1.11</version>
+		</dependency>
+
 
 	</dependencies>
 

@@ -27,4 +27,10 @@ public class Submission {
 
     @Column(name = "path_file_structured")
     private String pathFileStructured;
+
+    public Submission(String fileName, String pathStorage, String pathFileStructured) {
+        this.fileName = fileName;
+        this.pathStorage = pathStorage;
+        this.pathFileStructured = pathFileStructured;
+    }
 }

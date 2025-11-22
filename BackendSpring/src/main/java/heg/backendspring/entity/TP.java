@@ -38,4 +38,10 @@ public class TP {
     //Un TP a une liste de status pour le suivi
     @OneToMany(mappedBy = "tp", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<TPStatus> statusStudents;
+
+    public TP(int no, Course course, Submission submission) {
+        this.no = no;
+        this.course = course;
+        this.submission = submission;
+    }
 }

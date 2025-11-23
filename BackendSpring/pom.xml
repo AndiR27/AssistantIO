@@ -106,6 +106,27 @@
 			<version>1.11</version>
 		</dependency>
 
+		<!-- Dependances pour OpenAPI avec Springdoc -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>3.0.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.openapitools</groupId>
+			<artifactId>jackson-databind-nullable</artifactId>
+			<version>0.2.1</version>
+		</dependency>
+		<dependency>
+			<groupId>jakarta.annotation</groupId>
+			<artifactId>jakarta.annotation-api</artifactId>
+		</dependency>
+
+
+
+
+
 
 	</dependencies>
 
@@ -149,6 +170,86 @@
 					</excludes>
 				</configuration>
 			</plugin>
+
+			<!-- OpenAPI Generator -->
+			<plugin>
+				<groupId>org.openapitools</groupId>
+				<artifactId>openapi-generator-maven-plugin</artifactId>
+				<!-- prends une version récente, compatible Java 21 -->
+				<version>7.9.0</version>
+
+				<executions>
+					<execution>
+						<id>generate-spring-api</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<phase>generate-sources</phase>
+						<configuration>
+							<!-- Ton fichier de spec -->
+							<inputSpec>${project.basedir}/src/main/resources/openapi/openapi.yaml</inputSpec>
+
+							<!-- Où générer les fichiers -->
+							<output>${project.basedir}</output>
+							<modelPackage>heg.backendspring.models</modelPackage>
+							<apiPackage>heg.backendspring.api</apiPackage>
+
+							<!-- On veut des interfaces Spring Boot 3 -->
+							<generatorName>spring</generatorName>
+							<library>spring-boot</library>
+							<configOptions>
+								<interfaceOnly>true</interfaceOnly>
+								<useSpringBoot3>true</useSpringBoot3>
+								<useTags>true</useTags>
+								<dateLibrary>java8</dateLibrary>
+								<serializableModel>true</serializableModel>
+
+								<!-- on ne veut pas générer les models, on les remplace par nos DTO -->
+								<useBeanValidation>true</useBeanValidation>
+							</configOptions>
+
+
+
+							<!-- Ne générer QUE les APIs, pas les models -->
+
+							<!-- DITES-LUI quels schémas correspondent à quels DTO -->
+							<typeMappings>
+								<!-- schéma OpenAPI : type Java -->
+								<typeMapping>CourseDto=heg.backendspring.models.CourseDto</typeMapping>
+								<typeMapping>EvaluationDto=heg.backendspring.models.EvaluationDto</typeMapping>
+								<typeMapping>StudentDto=heg.backendspring.models.StudentDto</typeMapping>
+								<typeMapping>SubmissionDto=heg.backendspring.models.SubmissionDto</typeMapping>
+								<typeMapping>TPDto=heg.backendspring.models.TPDto</typeMapping>
+								<typeMapping>TPStatusDto=heg.backendspring.models.TPStatusDto</typeMapping>
+							</typeMappings>
+
+							<importMappings>
+								<!-- même chose pour les imports -->
+								<importMapping>CourseDto=heg.backendspring.models.CourseDto</importMapping>
+								<importMapping>EvaluationDto=heg.backendspring.models.EvaluationDto</importMapping>
+								<importMapping>StudentDto=heg.backendspring.models.StudentDto</importMapping>
+								<importMapping>SubmissionDto=heg.backendspring.models.SubmissionDto</importMapping>
+								<importMapping>TPDto=heg.backendspring.models.TPDto</importMapping>
+								<importMapping>TPStatusDto=heg.backendspring.models.TPStatusDto</importMapping>
+							</importMappings>
+
+
+
+							<!-- Générer directement dans src/main/java -->
+							<generateApiTests>false</generateApiTests>
+							<generateModelTests>false</generateModelTests>
+							<generateModelDocumentation>false</generateModelDocumentation>
+							<generateApiDocumentation>false</generateApiDocumentation>
+
+							<!-- Empêcher l'écrasement de fichiers déjà modifiés -->
+							<skipOverwrite>true</skipOverwrite>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+
+
 		</plugins>
 	</build>
 

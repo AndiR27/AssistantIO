@@ -1,0 +1,1150 @@
+# ==============================
+#   VERSION & META
+# ==============================
+openapi: 3.0.4
+info:
+  title: AssistantIO API
+  description: API de gestion des cours, TPs, étudiants et rendus.
+  version: 1.0.0
+
+# ==============================
+#   SERVERS
+# ==============================
+servers:
+  - url: http://localhost:8080
+    description: Environnement local
+
+# ==============================
+#   TAGS
+# ==============================
+tags:
+  - name: admin-course
+    description: Gestion administrative des cours (CRUD complet)
+  - name: course
+    description: Consultation des cours et opérations associées
+  - name: student
+    description: Gestion des étudiants liés aux cours
+  - name: tp
+    description: Gestion des TPs et rendus
+  - name: evaluation
+    description: Gestion des évaluations (examens, contrôles continus)
+  - name: submission
+    description: Gestion des soumissions de TP
+  - name: processing
+    description: Traitement des rendus et gestion avancée des TPs
+
+# ==============================
+#   PATHS (ENDPOINTS)
+# ==============================
+paths:
+
+  # ========================================
+  #   ADMIN COURSES (CRUD)
+  # ========================================
+  /admin/courses:
+    get:
+      tags: [admin-course]
+      summary: Liste des cours (admin).
+      description: Retourne tous les cours pour la partie administrative.
+      operationId: adminGetCourses
+      responses:
+        '200':
+          description: Liste de cours retournée.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CourseDto'
+        '500':
+          description: Erreur interne.
+    post:
+      tags: [admin-course]
+      summary: Création d’un cours (admin).
+      description: Crée un nouveau cours dans la partie administrative.
+      operationId: adminCreateCourse
+      requestBody:
+        description: Données du cours à créer.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseDto'
+      responses:
+        '201':
+          description: Cours créé.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDto'
+        '400':
+          description: Données invalides.
+        '500':
+          description: Erreur interne.
+
+  /admin/courses/{courseId}:
+    get:
+      tags: [admin-course]
+      summary: Détail d’un cours (admin).
+      description: Retourne le détail d’un cours pour la partie administrative.
+      operationId: adminGetCourseById
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Cours trouvé.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDto'
+        '404':
+          description: Cours introuvable.
+        '500':
+          description: Erreur interne.
+    put:
+      tags: [admin-course]
+      summary: Mise à jour d’un cours (admin).
+      description: Met à jour les informations d’un cours existant.
+      operationId: adminUpdateCourse
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours à mettre à jour.
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Données mises à jour du cours.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseDto'
+      responses:
+        '200':
+          description: Cours mis à jour.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDto'
+        '400':
+          description: Données invalides.
+        '404':
+          description: Cours introuvable.
+        '500':
+          description: Erreur interne.
+    delete:
+      tags: [admin-course]
+      summary: Suppression d’un cours (admin).
+      description: Supprime un cours existant.
+      operationId: adminDeleteCourse
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours à supprimer.
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Cours supprimé.
+        '404':
+          description: Cours introuvable.
+        '500':
+          description: Erreur interne.
+
+  # ========================================
+  #   COURSES (LECTURE)
+  # ========================================
+  /course:
+    get:
+      tags: [course]
+      summary: Liste des cours.
+      description: Retourne tous les cours accessibles.
+      operationId: getCourses
+      responses:
+        '200':
+          description: Liste de cours retournée.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CourseDto'
+        '500':
+          description: Erreur interne.
+
+  /course/{courseId}:
+    get:
+      tags: [course]
+      summary: Détails d’un cours.
+      description: Retourne les informations d’un cours spécifique.
+      operationId: getCourseById
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Cours trouvé.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDto'
+        '404':
+          description: Cours introuvable.
+        '500':
+          description: Erreur interne.
+
+  # ========================================
+  #   STUDENTS D’UN COURS (REST PRINCIPAL)
+  # ========================================
+  /course/{courseId}/students:
+    get:
+      tags: [student]
+      summary: Liste des étudiants d’un cours.
+      description: Retourne les étudiants inscrits à un cours.
+      operationId: getStudentsByCourse
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Liste d’étudiants retournée.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentDto'
+        '404':
+          description: Cours introuvable.
+        '500':
+          description: Erreur interne.
+    post:
+      tags: [student]
+      summary: Ajout d’un étudiant à un cours.
+      description: Ajoute un étudiant à un cours via son DTO.
+      operationId: addStudentToCourse
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Données de l’étudiant à ajouter.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentDto'
+      responses:
+        '201':
+          description: Étudiant ajouté au cours.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentDto'
+        '404':
+          description: Cours introuvable.
+        '500':
+          description: Erreur interne.
+
+  /course/{courseId}/students/{id}:
+    delete:
+      tags: [student]
+      summary: Suppression d’un étudiant d’un cours.
+      description: Retire un étudiant d’un cours à partir de son identifiant.
+      operationId: removeStudentFromCourse
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+        - name: id
+          in: path
+          required: true
+          description: Identifiant de l’étudiant.
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Étudiant retiré du cours.
+        '404':
+          description: Cours ou étudiant introuvable.
+        '500':
+          description: Erreur interne.
+
+  # ========================================
+  #   STUDENTS D’UN COURS (ROUTES SPÉCIFIQUES EXISTANTES)
+  # ========================================
+  /course/{courseId}/addStudent:
+    post:
+      tags: [student]
+      summary: Ajout d’un étudiant (route spécifique).
+      description: Ajoute un étudiant à un cours via une route spécifique existante.
+      operationId: addStudentLegacy
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Données de l’étudiant à ajouter.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentDto'
+      responses:
+        '201':
+          description: Étudiant ajouté.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentDto'
+        '404':
+          description: Cours introuvable.
+        '500':
+          description: Erreur interne.
+
+  /course/{courseId}/removeStudent/{id}:
+    delete:
+      tags: [student]
+      summary: Suppression d’un étudiant (route spécifique).
+      description: Supprime un étudiant d’un cours via une route spécifique existante.
+      operationId: removeStudentLegacy
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+        - name: id
+          in: path
+          required: true
+          description: Identifiant de l’étudiant.
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Étudiant supprimé.
+        '404':
+          description: Cours ou étudiant introuvable.
+        '500':
+          description: Erreur interne.
+
+  /course/{courseId}/addStudentsFromFile:
+    post:
+      tags: [student]
+      summary: Ajout d’étudiants depuis un fichier.
+      description: Ajoute plusieurs étudiants à partir d’un fichier texte.
+      operationId: addStudentsFromFile
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Fichier texte contenant la liste des étudiants.
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Étudiants ajoutés.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentDto'
+        '400':
+          description: Fichier invalide.
+        '404':
+          description: Cours introuvable.
+        '500':
+          description: Erreur interne.
+
+  # ========================================
+  #   TPS D’UN COURS (REST PRINCIPAL)
+  # ========================================
+  /course/{courseId}/tps:
+    get:
+      tags: [tp]
+      summary: Liste des TPs d’un cours.
+      description: Retourne les TPs associés à un cours.
+      operationId: getTPsByCourse
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Liste de TPs retournée.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TPDto'
+        '404':
+          description: Cours introuvable.
+        '500':
+          description: Erreur interne.
+    post:
+      tags: [tp]
+      summary: Création d’un TP.
+      description: Crée un nouveau TP pour un cours.
+      operationId: createTP
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Données du TP à créer.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TPDto'
+      responses:
+        '201':
+          description: TP créé.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TPDto'
+        '404':
+          description: Cours introuvable.
+        '500':
+          description: Erreur interne.
+
+  /course/{courseId}/tps/{tpId}:
+    get:
+      tags: [tp]
+      summary: Détail d’un TP.
+      description: Retourne les informations d’un TP spécifique.
+      operationId: getTPById
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+        - name: tpId
+          in: path
+          required: true
+          description: Identifiant du TP.
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: TP trouvé.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TPDto'
+        '404':
+          description: TP ou cours introuvable.
+        '500':
+          description: Erreur interne.
+    put:
+      tags: [tp]
+      summary: Mise à jour d’un TP.
+      description: Met à jour les informations d’un TP existant.
+      operationId: updateTP
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+        - name: tpId
+          in: path
+          required: true
+          description: Identifiant du TP.
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Données mises à jour du TP.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TPDto'
+      responses:
+        '200':
+          description: TP mis à jour.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TPDto'
+        '404':
+          description: TP ou cours introuvable.
+        '500':
+          description: Erreur interne.
+    delete:
+      tags: [tp]
+      summary: Suppression d’un TP.
+      description: Supprime un TP existant d’un cours.
+      operationId: deleteTP
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+        - name: tpId
+          in: path
+          required: true
+          description: Identifiant du TP.
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: TP supprimé.
+        '404':
+          description: TP ou cours introuvable.
+        '500':
+          description: Erreur interne.
+
+  # Route spécifique de création TP par numéro
+  /course/{courseId}/addTP/{tpNumber}:
+    post:
+      tags: [tp]
+      summary: Création d’un TP par numéro.
+      description: Crée un TP en utilisant directement le numéro de TP.
+      operationId: addTPByNumber
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+        - name: tpNumber
+          in: path
+          required: true
+          description: Numéro du TP.
+          schema:
+            type: integer
+      responses:
+        '201':
+          description: TP créé.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TPDto'
+        '404':
+          description: Cours introuvable.
+        '500':
+          description: Erreur interne.
+
+  # ========================================
+  #   EVALUATIONS D’UN COURS
+  # ========================================
+  /course/{courseId}/evaluations:
+    get:
+      tags: [evaluation]
+      summary: Liste des évaluations d’un cours.
+      description: Retourne les évaluations associées à un cours.
+      operationId: getEvaluationsByCourse
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Liste d’évaluations retournée.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EvaluationDto'
+        '404':
+          description: Cours introuvable.
+        '500':
+          description: Erreur interne.
+    post:
+      tags: [evaluation]
+      summary: Création d’une évaluation.
+      description: Crée une nouvelle évaluation pour un cours.
+      operationId: createEvaluation
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Données de l’évaluation.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvaluationDto'
+      responses:
+        '201':
+          description: Évaluation créée.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluationDto'
+        '404':
+          description: Cours introuvable.
+        '500':
+          description: Erreur interne.
+
+  /course/{courseId}/evaluations/{evalId}:
+    put:
+      tags: [evaluation]
+      summary: Mise à jour d’une évaluation.
+      description: Met à jour une évaluation existante d’un cours.
+      operationId: updateEvaluation
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+        - name: evalId
+          in: path
+          required: true
+          description: Identifiant de l’évaluation.
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Données mises à jour de l’évaluation.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvaluationDto'
+      responses:
+        '200':
+          description: Évaluation mise à jour.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluationDto'
+        '404':
+          description: Cours ou évaluation introuvable.
+        '500':
+          description: Erreur interne.
+    delete:
+      tags: [evaluation]
+      summary: Suppression d’une évaluation.
+      description: Supprime une évaluation existante d’un cours.
+      operationId: deleteEvaluation
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+        - name: evalId
+          in: path
+          required: true
+          description: Identifiant de l’évaluation.
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Évaluation supprimée.
+        '404':
+          description: Cours ou évaluation introuvable.
+        '500':
+          description: Erreur interne.
+
+  # Examens / CC (routes spécifiques)
+  /course/{courseId}/addExam:
+    post:
+      tags: [evaluation]
+      summary: Création d’un examen.
+      description: Crée une évaluation de type examen pour un cours.
+      operationId: addExam
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Données de l’examen.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvaluationDto'
+      responses:
+        '201':
+          description: Examen créé.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluationDto'
+        '404':
+          description: Cours introuvable.
+        '500':
+          description: Erreur interne.
+
+  /course/{courseId}/addCC:
+    post:
+      tags: [evaluation]
+      summary: Création d’un contrôle continu.
+      description: Crée une évaluation de type contrôle continu pour un cours.
+      operationId: addCC
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Données du contrôle continu.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvaluationDto'
+      responses:
+        '201':
+          description: Contrôle continu créé.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluationDto'
+        '404':
+          description: Cours introuvable.
+        '500':
+          description: Erreur interne.
+
+  # ========================================
+  #   RENDUS ET TRAITEMENT DE TP
+  # ========================================
+  /course/{courseId}/addRendu/{tpNo}:
+    post:
+      tags: [submission]
+      summary: Ajout d’un rendu de TP.
+      description: Ajoute un rendu de TP sous forme de fichier ZIP.
+      operationId: addSubmission
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+        - name: tpNo
+          in: path
+          required: true
+          description: Numéro de TP.
+          schema:
+            type: integer
+      requestBody:
+        description: Fichier ZIP contenant les rendus d’étudiants.
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Rendu ajouté.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmissionDto'
+        '400':
+          description: Fichier invalide.
+        '404':
+          description: Cours ou TP introuvable.
+        '500':
+          description: Erreur interne.
+
+  /course/{courseId}/startProcessSubmission/{tpNo}:
+    post:
+      tags: [processing]
+      summary: Lancement du traitement des rendus.
+      description: Lance le processus de restructuration et de traitement des rendus pour un TP.
+      operationId: startProcessSubmission
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+        - name: tpNo
+          in: path
+          required: true
+          description: Numéro de TP.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Traitement lancé.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TPDto'
+        '404':
+          description: Cours ou TP introuvable.
+        '500':
+          description: Erreur interne.
+
+  /course/{courseId}/manageTP/{tpNo}:
+    post:
+      tags: [processing]
+      summary: Gestion avancée d’un TP.
+      description: Effectue des opérations de gestion avancée sur un TP.
+      operationId: manageTP
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+        - name: tpNo
+          in: path
+          required: true
+          description: Numéro de TP.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Résultat de la gestion du TP.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TPDto'
+        '404':
+          description: Cours ou TP introuvable.
+        '500':
+          description: Erreur interne.
+
+
+# ==============================
+#   SCHEMAS (DTO)
+# ==============================
+components:
+  schemas:
+
+    # --- Enums techniques ---
+    SemesterType:
+      type: string
+      description: Semestre académique.
+      example: "AUTOMNE"
+
+    CourseType:
+      type: string
+      description: Type de cours.
+      example: "PYTHON"
+
+    StudyType:
+      type: string
+      description: Type d’étude.
+      example: "FULL_TIME"
+
+    # --- DTO principaux exposés ---
+
+    CourseDto:
+      type: object
+      description: Représentation d’un cours.
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        name:
+          type: string
+          example: "Python Introduction"
+        code:
+          type: string
+          example: "61-13"
+        semester:
+          $ref: '#/components/schemas/SemesterType'
+        courseType:
+          $ref: '#/components/schemas/CourseType'
+        year_course:
+          type: integer
+          example: 2025
+        teacher:
+          type: string
+          example: "Stettler"
+        students:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentDto'
+        tps:
+          type: array
+          items:
+            $ref: '#/components/schemas/TPDto'
+        evaluations:
+          type: array
+          items:
+            $ref: '#/components/schemas/EvaluationDto'
+      required: ["id", "name", "code"]
+      example:
+        id: 1
+        name: "Python Introduction"
+        code: "61-13"
+        semester: "AUTOMNE"
+        courseType: "PYTHON"
+        year_course: 2025
+        teacher: "Stettler"
+        students: []
+        tps:
+          - id: 10
+            no: 1
+            courseId: 1
+            submission:
+              id: 100
+              fileName: "TP1_Rendus.zip"
+              pathStorage: "/data/courses/61-13/TP1/TP1_Rendus.zip"
+              pathFileStructured: "/data/courses/61-13/TP1/TP1_RenduRestructuration.zip"
+            statusStudents: []
+        evaluations:
+          - id: 200
+            name: "Examen final"
+            date: "2025-01-15"
+            coefficient: 2
+            courseId: 1
+
+    EvaluationDto:
+      type: object
+      description: Représentation d’une évaluation.
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 200
+        name:
+          type: string
+          example: "Examen final"
+        date:
+          type: string
+          format: date
+          example: "2025-01-15"
+        coefficient:
+          type: integer
+          example: 2
+        courseId:
+          type: integer
+          format: int64
+          example: 1
+      required: ["name", "date", "coefficient", "courseId"]
+      example:
+        id: 200
+        name: "Examen final"
+        date: "2025-01-15"
+        coefficient: 2
+        courseId: 1
+
+    StudentDto:
+      type: object
+      description: Représentation d’un étudiant.
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 300
+        name:
+          type: string
+          example: "George Dylan"
+        email:
+          type: string
+          format: email
+          example: "george.dylan@etu.hesge.ch"
+        studyType:
+          $ref: '#/components/schemas/StudyType'
+        studentCourses:
+          type: array
+          items:
+            $ref: '#/components/schemas/CourseDto'
+      required: ["name", "email", "studyType"]
+      example:
+        id: 300
+        name: "George Dylan"
+        email: "george.dylan@etu.hesge.ch"
+        studyType: "FULL_TIME"
+        studentCourses:
+          - id: 1
+            name: "Python Introduction"
+            code: "61-13"
+            semester: "AUTOMNE"
+            courseType: "PYTHON"
+            year_course: 2025
+            teacher: "Stettler"
+
+    SubmissionDto:
+      type: object
+      description: Représentation d’un rendu (fichier ZIP) pour un TP.
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 100
+        fileName:
+          type: string
+          example: "TP1_Rendus.zip"
+        pathStorage:
+          type: string
+          description: Chemin de stockage du ZIP original.
+          example: "/data/courses/61-13/TP1/TP1_Rendus.zip"
+        pathFileStructured:
+          type: string
+          description: Chemin du ZIP restructuré.
+          example: "/data/courses/61-13/TP1/TP1_RenduRestructuration.zip"
+      required: ["fileName", "pathStorage"]
+      example:
+        id: 100
+        fileName: "TP1_Rendus.zip"
+        pathStorage: "/data/courses/61-13/TP1/TP1_Rendus.zip"
+        pathFileStructured: "/data/courses/61-13/TP1/TP1_RenduRestructuration.zip"
+
+    TPDto:
+      type: object
+      description: Représentation d’un TP pour un cours.
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        "no":
+          type: integer
+          example: 1
+        courseId:
+          type: integer
+          format: int64
+          example: 1
+        submission:
+          $ref: '#/components/schemas/SubmissionDto'
+        statusStudents:
+          type: array
+          items:
+            $ref: '#/components/schemas/TPStatusDto'
+      required: ["no", "courseId"]
+      example:
+        id: 10
+        no: 1
+        courseId: 1
+        submission:
+          id: 100
+          fileName: "TP1_Rendus.zip"
+          pathStorage: "/data/courses/61-13/TP1/TP1_Rendus.zip"
+          pathFileStructured: "/data/courses/61-13/TP1/TP1_RenduRestructuration.zip"
+        statusStudents:
+          - id: 1000
+            studentId: 300
+            tpId: 10
+            studentSubmission: true
+
+    TPStatusDto:
+      type: object
+      description: Statut d’un étudiant pour un TP.
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1000
+        studentId:
+          type: integer
+          format: int64
+          example: 300
+        tpId:
+          type: integer
+          format: int64
+          example: 10
+        studentSubmission:
+          type: boolean
+          example: true
+      required: ["studentId", "tpId", "studentSubmission"]
+      example:
+        id: 1000
+        studentId: 300
+        tpId: 10
+        studentSubmission: true

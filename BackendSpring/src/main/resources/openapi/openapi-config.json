@@ -1,0 +1,26 @@
+{
+  "generatorName": "spring",
+  "library": "spring-boot",
+  "interfaceOnly": true,
+  "useSpringBoot3": true,
+
+  "apiPackage": "heg.backendspring.api",
+  "modelPackage": "heg.backendspring.models",
+
+  "typeMappings": {
+    "CourseDto": "heg.backendspring.models.CourseDto",
+    "EvaluationDto": "heg.backendspring.models.EvaluationDto",
+    "StudentDto": "heg.backendspring.models.StudentDto",
+    "SubmissionDto": "heg.backendspring.models.SubmissionDto",
+    "TPDto": "heg.backendspring.models.TPDto",
+    "TPStatusDto": "heg.backendspring.models.TPStatusDto"
+  },
+  "importMappings": {
+    "CourseDto": "heg.backendspring.models.CourseDto",
+    "EvaluationDto": "heg.backendspring.models.EvaluationDto",
+    "StudentDto": "heg.backendspring.models.StudentDto",
+    "SubmissionDto": "heg.backendspring.models.SubmissionDto",
+    "TPDto": "heg.backendspring.models.TPDto",
+    "TPStatusDto": "heg.backendspring.models.TPStatusDto"
+  }
+}

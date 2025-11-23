@@ -1,0 +1,17 @@
+.openapi-generator-ignore
+README.md
+pom.xml
+src/main/java/heg/backendspring/generated/api/AdminCourseApi.java
+src/main/java/heg/backendspring/generated/api/ApiUtil.java
+src/main/java/heg/backendspring/generated/api/CourseApi.java
+src/main/java/heg/backendspring/generated/api/EvaluationApi.java
+src/main/java/heg/backendspring/generated/api/ProcessingApi.java
+src/main/java/heg/backendspring/generated/api/StudentApi.java
+src/main/java/heg/backendspring/generated/api/SubmissionApi.java
+src/main/java/heg/backendspring/generated/api/TpApi.java
+src/main/java/heg/backendspring/generated/models/CourseDto.java
+src/main/java/heg/backendspring/generated/models/EvaluationDto.java
+src/main/java/heg/backendspring/generated/models/StudentDto.java
+src/main/java/heg/backendspring/generated/models/SubmissionDto.java
+src/main/java/heg/backendspring/generated/models/TPDto.java
+src/main/java/heg/backendspring/generated/models/TPStatusDto.java

@@ -4,10 +4,8 @@ import heg.backendspring.entity.Student;
 import heg.backendspring.entity.Submission;
 import heg.backendspring.entity.TP;
 import heg.backendspring.entity.TPStatus;
-import heg.backendspring.mapping.MapperStudent;
 import heg.backendspring.mapping.MapperTP;
 import heg.backendspring.models.TPDto;
-import heg.backendspring.repository.RepositoryStudent;
 import heg.backendspring.repository.RepositoryTP;
 import heg.backendspring.repository.RepositoryTPStatus;
 import jakarta.transaction.Transactional;
@@ -41,7 +39,7 @@ public class ServiceTP {
     //==============================
     private final RepositoryTP repositoryTP;
     private final RepositoryTPStatus repositoryTPStatus;
-    private final ServiceCourse serviceCourse;
+    //private final ServiceCourse serviceCourse;
 
     private final MapperTP mapperTP;
 
@@ -66,14 +64,14 @@ public class ServiceTP {
      */
     @Transactional
     public TPDto addSubmissionToTP(Long idTP, InputStream zipFile){
-        Optional<TPDto> tpDtoOptional = findTP(idTP);
-        if(tpDtoOptional.isPresent()){
-            TPDto tpDto = tpDtoOptional.get();
+        Optional<TP> tpOpt = repositoryTP.findById(idTP);
+        if(tpOpt.isPresent()){
+            TP tp = tpOpt.get();
             //nom du fichier
-            String nomFichier = "TP" + tpDto.no() + "_RenduCyberlearn.zip";
-            String codeCours = this.serviceCourse.findCourseById(tpDto.courseId()).get().code();
+            String nomFichier = "TP" + tp.getNo() + "_RenduCyberlearn.zip";
+            String codeCours = tp.getCourse().getCode();
             //chemin vers le fichier
-            Path tpFolder = Paths.get(zipStoragePath, codeCours, "TP" + tpDto.no());
+            Path tpFolder = Paths.get(zipStoragePath, codeCours, "TP" + tp.getNo());
 
             //Chemin complet vers le fichier
             Path cheminVersZip = tpFolder.resolve(nomFichier);
@@ -89,7 +87,6 @@ public class ServiceTP {
             }
 
             //Creer le rendu
-            TP tp = mapperTP.toEntity(tpDto);
             tp.setSubmission(new Submission(nomFichier, cheminVersZip.toString()
                     , null));
             repositoryTP.save(tp);

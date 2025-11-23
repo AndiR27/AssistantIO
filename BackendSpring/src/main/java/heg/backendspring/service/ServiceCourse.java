@@ -13,13 +13,11 @@ import heg.backendspring.models.StudentDto;
 import heg.backendspring.models.TPDto;
 import heg.backendspring.repository.RepositoryCourse;
 import heg.backendspring.repository.RepositoryStudent;
-import heg.backendspring.repository.RepositoryTP;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import java.io.File;

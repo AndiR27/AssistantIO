@@ -1,10 +1,7 @@
 package heg.backendspring.TestServices;
 
 import heg.backendspring.entity.*;
-import heg.backendspring.enums.CourseType;
-import heg.backendspring.enums.SemesterType;
 import heg.backendspring.mapping.MapperTP;
-import heg.backendspring.models.CourseDto;
 import heg.backendspring.models.TPDto;
 import heg.backendspring.repository.RepositoryCourse;
 import heg.backendspring.repository.RepositoryTP;
@@ -118,18 +115,6 @@ class TestServiceTP {
 
         when(repositoryTP.findById(1L)).thenReturn(Optional.of(tpEntity));
 
-        CourseDto courseDto = new CourseDto(
-                10L,
-                "Prog Java",
-                "63-11",
-                SemesterType.PRINTEMPS,
-                CourseType.JAVA,
-                2025,
-                "Stettler",
-                null, null, null
-        );
-        when(serviceCourse.findCourseById(10L)).thenReturn(Optional.of(courseDto));
-
         when(repositoryTP.save(any(TP.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         Path tpFolder = outputDir.resolve("63-11").resolve("TP1");
@@ -148,7 +133,6 @@ class TestServiceTP {
         assertTrue(Files.exists(expectedZip));
 
         verify(repositoryTP).findById(1L);
-        verify(serviceCourse).findCourseById(10L);
         verify(repositoryTP).save(any(TP.class));
     }
 

@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -143,7 +144,7 @@ class TestServiceTP {
         TP tp = new TP();
         tp.setId(1L);
         tp.setNo(1);
-        tp.setStatusStudents(new java.util.HashSet<>());
+        tp.setStatusStudents(new HashSet<>());
 
         Submission submission = new Submission();
         tp.setSubmission(submission);

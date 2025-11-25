@@ -278,15 +278,15 @@ public class TestServiceCourse {
                     return s;
                 });
 
-        CourseDto result = serviceCourse.addAllStudentsFromFile(1L, data);
+        List<StudentDto> result = serviceCourse.addAllStudentsFromFile(1L, data);
 
         assertNotNull(result);
-        assertEquals(1L, result.id());
+        assertFalse(result.isEmpty());
         assertEquals(2, course.getStudents().size());
         assertTrue(course.getStudents().stream().anyMatch(s -> "walter@hesge.ch".equals(s.getEmail())));
         assertTrue(course.getStudents().stream().anyMatch(s -> "jesse@hesge.ch".equals(s.getEmail())));
 
-        verify(repositoryCourse, times(3)).findById(1L);           // 2x addStudent + 1x findCourseById
+        verify(repositoryCourse, times(2)).findById(1L);           // 2x addStudent + 1x findCourseById
         verify(repositoryStudent, times(2)).findStudentByEmail(anyString());
         verify(repositoryStudent, times(4)).save(any(Student.class));
     }

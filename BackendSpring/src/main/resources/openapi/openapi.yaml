@@ -81,7 +81,31 @@ paths:
           description: Données invalides.
         '500':
           description: Erreur interne.
-
+    put:
+      tags: [ admin-course ]
+      summary: Mise à jour d’un cours (admin).
+      description: Met à jour les informations d’un cours existant.
+      operationId: adminUpdateCourse
+      requestBody:
+        description: Données mises à jour du cours.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseDto'
+      responses:
+        '200':
+          description: Cours mis à jour.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseDto'
+        '400':
+          description: Données invalides.
+        '404':
+          description: Cours introuvable.
+        '500':
+          description: Erreur interne.
   /admin/courses/{courseId}:
     get:
       tags: [admin-course]
@@ -107,39 +131,7 @@ paths:
           description: Cours introuvable.
         '500':
           description: Erreur interne.
-    put:
-      tags: [admin-course]
-      summary: Mise à jour d’un cours (admin).
-      description: Met à jour les informations d’un cours existant.
-      operationId: adminUpdateCourse
-      parameters:
-        - name: courseId
-          in: path
-          required: true
-          description: Identifiant du cours à mettre à jour.
-          schema:
-            type: integer
-            format: int64
-      requestBody:
-        description: Données mises à jour du cours.
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CourseDto'
-      responses:
-        '200':
-          description: Cours mis à jour.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CourseDto'
-        '400':
-          description: Données invalides.
-        '404':
-          description: Cours introuvable.
-        '500':
-          description: Erreur interne.
+
     delete:
       tags: [admin-course]
       summary: Suppression d’un cours (admin).
@@ -408,7 +400,7 @@ paths:
   # ========================================
   #   TPS D’UN COURS (REST PRINCIPAL)
   # ========================================
-  /course/{courseId}/tps:
+  /course/{courseId}/TPs:
     get:
       tags: [tp]
       summary: Liste des TPs d’un cours.
@@ -435,138 +427,9 @@ paths:
           description: Cours introuvable.
         '500':
           description: Erreur interne.
-    post:
-      tags: [tp]
-      summary: Création d’un TP.
-      description: Crée un nouveau TP pour un cours.
-      operationId: createTP
-      parameters:
-        - name: courseId
-          in: path
-          required: true
-          description: Identifiant du cours.
-          schema:
-            type: integer
-            format: int64
-      requestBody:
-        description: Données du TP à créer.
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TPDto'
-      responses:
-        '201':
-          description: TP créé.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TPDto'
-        '404':
-          description: Cours introuvable.
-        '500':
-          description: Erreur interne.
 
-  /course/{courseId}/tps/{tpId}:
-    get:
-      tags: [tp]
-      summary: Détail d’un TP.
-      description: Retourne les informations d’un TP spécifique.
-      operationId: getTPById
-      parameters:
-        - name: courseId
-          in: path
-          required: true
-          description: Identifiant du cours.
-          schema:
-            type: integer
-            format: int64
-        - name: tpId
-          in: path
-          required: true
-          description: Identifiant du TP.
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: TP trouvé.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TPDto'
-        '404':
-          description: TP ou cours introuvable.
-        '500':
-          description: Erreur interne.
-    put:
-      tags: [tp]
-      summary: Mise à jour d’un TP.
-      description: Met à jour les informations d’un TP existant.
-      operationId: updateTP
-      parameters:
-        - name: courseId
-          in: path
-          required: true
-          description: Identifiant du cours.
-          schema:
-            type: integer
-            format: int64
-        - name: tpId
-          in: path
-          required: true
-          description: Identifiant du TP.
-          schema:
-            type: integer
-            format: int64
-      requestBody:
-        description: Données mises à jour du TP.
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TPDto'
-      responses:
-        '200':
-          description: TP mis à jour.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TPDto'
-        '404':
-          description: TP ou cours introuvable.
-        '500':
-          description: Erreur interne.
-    delete:
-      tags: [tp]
-      summary: Suppression d’un TP.
-      description: Supprime un TP existant d’un cours.
-      operationId: deleteTP
-      parameters:
-        - name: courseId
-          in: path
-          required: true
-          description: Identifiant du cours.
-          schema:
-            type: integer
-            format: int64
-        - name: tpId
-          in: path
-          required: true
-          description: Identifiant du TP.
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '204':
-          description: TP supprimé.
-        '404':
-          description: TP ou cours introuvable.
-        '500':
-          description: Erreur interne.
-
-  # Route spécifique de création TP par numéro
-  /course/{courseId}/addTP/{tpNumber}:
+  # Routes spécifique de gestion des TPs par leur numéro
+  /course/{courseId}/TPs/{tpNumber}:
     post:
       tags: [tp]
       summary: Création d’un TP par numéro.
@@ -597,16 +460,11 @@ paths:
           description: Cours introuvable.
         '500':
           description: Erreur interne.
-
-  # ========================================
-  #   EVALUATIONS D’UN COURS
-  # ========================================
-  /course/{courseId}/evaluations:
     get:
-      tags: [evaluation]
-      summary: Liste des évaluations d’un cours.
-      description: Retourne les évaluations associées à un cours.
-      operationId: getEvaluationsByCourse
+      tags: [ tp ]
+      summary: Détail d’un TP.
+      description: Retourne les informations d’un TP spécifique.
+      operationId: getTPById
       parameters:
         - name: courseId
           in: path
@@ -615,57 +473,28 @@ paths:
           schema:
             type: integer
             format: int64
+        - name: tpNumber
+          in: path
+          required: true
+          description: Numéro du TP.
+          schema:
+            type: integer
       responses:
         '200':
-          description: Liste d’évaluations retournée.
+          description: TP trouvé.
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/EvaluationDto'
+                $ref: '#/components/schemas/TPDto'
         '404':
-          description: Cours introuvable.
+          description: TP ou cours introuvable.
         '500':
           description: Erreur interne.
-    post:
-      tags: [evaluation]
-      summary: Création d’une évaluation.
-      description: Crée une nouvelle évaluation pour un cours.
-      operationId: createEvaluation
-      parameters:
-        - name: courseId
-          in: path
-          required: true
-          description: Identifiant du cours.
-          schema:
-            type: integer
-            format: int64
-      requestBody:
-        description: Données de l’évaluation.
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/EvaluationDto'
-      responses:
-        '201':
-          description: Évaluation créée.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EvaluationDto'
-        '404':
-          description: Cours introuvable.
-        '500':
-          description: Erreur interne.
-
-  /course/{courseId}/evaluations/{evalId}:
     put:
-      tags: [evaluation]
-      summary: Mise à jour d’une évaluation.
-      description: Met à jour une évaluation existante d’un cours.
-      operationId: updateEvaluation
+      tags: [ tp ]
+      summary: Mise à jour d’un TP.
+      description: Met à jour les informations d’un TP existant.
+      operationId: updateTP
       parameters:
         - name: courseId
           in: path
@@ -674,36 +503,35 @@ paths:
           schema:
             type: integer
             format: int64
-        - name: evalId
+        - name: tpNumber
           in: path
           required: true
-          description: Identifiant de l’évaluation.
+          description: Numéro du TP.
           schema:
             type: integer
-            format: int64
       requestBody:
-        description: Données mises à jour de l’évaluation.
+        description: Données mises à jour du TP.
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EvaluationDto'
+              $ref: '#/components/schemas/TPDto'
       responses:
         '200':
-          description: Évaluation mise à jour.
+          description: TP mis à jour.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EvaluationDto'
+                $ref: '#/components/schemas/TPDto'
         '404':
-          description: Cours ou évaluation introuvable.
+          description: TP ou cours introuvable.
         '500':
           description: Erreur interne.
     delete:
-      tags: [evaluation]
-      summary: Suppression d’une évaluation.
-      description: Supprime une évaluation existante d’un cours.
-      operationId: deleteEvaluation
+      tags: [ tp ]
+      summary: Suppression d’un TP.
+      description: Supprime un TP existant d’un cours.
+      operationId: deleteTP
       parameters:
         - name: courseId
           in: path
@@ -712,87 +540,149 @@ paths:
           schema:
             type: integer
             format: int64
-        - name: evalId
+        - name: tpNumber
           in: path
           required: true
-          description: Identifiant de l’évaluation.
+          description: Numéro du TP.
           schema:
             type: integer
-            format: int64
       responses:
         '204':
-          description: Évaluation supprimée.
+          description: TP supprimé.
         '404':
-          description: Cours ou évaluation introuvable.
+          description: TP ou cours introuvable.
         '500':
           description: Erreur interne.
 
-  # Examens / CC (routes spécifiques)
-  /course/{courseId}/addExam:
-    post:
-      tags: [evaluation]
-      summary: Création d’un examen.
-      description: Crée une évaluation de type examen pour un cours.
-      operationId: addExam
-      parameters:
-        - name: courseId
-          in: path
-          required: true
-          description: Identifiant du cours.
-          schema:
-            type: integer
-            format: int64
-      requestBody:
-        description: Données de l’examen.
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/EvaluationDto'
-      responses:
-        '201':
-          description: Examen créé.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EvaluationDto'
-        '404':
-          description: Cours introuvable.
-        '500':
-          description: Erreur interne.
+  # ========================================
+  #   EVALUATIONS D’UN COURS
+  #  /course/{courseId}/evaluations:
+  #    get:
+  #      tags: [evaluation]
+  #      summary: Liste des évaluations d’un cours.
+  #      description: Retourne les évaluations associées à un cours.
+  #      operationId: getEvaluationsByCourse
+  #      parameters:
+  #        - name: courseId
+  #          in: path
+  #          required: true
+  #          description: Identifiant du cours.
+  #          schema:
+  #            type: integer
+  #            format: int64
+  #      responses:
+  #        '200':
+  #          description: Liste d’évaluations retournée.
+  #          content:
+  #            application/json:
+  #              schema:
+  #                type: array
+  #                items:
+  #                  $ref: '#/components/schemas/EvaluationDto'
+  #        '404':
+  #          description: Cours introuvable.
+  #        '500':
+  #          description: Erreur interne.
+  #    post:
+  #      tags: [evaluation]
+  #      summary: Création d’une évaluation.
+  #      description: Crée une nouvelle évaluation pour un cours.
+  #      operationId: createEvaluation
+  #      parameters:
+  #        - name: courseId
+  #          in: path
+  #          required: true
+  #          description: Identifiant du cours.
+  #          schema:
+  #            type: integer
+  #            format: int64
+  #      requestBody:
+  #        description: Données de l’évaluation.
+  #        required: true
+  #        content:
+  #          application/json:
+  #            schema:
+  #              $ref: '#/components/schemas/EvaluationDto'
+  #      responses:
+  #        '201':
+  #          description: Évaluation créée.
+  #          content:
+  #            application/json:
+  #              schema:
+  #                $ref: '#/components/schemas/EvaluationDto'
+  #        '404':
+  #          description: Cours introuvable.
+  #        '500':
+  #          description: Erreur interne.
+  #
+  #  /course/{courseId}/evaluations/{evalId}:
+  #    put:
+  #      tags: [evaluation]
+  #      summary: Mise à jour d’une évaluation.
+  #      description: Met à jour une évaluation existante d’un cours.
+  #      operationId: updateEvaluation
+  #      parameters:
+  #        - name: courseId
+  #          in: path
+  #          required: true
+  #          description: Identifiant du cours.
+  #          schema:
+  #            type: integer
+  #            format: int64
+  #        - name: evalId
+  #          in: path
+  #          required: true
+  #          description: Identifiant de l’évaluation.
+  #          schema:
+  #            type: integer
+  #            format: int64
+  #      requestBody:
+  #        description: Données mises à jour de l’évaluation.
+  #        required: true
+  #        content:
+  #          application/json:
+  #            schema:
+  #              $ref: '#/components/schemas/EvaluationDto'
+  #      responses:
+  #        '200':
+  #          description: Évaluation mise à jour.
+  #          content:
+  #            application/json:
+  #              schema:
+  #                $ref: '#/components/schemas/EvaluationDto'
+  #        '404':
+  #          description: Cours ou évaluation introuvable.
+  #        '500':
+  #          description: Erreur interne.
+  #    delete:
+  #      tags: [evaluation]
+  #      summary: Suppression d’une évaluation.
+  #      description: Supprime une évaluation existante d’un cours.
+  #      operationId: deleteEvaluation
+  #      parameters:
+  #        - name: courseId
+  #          in: path
+  #          required: true
+  #          description: Identifiant du cours.
+  #          schema:
+  #            type: integer
+  #            format: int64
+  #        - name: evalId
+  #          in: path
+  #          required: true
+  #          description: Identifiant de l’évaluation.
+  #          schema:
+  #            type: integer
+  #            format: int64
+  #      responses:
+  #        '204':
+  #          description: Évaluation supprimée.
+  #        '404':
+  #          description: Cours ou évaluation introuvable.
+  #        '500':
+  #          description: Erreur interne.
+  # ========================================
 
-  /course/{courseId}/addCC:
-    post:
-      tags: [evaluation]
-      summary: Création d’un contrôle continu.
-      description: Crée une évaluation de type contrôle continu pour un cours.
-      operationId: addCC
-      parameters:
-        - name: courseId
-          in: path
-          required: true
-          description: Identifiant du cours.
-          schema:
-            type: integer
-            format: int64
-      requestBody:
-        description: Données du contrôle continu.
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/EvaluationDto'
-      responses:
-        '201':
-          description: Contrôle continu créé.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EvaluationDto'
-        '404':
-          description: Cours introuvable.
-        '500':
-          description: Erreur interne.
 
   # ========================================
   #   RENDUS ET TRAITEMENT DE TP

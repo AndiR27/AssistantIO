@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.Optional;
 import jakarta.annotation.Generated;
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-11-23T19:52:08.287321300+01:00[Europe/Zurich]", comments = "Generator version: 7.9.0")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-11-25T16:55:59.498126700+01:00[Europe/Zurich]", comments = "Generator version: 7.9.0")
 @Validated
 @Tag(name = "submission", description = "Gestion des soumissions de TP")
 public interface SubmissionApi {

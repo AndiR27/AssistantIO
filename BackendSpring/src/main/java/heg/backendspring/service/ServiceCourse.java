@@ -10,6 +10,7 @@ import heg.backendspring.mapping.MapperStudent;
 import heg.backendspring.mapping.MapperTP;
 import heg.backendspring.models.CourseDto;
 import heg.backendspring.models.StudentDto;
+import heg.backendspring.models.SubmissionDto;
 import heg.backendspring.models.TPDto;
 import heg.backendspring.repository.RepositoryCourse;
 import heg.backendspring.repository.RepositoryStudent;
@@ -22,13 +23,11 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -168,8 +167,9 @@ public class ServiceCourse {
      * à partir d'un fichier TXT
      */
     @Transactional
-    public CourseDto addAllStudentsFromFile(Long idCourse, String[] data) {
+    public List<StudentDto> addAllStudentsFromFile(Long idCourse, String[] data) {
         log.debug("Starting to add studends for course id={} with file (number of values : {})", idCourse, data.length);
+        List<StudentDto> studentDtoList = new ArrayList<>();
         for (String line : data) {
             String[] studentData = line.split(",");
             StudentDto studentDto = new StudentDto(
@@ -180,10 +180,11 @@ public class ServiceCourse {
                     new HashSet<>()
             );
             StudentDto addedStudent = addStudent(idCourse, studentDto);
+            studentDtoList.add(addedStudent);
 
         }
         log.info("All students from file added to course id={}", idCourse);
-        return findCourseById(idCourse).get();
+        return studentDtoList;
     }
 
     /**
@@ -266,6 +267,24 @@ public class ServiceCourse {
     }
 
     //TODO : Méthodes pour gérer les évaluations, exams...
+
+    /**
+     * Méthode permettant d'ajouter un rendu zip pour un TP d'un cours
+     */
+    @Transactional
+    public SubmissionDto addSubmissionToTP(Long idCourse, int tpNo, InputStream zipFile) {
+        Optional<Course> courseOpt = repositoryCourse.findById(idCourse);
+        if (courseOpt.isEmpty()) {
+            throw new EntityNotFoundException("Course not found with id: " + idCourse);
+        }
+        else{
+            log.info("Adding submission to TP no={} for course id={}", tpNo, idCourse);
+            Optional<TP> tpOpt = repositoryCourse.findTPByCourseIdAndNo(idCourse, tpNo);
+            TPDto tpDto = serviceTP.addSubmissionToTP(tpOpt.get().getId(), zipFile);
+            return tpDto.submission();
+        }
+
+    }
 
     /**
      * Méthode permettant de lancer le traitement du rendu pour un TP

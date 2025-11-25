@@ -3,12 +3,14 @@ package heg.backendspring.rest;
 import heg.backendspring.api.AdminCourseApi;
 import heg.backendspring.models.CourseDto;
 import heg.backendspring.service.ServiceCourse;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -25,12 +27,14 @@ public class ControllerAdmin implements AdminCourseApi {
 
     @Override
     public ResponseEntity<Void> adminDeleteCourse(Long courseId) {
-        return AdminCourseApi.super.adminDeleteCourse(courseId);
+        serviceCourse.deleteCourse(courseId);
+        return ResponseEntity.status(204).build();
     }
 
     @Override
     public ResponseEntity<CourseDto> adminGetCourseById(Long courseId) {
-        return AdminCourseApi.super.adminGetCourseById(courseId);
+        Optional<CourseDto> courseDto = serviceCourse.findCourseById(courseId);
+        return courseDto.map(ResponseEntity::ok).orElseThrow(() -> new EntityNotFoundException("Course not found"));
     }
 
     @Override
@@ -40,7 +44,12 @@ public class ControllerAdmin implements AdminCourseApi {
     }
 
     @Override
-    public ResponseEntity<CourseDto> adminUpdateCourse(Long courseId, CourseDto courseDto) {
-        return AdminCourseApi.super.adminUpdateCourse(courseId, courseDto);
+    public ResponseEntity<CourseDto> adminUpdateCourse(CourseDto courseDto) {
+        Optional<CourseDto> courseOpt = serviceCourse.updateCourse(courseDto);
+        return courseOpt.map(ResponseEntity::ok).orElseThrow(() -> new EntityNotFoundException("Course not found"));
+
     }
+
+
+
 }

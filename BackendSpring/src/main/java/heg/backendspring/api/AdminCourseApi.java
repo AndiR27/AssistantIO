@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.Optional;
 import jakarta.annotation.Generated;
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-11-23T19:52:08.287321300+01:00[Europe/Zurich]", comments = "Generator version: 7.9.0")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-11-25T15:15:31.910505600+01:00[Europe/Zurich]", comments = "Generator version: 7.9.0")
 @Validated
 @Tag(name = "admin-course", description = "Gestion administrative des cours (CRUD complet)")
 public interface AdminCourseApi {
@@ -208,10 +208,9 @@ public interface AdminCourseApi {
 
 
     /**
-     * PUT /admin/courses/{courseId} : Mise à jour d’un cours (admin).
+     * PUT /admin/courses : Mise à jour d’un cours (admin).
      * Met à jour les informations d’un cours existant.
      *
-     * @param courseId Identifiant du cours à mettre à jour. (required)
      * @param courseDto Données mises à jour du cours. (required)
      * @return Cours mis à jour. (status code 200)
      *         or Données invalides. (status code 400)
@@ -234,13 +233,12 @@ public interface AdminCourseApi {
     )
     @RequestMapping(
         method = RequestMethod.PUT,
-        value = "/admin/courses/{courseId}",
+        value = "/admin/courses",
         produces = { "application/json" },
         consumes = { "application/json" }
     )
     
     default ResponseEntity<heg.backendspring.models.CourseDto> adminUpdateCourse(
-        @Parameter(name = "courseId", description = "Identifiant du cours à mettre à jour.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId,
         @Parameter(name = "CourseDto", description = "Données mises à jour du cours.", required = true) @Valid @RequestBody CourseDto courseDto
     ) {
         getRequest().ifPresent(request -> {

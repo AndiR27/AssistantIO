@@ -242,7 +242,7 @@
 							<generateModelDocumentation>false</generateModelDocumentation>
 							<generateApiDocumentation>false</generateApiDocumentation>
 
-							<!-- Empêcher l'écrasement de fichiers déjà modifiés -->
+							<!-- Empêcher ou non l'écrasement de fichiers déjà modifiés -->
 							<skipOverwrite>true</skipOverwrite>
 						</configuration>
 					</execution>

@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.Optional;
 import jakarta.annotation.Generated;
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-11-23T19:52:08.287321300+01:00[Europe/Zurich]", comments = "Generator version: 7.9.0")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-11-25T16:55:59.498126700+01:00[Europe/Zurich]", comments = "Generator version: 7.9.0")
 @Validated
 @Tag(name = "tp", description = "Gestion des TPs et rendus")
 public interface TpApi {
@@ -42,7 +42,7 @@ public interface TpApi {
     }
 
     /**
-     * POST /course/{courseId}/addTP/{tpNumber} : Création d’un TP par numéro.
+     * POST /course/{courseId}/TPs/{tpNumber} : Création d’un TP par numéro.
      * Crée un TP en utilisant directement le numéro de TP.
      *
      * @param courseId Identifiant du cours. (required)
@@ -66,7 +66,7 @@ public interface TpApi {
     )
     @RequestMapping(
         method = RequestMethod.POST,
-        value = "/course/{courseId}/addTP/{tpNumber}",
+        value = "/course/{courseId}/TPs/{tpNumber}",
         produces = { "application/json" }
     )
     
@@ -89,59 +89,11 @@ public interface TpApi {
 
 
     /**
-     * POST /course/{courseId}/tps : Création d’un TP.
-     * Crée un nouveau TP pour un cours.
-     *
-     * @param courseId Identifiant du cours. (required)
-     * @param tpDto Données du TP à créer. (required)
-     * @return TP créé. (status code 201)
-     *         or Cours introuvable. (status code 404)
-     *         or Erreur interne. (status code 500)
-     */
-    @Operation(
-        operationId = "createTP",
-        summary = "Création d’un TP.",
-        description = "Crée un nouveau TP pour un cours.",
-        tags = { "tp" },
-        responses = {
-            @ApiResponse(responseCode = "201", description = "TP créé.", content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = heg.backendspring.models.TPDto.class))
-            }),
-            @ApiResponse(responseCode = "404", description = "Cours introuvable."),
-            @ApiResponse(responseCode = "500", description = "Erreur interne.")
-        }
-    )
-    @RequestMapping(
-        method = RequestMethod.POST,
-        value = "/course/{courseId}/tps",
-        produces = { "application/json" },
-        consumes = { "application/json" }
-    )
-    
-    default ResponseEntity<heg.backendspring.models.TPDto> createTP(
-        @Parameter(name = "courseId", description = "Identifiant du cours.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId,
-        @Parameter(name = "TPDto", description = "Données du TP à créer.", required = true) @Valid @RequestBody TPDto tpDto
-    ) {
-        getRequest().ifPresent(request -> {
-            for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
-                if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
-                    String exampleString = "{ \"id\" : 10, \"false\" : 1, \"courseId\" : 1, \"submission\" : { \"id\" : 100, \"fileName\" : \"TP1_Rendus.zip\", \"pathStorage\" : \"/data/courses/61-13/TP1/TP1_Rendus.zip\", \"pathFileStructured\" : \"/data/courses/61-13/TP1/TP1_RenduRestructuration.zip\" }, \"statusStudents\" : [ { \"id\" : 1000, \"studentId\" : 300, \"tpId\" : 10, \"studentSubmission\" : true } ] }";
-                    ApiUtil.setExampleResponse(request, "application/json", exampleString);
-                    break;
-                }
-            }
-        });
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-
-    }
-
-
-    /**
-     * DELETE /course/{courseId}/tps/{tpId} : Suppression d’un TP.
+     * DELETE /course/{courseId}/TPs/{tpNumber} : Suppression d’un TP.
      * Supprime un TP existant d’un cours.
      *
      * @param courseId Identifiant du cours. (required)
-     * @param tpId Identifiant du TP. (required)
+     * @param tpNumber Numéro du TP. (required)
      * @return TP supprimé. (status code 204)
      *         or TP ou cours introuvable. (status code 404)
      *         or Erreur interne. (status code 500)
@@ -159,12 +111,12 @@ public interface TpApi {
     )
     @RequestMapping(
         method = RequestMethod.DELETE,
-        value = "/course/{courseId}/tps/{tpId}"
+        value = "/course/{courseId}/TPs/{tpNumber}"
     )
     
     default ResponseEntity<Void> deleteTP(
         @Parameter(name = "courseId", description = "Identifiant du cours.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId,
-        @Parameter(name = "tpId", description = "Identifiant du TP.", required = true, in = ParameterIn.PATH) @PathVariable("tpId") Long tpId
+        @Parameter(name = "tpNumber", description = "Numéro du TP.", required = true, in = ParameterIn.PATH) @PathVariable("tpNumber") Integer tpNumber
     ) {
         return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
 
@@ -172,11 +124,11 @@ public interface TpApi {
 
 
     /**
-     * GET /course/{courseId}/tps/{tpId} : Détail d’un TP.
+     * GET /course/{courseId}/TPs/{tpNumber} : Détail d’un TP.
      * Retourne les informations d’un TP spécifique.
      *
      * @param courseId Identifiant du cours. (required)
-     * @param tpId Identifiant du TP. (required)
+     * @param tpNumber Numéro du TP. (required)
      * @return TP trouvé. (status code 200)
      *         or TP ou cours introuvable. (status code 404)
      *         or Erreur interne. (status code 500)
@@ -196,13 +148,13 @@ public interface TpApi {
     )
     @RequestMapping(
         method = RequestMethod.GET,
-        value = "/course/{courseId}/tps/{tpId}",
+        value = "/course/{courseId}/TPs/{tpNumber}",
         produces = { "application/json" }
     )
     
     default ResponseEntity<heg.backendspring.models.TPDto> getTPById(
         @Parameter(name = "courseId", description = "Identifiant du cours.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId,
-        @Parameter(name = "tpId", description = "Identifiant du TP.", required = true, in = ParameterIn.PATH) @PathVariable("tpId") Long tpId
+        @Parameter(name = "tpNumber", description = "Numéro du TP.", required = true, in = ParameterIn.PATH) @PathVariable("tpNumber") Integer tpNumber
     ) {
         getRequest().ifPresent(request -> {
             for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
@@ -219,7 +171,7 @@ public interface TpApi {
 
 
     /**
-     * GET /course/{courseId}/tps : Liste des TPs d’un cours.
+     * GET /course/{courseId}/TPs : Liste des TPs d’un cours.
      * Retourne les TPs associés à un cours.
      *
      * @param courseId Identifiant du cours. (required)
@@ -242,7 +194,7 @@ public interface TpApi {
     )
     @RequestMapping(
         method = RequestMethod.GET,
-        value = "/course/{courseId}/tps",
+        value = "/course/{courseId}/TPs",
         produces = { "application/json" }
     )
     
@@ -264,11 +216,11 @@ public interface TpApi {
 
 
     /**
-     * PUT /course/{courseId}/tps/{tpId} : Mise à jour d’un TP.
+     * PUT /course/{courseId}/TPs/{tpNumber} : Mise à jour d’un TP.
      * Met à jour les informations d’un TP existant.
      *
      * @param courseId Identifiant du cours. (required)
-     * @param tpId Identifiant du TP. (required)
+     * @param tpNumber Numéro du TP. (required)
      * @param tpDto Données mises à jour du TP. (required)
      * @return TP mis à jour. (status code 200)
      *         or TP ou cours introuvable. (status code 404)
@@ -289,14 +241,14 @@ public interface TpApi {
     )
     @RequestMapping(
         method = RequestMethod.PUT,
-        value = "/course/{courseId}/tps/{tpId}",
+        value = "/course/{courseId}/TPs/{tpNumber}",
         produces = { "application/json" },
         consumes = { "application/json" }
     )
     
     default ResponseEntity<heg.backendspring.models.TPDto> updateTP(
         @Parameter(name = "courseId", description = "Identifiant du cours.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId,
-        @Parameter(name = "tpId", description = "Identifiant du TP.", required = true, in = ParameterIn.PATH) @PathVariable("tpId") Long tpId,
+        @Parameter(name = "tpNumber", description = "Numéro du TP.", required = true, in = ParameterIn.PATH) @PathVariable("tpNumber") Integer tpNumber,
         @Parameter(name = "TPDto", description = "Données mises à jour du TP.", required = true) @Valid @RequestBody TPDto tpDto
     ) {
         getRequest().ifPresent(request -> {

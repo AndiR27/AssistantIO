@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.Optional;
 import jakarta.annotation.Generated;
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-11-25T16:55:59.498126700+01:00[Europe/Zurich]", comments = "Generator version: 7.9.0")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-11-26T16:20:52.056231300+01:00[Europe/Zurich]", comments = "Generator version: 7.9.0")
 @Validated
 @Tag(name = "student", description = "Gestion des étudiants liés aux cours")
 public interface StudentApi {
@@ -52,7 +52,7 @@ public interface StudentApi {
      *         or Erreur interne. (status code 500)
      */
     @Operation(
-        operationId = "addStudentLegacy",
+        operationId = "addStudent",
         summary = "Ajout d’un étudiant (route spécifique).",
         description = "Ajoute un étudiant à un cours via une route spécifique existante.",
         tags = { "student" },
@@ -71,55 +71,7 @@ public interface StudentApi {
         consumes = { "application/json" }
     )
     
-    default ResponseEntity<heg.backendspring.models.StudentDto> addStudentLegacy(
-        @Parameter(name = "courseId", description = "Identifiant du cours.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId,
-        @Parameter(name = "StudentDto", description = "Données de l’étudiant à ajouter.", required = true) @Valid @RequestBody StudentDto studentDto
-    ) {
-        getRequest().ifPresent(request -> {
-            for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
-                if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
-                    String exampleString = "{ \"id\" : 300, \"name\" : \"George Dylan\", \"email\" : \"george.dylan@etu.hesge.ch\", \"studyType\" : \"FULL_TIME\", \"studentCourses\" : [ { \"id\" : 1, \"name\" : \"Python Introduction\", \"code\" : \"61-13\", \"semester\" : \"AUTOMNE\", \"courseType\" : \"PYTHON\", \"year_course\" : 2025, \"teacher\" : \"Stettler\" } ] }";
-                    ApiUtil.setExampleResponse(request, "application/json", exampleString);
-                    break;
-                }
-            }
-        });
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-
-    }
-
-
-    /**
-     * POST /course/{courseId}/students : Ajout d’un étudiant à un cours.
-     * Ajoute un étudiant à un cours via son DTO.
-     *
-     * @param courseId Identifiant du cours. (required)
-     * @param studentDto Données de l’étudiant à ajouter. (required)
-     * @return Étudiant ajouté au cours. (status code 201)
-     *         or Cours introuvable. (status code 404)
-     *         or Erreur interne. (status code 500)
-     */
-    @Operation(
-        operationId = "addStudentToCourse",
-        summary = "Ajout d’un étudiant à un cours.",
-        description = "Ajoute un étudiant à un cours via son DTO.",
-        tags = { "student" },
-        responses = {
-            @ApiResponse(responseCode = "201", description = "Étudiant ajouté au cours.", content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = heg.backendspring.models.StudentDto.class))
-            }),
-            @ApiResponse(responseCode = "404", description = "Cours introuvable."),
-            @ApiResponse(responseCode = "500", description = "Erreur interne.")
-        }
-    )
-    @RequestMapping(
-        method = RequestMethod.POST,
-        value = "/course/{courseId}/students",
-        produces = { "application/json" },
-        consumes = { "application/json" }
-    )
-    
-    default ResponseEntity<heg.backendspring.models.StudentDto> addStudentToCourse(
+    default ResponseEntity<heg.backendspring.models.StudentDto> addStudent(
         @Parameter(name = "courseId", description = "Identifiant du cours.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId,
         @Parameter(name = "StudentDto", description = "Données de l’étudiant à ajouter.", required = true) @Valid @RequestBody StudentDto studentDto
     ) {
@@ -188,6 +140,53 @@ public interface StudentApi {
 
 
     /**
+     * GET /course/{courseId}/students/{studentId} : Détail d&#39;un étudiant d&#39;un cours.
+     * Retourne un étudiant spécifique à un cours.
+     *
+     * @param courseId Identifiant du cours. (required)
+     * @param studentId Identifiant de l’étudiant. (required)
+     * @return Etudiant trouvé. (status code 201)
+     *         or Etudiant introuvable. (status code 404)
+     *         or Erreur interne. (status code 500)
+     */
+    @Operation(
+        operationId = "getStudentFromCourse",
+        summary = "Détail d'un étudiant d'un cours.",
+        description = "Retourne un étudiant spécifique à un cours.",
+        tags = { "student" },
+        responses = {
+            @ApiResponse(responseCode = "201", description = "Etudiant trouvé.", content = {
+                @Content(mediaType = "application/json", schema = @Schema(implementation = heg.backendspring.models.StudentDto.class))
+            }),
+            @ApiResponse(responseCode = "404", description = "Etudiant introuvable."),
+            @ApiResponse(responseCode = "500", description = "Erreur interne.")
+        }
+    )
+    @RequestMapping(
+        method = RequestMethod.GET,
+        value = "/course/{courseId}/students/{studentId}",
+        produces = { "application/json" }
+    )
+    
+    default ResponseEntity<heg.backendspring.models.StudentDto> getStudentFromCourse(
+        @Parameter(name = "courseId", description = "Identifiant du cours.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId,
+        @Parameter(name = "studentId", description = "Identifiant de l’étudiant.", required = true, in = ParameterIn.PATH) @PathVariable("studentId") Long studentId
+    ) {
+        getRequest().ifPresent(request -> {
+            for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
+                if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
+                    String exampleString = "{ \"id\" : 300, \"name\" : \"George Dylan\", \"email\" : \"george.dylan@etu.hesge.ch\", \"studyType\" : \"FULL_TIME\", \"studentCourses\" : [ { \"id\" : 1, \"name\" : \"Python Introduction\", \"code\" : \"61-13\", \"semester\" : \"AUTOMNE\", \"courseType\" : \"PYTHON\", \"year_course\" : 2025, \"teacher\" : \"Stettler\" } ] }";
+                    ApiUtil.setExampleResponse(request, "application/json", exampleString);
+                    break;
+                }
+            }
+        });
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+
+    }
+
+
+    /**
      * GET /course/{courseId}/students : Liste des étudiants d’un cours.
      * Retourne les étudiants inscrits à un cours.
      *
@@ -233,11 +232,11 @@ public interface StudentApi {
 
 
     /**
-     * DELETE /course/{courseId}/students/{id} : Suppression d’un étudiant d’un cours.
+     * DELETE /course/{courseId}/students/{studentId} : Suppression d’un étudiant d’un cours.
      * Retire un étudiant d’un cours à partir de son identifiant.
      *
      * @param courseId Identifiant du cours. (required)
-     * @param id Identifiant de l’étudiant. (required)
+     * @param studentId Identifiant de l’étudiant. (required)
      * @return Étudiant retiré du cours. (status code 204)
      *         or Cours ou étudiant introuvable. (status code 404)
      *         or Erreur interne. (status code 500)
@@ -255,47 +254,12 @@ public interface StudentApi {
     )
     @RequestMapping(
         method = RequestMethod.DELETE,
-        value = "/course/{courseId}/students/{id}"
+        value = "/course/{courseId}/students/{studentId}"
     )
     
     default ResponseEntity<Void> removeStudentFromCourse(
         @Parameter(name = "courseId", description = "Identifiant du cours.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId,
-        @Parameter(name = "id", description = "Identifiant de l’étudiant.", required = true, in = ParameterIn.PATH) @PathVariable("id") Long id
-    ) {
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-
-    }
-
-
-    /**
-     * DELETE /course/{courseId}/removeStudent/{id} : Suppression d’un étudiant (route spécifique).
-     * Supprime un étudiant d’un cours via une route spécifique existante.
-     *
-     * @param courseId Identifiant du cours. (required)
-     * @param id Identifiant de l’étudiant. (required)
-     * @return Étudiant supprimé. (status code 204)
-     *         or Cours ou étudiant introuvable. (status code 404)
-     *         or Erreur interne. (status code 500)
-     */
-    @Operation(
-        operationId = "removeStudentLegacy",
-        summary = "Suppression d’un étudiant (route spécifique).",
-        description = "Supprime un étudiant d’un cours via une route spécifique existante.",
-        tags = { "student" },
-        responses = {
-            @ApiResponse(responseCode = "204", description = "Étudiant supprimé."),
-            @ApiResponse(responseCode = "404", description = "Cours ou étudiant introuvable."),
-            @ApiResponse(responseCode = "500", description = "Erreur interne.")
-        }
-    )
-    @RequestMapping(
-        method = RequestMethod.DELETE,
-        value = "/course/{courseId}/removeStudent/{id}"
-    )
-    
-    default ResponseEntity<Void> removeStudentLegacy(
-        @Parameter(name = "courseId", description = "Identifiant du cours.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId,
-        @Parameter(name = "id", description = "Identifiant de l’étudiant.", required = true, in = ParameterIn.PATH) @PathVariable("id") Long id
+        @Parameter(name = "studentId", description = "Identifiant de l’étudiant.", required = true, in = ParameterIn.PATH) @PathVariable("studentId") Long studentId
     ) {
         return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
 

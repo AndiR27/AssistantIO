@@ -30,6 +30,11 @@ public class ControllerCourse implements CourseApi, ProcessingApi, StudentApi, S
     }
 
     @Override
+    public ResponseEntity<StudentDto> addStudent(Long courseId, StudentDto studentDto) {
+        return ResponseEntity.status(201).body(serviceCourse.addStudent(courseId, studentDto));
+    }
+
+    @Override
     public ResponseEntity<CourseDto> getCourseById(Long courseId) {
         Optional<CourseDto> courseDto = serviceCourse.findCourseById(courseId);
         return courseDto.map(ResponseEntity::ok).orElseThrow(() -> new EntityNotFoundException("Course not found"));
@@ -56,15 +61,6 @@ public class ControllerCourse implements CourseApi, ProcessingApi, StudentApi, S
         }
     }
 
-    @Override
-    public ResponseEntity<StudentDto> addStudentLegacy(Long courseId, StudentDto studentDto) {
-        return StudentApi.super.addStudentLegacy(courseId, studentDto);
-    }
-
-    @Override
-    public ResponseEntity<StudentDto> addStudentToCourse(Long courseId, StudentDto studentDto) {
-        return ResponseEntity.status(201).body(serviceCourse.addStudent(courseId, studentDto));
-    }
 
     @Override
     public ResponseEntity<List<StudentDto>> addStudentsFromFile(Long courseId, MultipartFile file) {
@@ -76,20 +72,22 @@ public class ControllerCourse implements CourseApi, ProcessingApi, StudentApi, S
     }
 
     @Override
+    public ResponseEntity<StudentDto> getStudentFromCourse(Long courseId, Long studentId) {
+        Optional<StudentDto> studentDto = serviceCourse.getStudentFromCourse(courseId, studentId);
+        return studentDto.map(ResponseEntity::ok).orElseThrow(() -> new EntityNotFoundException("Student not found"));
+    }
+
+    @Override
     public ResponseEntity<List<StudentDto>> getStudentsByCourse(Long courseId) {
         return ResponseEntity.ok(serviceCourse.getAllStudentsFromCourse(courseId));
     }
 
     @Override
-    public ResponseEntity<Void> removeStudentFromCourse(Long courseId, Long id) {
-        serviceCourse.removeStudentFromCourse(courseId, id);
+    public ResponseEntity<Void> removeStudentFromCourse(Long courseId, Long studentId) {
+        serviceCourse.removeStudentFromCourse(courseId, studentId);
         return ResponseEntity.noContent().build();
     }
 
-    @Override
-    public ResponseEntity<Void> removeStudentLegacy(Long courseId, Long id) {
-        return StudentApi.super.removeStudentLegacy(courseId, id);
-    }
 
     @Override
     public ResponseEntity<SubmissionDto> addSubmission(Long courseId, Integer tpNo, MultipartFile file) {
@@ -107,23 +105,28 @@ public class ControllerCourse implements CourseApi, ProcessingApi, StudentApi, S
 
     @Override
     public ResponseEntity<Void> deleteTP(Long courseId, Integer tpNumber) {
-        return TpApi.super.deleteTP(courseId, tpNumber);
+        serviceCourse.deleteTPFromCourseByNo(courseId, tpNumber);
+        return ResponseEntity.status(204).build();
     }
 
     @Override
     public ResponseEntity<TPDto> getTPById(Long courseId, Integer tpNumber) {
-        return TpApi.super.getTPById(courseId, tpNumber);
+        Optional<TPDto> tpDto = serviceCourse.findTPFromCourseByNo(courseId, tpNumber);
+        return tpDto.map(ResponseEntity::ok).orElseThrow(() -> new EntityNotFoundException("TP not found"));
     }
 
 
     @Override
     public ResponseEntity<List<TPDto>> getTPsByCourse(Long courseId) {
-        return TpApi.super.getTPsByCourse(courseId);
+        return ResponseEntity.ok(serviceCourse.getAllTPsFromCourse(courseId));
     }
 
     @Override
     public ResponseEntity<TPDto> updateTP(Long courseId, Integer tpNumber, TPDto tpDto) {
-        return TpApi.super.updateTP(courseId, tpNumber, tpDto);
+        Optional<TPDto> updatedTpOpt = serviceCourse.updateTPfromCourseByNo(courseId, tpNumber, tpDto);
+        return updatedTpOpt.map(ResponseEntity::ok).orElseThrow(() -> new EntityNotFoundException("TP not found"));
+
     }
+
 
 }

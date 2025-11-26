@@ -20,6 +20,10 @@ public interface RepositoryCourse extends JpaRepository<Course, Long> {
     @Query("SELECT DISTINCT s FROM Course c JOIN c.students s WHERE c.id = :courseId")
     Set<Student> findStudentsByCourseId(Long courseId);
 
+    //Trouver un etudiant inscrit à un cours selon son id
+    @Query("SELECT s FROM Course c JOIN c.students s WHERE c.id = :courseId AND s.id = :studentId")
+    Optional<Student> findStudentByCourseIdAndStudentId(@Param("courseId") Long courseId, @Param("studentId") Long studentId);
+
     //Trouver un cours selon son code
     Optional<Course> findCourseByCode(String code);
 

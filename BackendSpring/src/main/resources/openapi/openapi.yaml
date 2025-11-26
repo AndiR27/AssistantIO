@@ -33,6 +33,19 @@ tags:
   - name: processing
     description: Traitement des rendus et gestion avancée des TPs
 
+x-tagGroups:
+  - name: Course
+    tags:
+      - course
+      - student
+      - tp
+      - evaluation
+      - submission
+      - processing
+  - name: Admin
+    tags:
+      - admin-course
+
 # ==============================
 #   PATHS (ENDPOINTS)
 # ==============================
@@ -230,39 +243,8 @@ paths:
           description: Cours introuvable.
         '500':
           description: Erreur interne.
-    post:
-      tags: [student]
-      summary: Ajout d’un étudiant à un cours.
-      description: Ajoute un étudiant à un cours via son DTO.
-      operationId: addStudentToCourse
-      parameters:
-        - name: courseId
-          in: path
-          required: true
-          description: Identifiant du cours.
-          schema:
-            type: integer
-            format: int64
-      requestBody:
-        description: Données de l’étudiant à ajouter.
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/StudentDto'
-      responses:
-        '201':
-          description: Étudiant ajouté au cours.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StudentDto'
-        '404':
-          description: Cours introuvable.
-        '500':
-          description: Erreur interne.
 
-  /course/{courseId}/students/{id}:
+  /course/{courseId}/students/{studentId}:
     delete:
       tags: [student]
       summary: Suppression d’un étudiant d’un cours.
@@ -276,7 +258,7 @@ paths:
           schema:
             type: integer
             format: int64
-        - name: id
+        - name: studentId
           in: path
           required: true
           description: Identifiant de l’étudiant.
@@ -290,7 +272,37 @@ paths:
           description: Cours ou étudiant introuvable.
         '500':
           description: Erreur interne.
-
+    get:
+      tags: [student]
+      summary: Détail d'un étudiant d'un cours.
+      description: Retourne un étudiant spécifique à un cours.
+      operationId: getStudentFromCourse
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+        - name: studentId
+          in: path
+          required: true
+          description: Identifiant de l’étudiant.
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '201':
+          description: Etudiant trouvé.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentDto'
+        '404':
+          description: Etudiant introuvable.
+        '500':
+          description: Erreur interne.
   # ========================================
   #   STUDENTS D’UN COURS (ROUTES SPÉCIFIQUES EXISTANTES)
   # ========================================
@@ -299,7 +311,7 @@ paths:
       tags: [student]
       summary: Ajout d’un étudiant (route spécifique).
       description: Ajoute un étudiant à un cours via une route spécifique existante.
-      operationId: addStudentLegacy
+      operationId: addStudent
       parameters:
         - name: courseId
           in: path
@@ -324,35 +336,6 @@ paths:
                 $ref: '#/components/schemas/StudentDto'
         '404':
           description: Cours introuvable.
-        '500':
-          description: Erreur interne.
-
-  /course/{courseId}/removeStudent/{id}:
-    delete:
-      tags: [student]
-      summary: Suppression d’un étudiant (route spécifique).
-      description: Supprime un étudiant d’un cours via une route spécifique existante.
-      operationId: removeStudentLegacy
-      parameters:
-        - name: courseId
-          in: path
-          required: true
-          description: Identifiant du cours.
-          schema:
-            type: integer
-            format: int64
-        - name: id
-          in: path
-          required: true
-          description: Identifiant de l’étudiant.
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '204':
-          description: Étudiant supprimé.
-        '404':
-          description: Cours ou étudiant introuvable.
         '500':
           description: Erreur interne.
 
@@ -428,6 +411,7 @@ paths:
         '500':
           description: Erreur interne.
 
+
   # Routes spécifique de gestion des TPs par leur numéro
   /course/{courseId}/TPs/{tpNumber}:
     post:
@@ -490,6 +474,33 @@ paths:
           description: TP ou cours introuvable.
         '500':
           description: Erreur interne.
+
+    delete:
+      tags: [ tp ]
+      summary: Suppression d’un TP.
+      description: Supprime un TP existant d’un cours.
+      operationId: deleteTP
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+        - name: tpNumber
+          in: path
+          required: true
+          description: Numéro du TP.
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: TP supprimé.
+        '404':
+          description: TP ou cours introuvable.
+        '500':
+          description: Erreur interne.
     put:
       tags: [ tp ]
       summary: Mise à jour d’un TP.
@@ -527,33 +538,6 @@ paths:
           description: TP ou cours introuvable.
         '500':
           description: Erreur interne.
-    delete:
-      tags: [ tp ]
-      summary: Suppression d’un TP.
-      description: Supprime un TP existant d’un cours.
-      operationId: deleteTP
-      parameters:
-        - name: courseId
-          in: path
-          required: true
-          description: Identifiant du cours.
-          schema:
-            type: integer
-            format: int64
-        - name: tpNumber
-          in: path
-          required: true
-          description: Numéro du TP.
-          schema:
-            type: integer
-      responses:
-        '204':
-          description: TP supprimé.
-        '404':
-          description: TP ou cours introuvable.
-        '500':
-          description: Erreur interne.
-
   # ========================================
   #   EVALUATIONS D’UN COURS
   #  /course/{courseId}/evaluations:

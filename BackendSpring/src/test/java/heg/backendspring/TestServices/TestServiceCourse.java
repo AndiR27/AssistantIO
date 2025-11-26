@@ -434,6 +434,41 @@ public class TestServiceCourse {
     }
 
     @Test
+    @DisplayName("updateTPfromCourseByNo - TP is updated and saved")
+    void testUpdateTPfromCourseByNo() {
+        Course course = new Course();
+        course.setId(1L);
+
+        TP tp = new TP();
+        tp.setId(10L);
+        tp.setNo(1);
+        tp.setCourse(course);
+        course.getTps().add(tp);
+
+        TPDto tpDtoInput = new TPDto(10L, 2, 1L, null, null);
+        when(repositoryCourse.findTPByCourseIdAndNo(1L, 1))
+                .thenReturn(Optional.of(tp));
+        when(repositoryCourse.findById(1L))
+                .thenReturn(Optional.of(course));
+        when(repositoryCourse.save(course))
+                .thenReturn(course);
+
+        Optional<TPDto> result =
+                serviceCourse.updateTPfromCourseByNo(1L, 1, tpDtoInput);
+
+        assertTrue(result.isPresent());
+        assertEquals(2, result.get().no());
+        assertEquals(1L, result.get().courseId());
+        assertEquals(1, course.getTps().size());
+        assertEquals(2, course.getTps().iterator().next().getNo());
+
+        verify(repositoryCourse).findTPByCourseIdAndNo(1L, 1);
+        verify(repositoryCourse).findById(1L);
+        verify(repositoryCourse).save(course);
+
+    }
+
+    @Test
     @DisplayName("startZipProcess - calls submissionService with course and TP")
     void testStartZipProcess_callsSubmissionService() throws IOException {
         Long courseId = 10L;

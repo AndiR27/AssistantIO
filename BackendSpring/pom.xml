@@ -202,6 +202,7 @@
 								<interfaceOnly>true</interfaceOnly>
 								<useSpringBoot3>true</useSpringBoot3>
 								<useTags>true</useTags>
+								<usextags>true</usextags>
 								<dateLibrary>java8</dateLibrary>
 								<serializableModel>true</serializableModel>
 

@@ -119,6 +119,8 @@ public class ServiceCourse {
         log.info("Deleted course with id: {}", courseId);
     }
 
+
+
     /**
      * Ajouter un student à un cours
      * 3 cas possibles : l'étudiant n'existe pas (on le crée), l'étudiant existe déjà dans le cours (on ne fait rien),
@@ -149,7 +151,13 @@ public class ServiceCourse {
         return mapperStudent.tDto(saved);
     }
 
-
+    /**
+     * Methode permettant de récupérer un étudiant d'un cours par son id
+     */
+    public Optional<StudentDto> getStudentFromCourse(Long courseId, Long studentId) {
+        return repositoryCourse.findStudentByCourseIdAndStudentId(courseId, studentId)
+                .map(mapperStudent::tDto);
+    }
     /**
      * Methode permettant d'ajouter une liste d'étudiants à un cours
      */
@@ -266,6 +274,27 @@ public class ServiceCourse {
         }
     }
 
+    /**
+     * Methode permettant de mettre à jour un TP d'un cours par son numéro
+     */
+    @Transactional
+    public Optional<TPDto> updateTPfromCourseByNo(Long courseId, Integer tpNumber, TPDto tpDto) {
+        Optional<TP> tpOpt = repositoryCourse.findTPByCourseIdAndNo(courseId, tpNumber);
+        Optional<Course> courseOpt = repositoryCourse.findById(courseId);
+        if (tpOpt.isEmpty()) {
+            return Optional.empty();
+        }
+        TP tp = tpOpt.get();
+        // Mettre à jour l’entité via le mapper
+        mapperTP.updateEntityFromDto(tpDto, tp);
+
+        // Mettre à jour le cours qui possède le TP
+        repositoryCourse.save(courseOpt.get());
+
+        return Optional.of(mapperTP.toDto(tp));
+
+    }
+
     //TODO : Méthodes pour gérer les évaluations, exams...
 
     /**
@@ -349,8 +378,6 @@ public class ServiceCourse {
             log.info("Folder {} already exists", nomDossier);
         }
     }
-
-
 }
 
 

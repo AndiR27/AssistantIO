@@ -11,16 +11,22 @@
         <table class="etudiants-table">
             <thead>
                 <tr>
-                    <th>Nom</th>
-                    <th>Email</th>
+                    <th class="student-name-header">Étudiant</th>
                     @for (tp of tps; track tp.id) {
                     <th class="tp-header">
                         <div class="tp-header-content">
-                            <span>TP {{ tp.no }}</span>
+                            <div class="tp-title-row">
+                                <span class="tp-number">TP {{ tp.no }}</span>
+                                <div class="tp-status-badge" [ngClass]="getTPStatusClass(tp)">
+                                    <mat-icon class="status-icon">{{ getTPStatusIcon(tp) }}</mat-icon>
+                                    <span class="status-label">{{ getTPStatusLabel(tp) }}</span>
+                                </div>
+                            </div>
+
                             <div class="tp-actions">
                                 @if (shouldShowDownload(tp)) {
-                                <button mat-icon-button color="primary" [disabled]="isDownloading"
-                                    (click)="onDownloadClick(tp)" matTooltip="Télécharger le ZIP">
+                                <button mat-icon-button [disabled]="isDownloading" (click)="onDownloadClick(tp)"
+                                    matTooltip="Télécharger" class="action-icon-btn download-icon">
                                     @if(!isDownloading) {
                                     <mat-icon>download</mat-icon>
                                     } @else {
@@ -28,41 +34,75 @@
                                     }
                                 </button>
                                 } @else {
-                                <button mat-icon-button color="warn" (click)="startProcessSubmission(tp)"
-                                    matTooltip="Recreer le ZIP">
-                                    <mat-icon>autorenew</mat-icon>
+                                <button mat-icon-button [disabled]="isProcessing(tp.no)"
+                                    (click)="startProcessSubmission(tp)" matTooltip="Restructurer"
+                                    class="action-icon-btn restructure-icon">
+                                    @if(!isProcessing(tp.no)) {
+                                    <mat-icon>build</mat-icon>
+                                    } @else {
+                                    <mat-progress-spinner mode="indeterminate" diameter="20"></mat-progress-spinner>
+                                    }
                                 </button>
                                 }
-                                <button mat-icon-button color="warn" (click)="deleteTP(tp)"
-                                    matTooltip="Supprimer le TP">
+
+                                <button mat-icon-button [disabled]="isRegeneratingMapping(tp.no)"
+                                    (click)="regenerateMapping(tp)" matTooltip="Actualiser les statuts"
+                                    class="action-icon-btn refresh-icon">
+                                    @if(!isRegeneratingMapping(tp.no)) {
+                                    <mat-icon>refresh</mat-icon>
+                                    } @else {
+                                    <mat-progress-spinner mode="indeterminate" diameter="20"></mat-progress-spinner>
+                                    }
+                                </button>
+
+                                <button mat-icon-button [disabled]="isProcessing(tp.no)" (click)="deleteTP(tp)"
+                                    matTooltip="Supprimer" class="action-icon-btn delete-icon">
                                     <mat-icon>delete</mat-icon>
                                 </button>
                             </div>
                         </div>
                     </th>
                     }
-                    <th>Actions</th>
+                    <th class="actions-header">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @for (etudiant of students; track etudiant.id) {
                 <tr>
-                    <td>{{ etudiant.name }}</td>
-                    <td>{{ etudiant.email }}</td>
+                    <td class="student-name">
+                        <div class="student-info">
+                            <mat-icon class="student-icon">account_circle</mat-icon>
+                            <span>{{ etudiant.name }}</span>
+                        </div>
+                    </td>
                     @for (tp of tps; track tp.no) {
-                    <td class="tp-cell">
-                        {{ formatStatut(getStatutForStudent(tp, etudiant.id)) }}
+                    <td class="tp-cell" (click)="editSubmission(etudiant, tp)">
+                        <div class="submission-status"
+                            [ngClass]="getSubmissionStatusClass(getStatutForStudent(tp, etudiant.id))">
+                            @if (getStatutForStudent(tp, etudiant.id) === true) {
+                            <mat-icon class="status-icon">check</mat-icon>
+                            <span class="status-text">Rendu</span>
+                            } @else if (getStatutForStudent(tp, etudiant.id) === false) {
+                            <mat-icon class="status-icon">close</mat-icon>
+                            <span class="status-text">Non rendu</span>
+                            } @else {
+                            <mat-icon class="status-icon">remove</mat-icon>
+                            <span class="status-text">N/A</span>
+                            }
+                        </div>
                     </td>
                     }
-                    <td>
-                        <!-- Placeholder for student actions -->
-                        <button mat-icon-button color="primary" matTooltip="Modifier (Bientôt)">
-                            <mat-icon>edit</mat-icon>
-                        </button>
-                        <button mat-icon-button color="warn" (click)="deleteStudent(etudiant)"
-                            matTooltip="Supprimer l'étudiant">
-                            <mat-icon>delete</mat-icon>
-                        </button>
+                    <td class="actions-cell">
+                        <div class="student-actions">
+                            <button mat-icon-button (click)="editStudent(etudiant)" matTooltip="Modifier"
+                                class="student-action-btn edit-btn">
+                                <mat-icon>edit</mat-icon>
+                            </button>
+                            <button mat-icon-button (click)="deleteStudent(etudiant)" matTooltip="Supprimer"
+                                class="student-action-btn delete-btn">
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        </div>
                     </td>
                 </tr>
                 }

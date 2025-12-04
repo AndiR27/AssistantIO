@@ -3,7 +3,7 @@ version: "3.9"
 services:
   backend:
     build:
-      context: ./Backend
+      context: ./BackendSpring
       dockerfile: src/main/docker/Dockerfile.jvm
       target: runtime
     image: zackrey27/assistantio-backend

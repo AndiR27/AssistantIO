@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.io.File;
@@ -35,6 +36,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
+@ActiveProfiles("test")
 public class TestServiceCourse {
 
     @Autowired
@@ -256,8 +258,8 @@ public class TestServiceCourse {
         course.setId(1L);
         when(repositoryCourse.findById(1L)).thenReturn(Optional.of(course));
         String[] data = {
-                "Walter White,walter@hesge.ch,TEMPS_PLEIN",
-                "Jesse Pinkman,jesse@hesge.ch,TEMPS_PARTIEL"
+                "Walter White;walter@hesge.ch;TEMPS_PLEIN",
+                "Jesse Pinkman;jesse@hesge.ch;TEMPS_PARTIEL"
         };
 
         when(repositoryStudent.findStudentByEmail(anyString()))

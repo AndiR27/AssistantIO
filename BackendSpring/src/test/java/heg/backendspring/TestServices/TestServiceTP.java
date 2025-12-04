@@ -9,11 +9,13 @@ import heg.backendspring.repository.RepositoryTPStatus;
 import heg.backendspring.service.ServiceCourse;
 import heg.backendspring.service.ServiceSubmission;
 import heg.backendspring.service.ServiceTP;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.util.FileSystemUtils;
 
@@ -31,9 +33,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest(properties = {
-        "zip-storage.path=target/test-zips"
-})
+@SpringBootTest
+@ActiveProfiles("test")
 class TestServiceTP {
 
     @Autowired
@@ -179,30 +180,6 @@ class TestServiceTP {
         verify(repositoryTP).save(tp);
     }
 
-    private static Set<Student> getStudentsHelper() {
-        Student s1 = new Student();
-        s1.setId(1L);
-        s1.setName("Scout Mark");
-        s1.setEmail("Test3mark@hesge.ch");
-
-        Student s2 = new Student();
-        s2.setId(2L);
-        s2.setName("Riggs Helly");
-        s2.setEmail("Test3helly@hesge.ch");
-
-        Student s3 = new Student();
-        s3.setId(3L);
-        s3.setName("George Dylan");
-        s3.setEmail("Test3dylan@hesge.ch");
-
-        Student s4 = new Student();
-        s4.setId(4L);
-        s4.setName("Bailiff Irving");
-        s4.setEmail("Test3irving@hesge.ch");
-
-        Set<Student> students = Set.of(s1, s2, s3, s4);
-        return students;
-    }
 
 
     @Test
@@ -231,6 +208,106 @@ class TestServiceTP {
         );
 
         verify(repositoryTP).findById(5L);
+    }
+
+    @Test
+    @DisplayName("deleteTP - supprime le dossier TP, les statuts et l'entité TP")
+    void testDeleteTP_deletesFolderAndStatusesAndEntity() throws Exception {
+        // ----- Arrange -----
+        Long tpId = 1L;
+        int tpNo = 1;
+
+        Course course = new Course();
+        course.setId(10L);
+        course.setCode("63-11");
+
+        // TP et ses statuts
+        TP tp = new TP();
+        tp.setId(tpId);
+        tp.setNo(tpNo);
+        tp.setCourse(course);
+
+        TPStatus status1 = new TPStatus();
+        TPStatus status2 = new TPStatus();
+        Set<TPStatus> statuses = new HashSet<>();
+        statuses.add(status1);
+        statuses.add(status2);
+        tp.setStatusStudents(statuses);
+
+        // On construit un vrai dossier TP1 dans target/test-zips/63-11/TP1
+        Path tpFolder = outputDir.resolve("63-11").resolve("TP1");
+        Files.createDirectories(tpFolder);
+
+        // On simule un zip dans ce dossier, utilisé comme support pour pathStorage
+        Path zipPath = tpFolder.resolve("TP1_RenduCyberlearn.zip");
+        Files.write(zipPath, "dummy zip".getBytes());
+
+        Submission submission = new Submission();
+        submission.setId(99L);
+        submission.setPathStorage(zipPath.toString());
+        tp.setSubmission(submission);
+
+        // Mock des repositories
+        when(repositoryTP.findById(tpId)).thenReturn(Optional.of(tp));
+
+        // Pas de cascade -> suppression manuelle des statuts
+        doNothing().when(repositoryTPStatus).deleteAll(statuses);
+
+        // ----- Act -----
+        serviceTP.deleteTP(tpId);
+
+        // ----- Assert -----
+
+        // 1) Le dossier physique doit être supprimé
+        assertFalse(Files.exists(tpFolder), "Le dossier du TP devrait avoir été supprimé");
+
+        // 2) Les statuts doivent avoir été supprimés
+        verify(repositoryTPStatus).deleteAll(statuses);
+
+        // 3) Le TP doit être supprimé en base
+        verify(repositoryTP).delete(tp);
+    }
+
+    @Test
+    @DisplayName("deleteTP - TP introuvable -> exception")
+    void testDeleteTP_notFound() {
+        // ----- Arrange -----
+        when(repositoryTP.findById(123L)).thenReturn(Optional.empty());
+
+        // ----- Act + Assert -----
+        assertThrows(
+                EntityNotFoundException.class,
+                () -> serviceTP.deleteTP(123L)
+        );
+
+        verify(repositoryTP, never()).delete(any());
+    }
+
+
+
+    private static Set<Student> getStudentsHelper() {
+        Student s1 = new Student();
+        s1.setId(1L);
+        s1.setName("Scout Mark");
+        s1.setEmail("Test3mark@hesge.ch");
+
+        Student s2 = new Student();
+        s2.setId(2L);
+        s2.setName("Riggs Helly");
+        s2.setEmail("Test3helly@hesge.ch");
+
+        Student s3 = new Student();
+        s3.setId(3L);
+        s3.setName("George Dylan");
+        s3.setEmail("Test3dylan@hesge.ch");
+
+        Student s4 = new Student();
+        s4.setId(4L);
+        s4.setName("Bailiff Irving");
+        s4.setEmail("Test3irving@hesge.ch");
+
+        Set<Student> students = Set.of(s1, s2, s3, s4);
+        return students;
     }
 
 

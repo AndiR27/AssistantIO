@@ -181,7 +181,7 @@ public class ServiceCourse {
         log.debug("Starting to add studends for course id={} with file (number of values : {})", idCourse, data.length);
         List<StudentDto> studentDtoList = new ArrayList<>();
         for (String line : data) {
-            String[] studentData = line.split(",");
+            String[] studentData = line.split(";");
             StudentDto studentDto = new StudentDto(
                     null,
                     studentData[0].trim(),
@@ -281,6 +281,8 @@ public class ServiceCourse {
             course.getTps().remove(tp);
             repositoryCourse.save(course);
             log.info("Deleted TP {} from course {}", no, idCourse);
+            //Delete the TP entity and manage folders if needed
+            serviceTP.deleteTP(tp.getId());
         }
     }
 
@@ -330,10 +332,16 @@ public class ServiceCourse {
      */
     @Transactional
     public void startZipProcess(Long idCours, int idTp) throws IOException {
-        Optional<CourseDto> courseDto = findCourseById(idCours);
-        Optional<TPDto> tpDto = findTPFromCourseByNo(idCours, idTp);
+        Course course = repositoryCourse.findById(idCours)
+                .orElseThrow(() -> new EntityNotFoundException("Course not found with id: " + idCours));
+
+        TP tp = repositoryCourse.findTPByCourseIdAndNo(idCours, idTp)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "TP number " + idTp + " not found for course id: " + idCours
+                ));
         log.info("Starting zip process for course id={} tp no={}", idCours, idTp);
-        serviceSubmission.processZipSubmission(mapperCourse.toEntity(courseDto.get()), mapperTP.toEntity(tpDto.get()));
+        serviceSubmission.processZipSubmission(course, tp);
+
     }
 
     /**
@@ -348,11 +356,18 @@ public class ServiceCourse {
     @Transactional
     public TPDto manageSubmissionsTP(Long idCourse, int tp_no) {
         log.info("Gestion des rendus pour le TP numéro : {} du cours id : {}", tp_no, idCourse);
-        Course course = repositoryCourse.findById(idCourse).get();
+        Optional<Course> course = repositoryCourse.findById(idCourse);
+        if(course.isEmpty()){
+            throw new EntityNotFoundException("Course not found with id: " + idCourse);
+        }
+
         //Récupérer le TP
         Optional<TP> tpOpt = repositoryCourse.findTPByCourseIdAndNo(idCourse, tp_no);
-
-        return serviceTP.addTPStatusListToTP(tpOpt.get(), course.getStudents());
+        if(tpOpt.isEmpty()){
+            log.info("not found");
+            throw new EntityNotFoundException("TP not found for course id=" + idCourse + " and tp no=" + tp_no);
+        }
+        return serviceTP.addTPStatusListToTP(tpOpt.get(), course.get().getStudents());
     }
 
     /**
@@ -380,7 +395,7 @@ public class ServiceCourse {
         Path newDirectory = parentPath.resolve(nomDossier);
         if (Files.notExists(newDirectory)) {
             try {
-                Files.createDirectory(newDirectory);
+                Files.createDirectories(newDirectory);
             } catch (Exception e) {
                 log.error("Failed to create directory {}\n--> {}", newDirectory, e.getMessage());
             }

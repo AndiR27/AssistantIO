@@ -160,15 +160,28 @@ export class CourseService {
   }
 
   /**
-   * Start submission processing and manage TP status for all students
+   * Start submission processing for a TP
    * POST /course/{courseId}/startProcessSubmission/{tpNo}
-   * POST /course/{courseId}/manageTP/{tpNo}
    */
   startProcessSubmission(courseId: number, tpNo: number): Observable<any> {
-    return this.api.manageTPsubmission(courseId, tpNo).pipe(
+    return this.api.startProcessSubmission(courseId, tpNo).pipe(
       tap(res => console.log('API startProcessSubmission response:', res)),
       catchError(err => {
         console.error('Error in startProcessSubmission():', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  /**
+   * Manage TP status for all students
+   * POST /course/{courseId}/manageTP/{tpNo}
+   */
+  manageTP(courseId: number, tpNo: number): Observable<any> {
+    return this.api.manageTP(courseId, tpNo).pipe(
+      tap(res => console.log('API manageTP response:', res)),
+      catchError(err => {
+        console.error('Error in manageTP():', err);
         return throwError(() => err);
       })
     );
@@ -214,6 +227,7 @@ export class CourseService {
       })
     );
   }
+
 
   /**
    * Update a TP

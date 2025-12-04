@@ -22,26 +22,15 @@ tags:
     description: Gestion administrative des cours (CRUD complet)
   - name: course
     description: Consultation des cours et opérations associées
-  - name: student
-    description: Gestion des étudiants liés aux cours
-  - name: tp
-    description: Gestion des TPs et rendus
-  - name: evaluation
-    description: Gestion des évaluations (examens, contrôles continus)
   - name: submission
     description: Gestion des soumissions de TP
-  - name: processing
-    description: Traitement des rendus et gestion avancée des TPs
+
 
 x-tagGroups:
   - name: Course
     tags:
       - course
-      - student
-      - tp
-      - evaluation
       - submission
-      - processing
   - name: Admin
     tags:
       - admin-course
@@ -218,7 +207,7 @@ paths:
   # ========================================
   /course/{courseId}/students:
     get:
-      tags: [student]
+      tags: [course]
       summary: Liste des étudiants d’un cours.
       description: Retourne les étudiants inscrits à un cours.
       operationId: getStudentsByCourse
@@ -246,7 +235,7 @@ paths:
 
   /course/{courseId}/students/{studentId}:
     delete:
-      tags: [student]
+      tags: [course]
       summary: Suppression d’un étudiant d’un cours.
       description: Retire un étudiant d’un cours à partir de son identifiant.
       operationId: removeStudentFromCourse
@@ -273,7 +262,7 @@ paths:
         '500':
           description: Erreur interne.
     get:
-      tags: [student]
+      tags: [course]
       summary: Détail d'un étudiant d'un cours.
       description: Retourne un étudiant spécifique à un cours.
       operationId: getStudentFromCourse
@@ -308,7 +297,7 @@ paths:
   # ========================================
   /course/{courseId}/addStudent:
     post:
-      tags: [student]
+      tags: [course]
       summary: Ajout d’un étudiant (route spécifique).
       description: Ajoute un étudiant à un cours via une route spécifique existante.
       operationId: addStudent
@@ -341,7 +330,7 @@ paths:
 
   /course/{courseId}/addStudentsFromFile:
     post:
-      tags: [student]
+      tags: [course]
       summary: Ajout d’étudiants depuis un fichier.
       description: Ajoute plusieurs étudiants à partir d’un fichier texte.
       operationId: addStudentsFromFile
@@ -385,7 +374,7 @@ paths:
   # ========================================
   /course/{courseId}/TPs:
     get:
-      tags: [tp]
+      tags: [course]
       summary: Liste des TPs d’un cours.
       description: Retourne les TPs associés à un cours.
       operationId: getTPsByCourse
@@ -415,7 +404,7 @@ paths:
   # Routes spécifique de gestion des TPs par leur numéro
   /course/{courseId}/TPs/{tpNumber}:
     post:
-      tags: [tp]
+      tags: [course]
       summary: Création d’un TP par numéro.
       description: Crée un TP en utilisant directement le numéro de TP.
       operationId: addTPByNumber
@@ -445,7 +434,7 @@ paths:
         '500':
           description: Erreur interne.
     get:
-      tags: [ tp ]
+      tags: [course]
       summary: Détail d’un TP.
       description: Retourne les informations d’un TP spécifique.
       operationId: getTPById
@@ -476,7 +465,7 @@ paths:
           description: Erreur interne.
 
     delete:
-      tags: [ tp ]
+      tags: [course]
       summary: Suppression d’un TP.
       description: Supprime un TP existant d’un cours.
       operationId: deleteTP
@@ -502,7 +491,7 @@ paths:
         '500':
           description: Erreur interne.
     put:
-      tags: [ tp ]
+      tags: [course]
       summary: Mise à jour d’un TP.
       description: Met à jour les informations d’un TP existant.
       operationId: updateTP
@@ -718,7 +707,7 @@ paths:
 
   /course/{courseId}/startProcessSubmission/{tpNo}:
     post:
-      tags: [processing]
+      tags: [submission]
       summary: Lancement du traitement des rendus.
       description: Lance le processus de restructuration et de traitement des rendus pour un TP.
       operationId: startProcessSubmission
@@ -750,7 +739,7 @@ paths:
 
   /course/{courseId}/manageTP/{tpNo}:
     post:
-      tags: [processing]
+      tags: [submission]
       summary: Gestion avancée d’un TP.
       description: Effectue des opérations de gestion avancée sur un TP.
       operationId: manageTP
@@ -779,6 +768,39 @@ paths:
           description: Cours ou TP introuvable.
         '500':
           description: Erreur interne.
+  /course/{courseId}/downloadStructuredSubmission/{tpNo}:
+    get:
+      tags: [submission]
+      summary: Téléchargement du rendu restructuré.
+      description: Permet de télécharger le fichier ZIP restructuré des rendus d’un TP.
+      operationId: downloadStructuredSubmission
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+        - name: tpNo
+          in: path
+          required: true
+          description: Numéro de TP.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Fichier ZIP restructuré retourné.
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Cours ou TP introuvable.
+        '500':
+          description: Erreur interne.
+
 
 
 # ==============================

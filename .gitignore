@@ -55,8 +55,10 @@ nb-configuration.xml
 !testZips/
 !DocumentsZip/
 
-# Fichiers d'environnement sensibles
+### FICHIERS / DOSSIERS À NE PAS VERSIONNER ###
 .env
 *.env
 stack.env
 docker-compose.local.yml
+zips-local/
+DocumentsZip/

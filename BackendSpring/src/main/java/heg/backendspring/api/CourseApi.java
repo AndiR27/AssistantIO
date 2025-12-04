@@ -5,6 +5,8 @@
  */
 package heg.backendspring.api;
 
+import heg.backendspring.models.StudentDto;
+import heg.backendspring.models.TPDto;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -31,7 +33,7 @@ import java.util.Map;
 import java.util.Optional;
 import jakarta.annotation.Generated;
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-11-26T16:20:52.056231300+01:00[Europe/Zurich]", comments = "Generator version: 7.9.0")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-12-04T16:08:10.970899+01:00[Europe/Zurich]", comments = "Generator version: 7.9.0")
 @Validated
 @Tag(name = "course", description = "Consultation des cours et opérations associées")
 public interface CourseApi {
@@ -39,6 +41,186 @@ public interface CourseApi {
     default Optional<NativeWebRequest> getRequest() {
         return Optional.empty();
     }
+
+    /**
+     * POST /course/{courseId}/addStudent : Ajout d’un étudiant (route spécifique).
+     * Ajoute un étudiant à un cours via une route spécifique existante.
+     *
+     * @param courseId Identifiant du cours. (required)
+     * @param studentDto Données de l’étudiant à ajouter. (required)
+     * @return Étudiant ajouté. (status code 201)
+     *         or Cours introuvable. (status code 404)
+     *         or Erreur interne. (status code 500)
+     */
+    @Operation(
+        operationId = "addStudent",
+        summary = "Ajout d’un étudiant (route spécifique).",
+        description = "Ajoute un étudiant à un cours via une route spécifique existante.",
+        tags = { "course" },
+        responses = {
+            @ApiResponse(responseCode = "201", description = "Étudiant ajouté.", content = {
+                @Content(mediaType = "application/json", schema = @Schema(implementation = heg.backendspring.models.StudentDto.class))
+            }),
+            @ApiResponse(responseCode = "404", description = "Cours introuvable."),
+            @ApiResponse(responseCode = "500", description = "Erreur interne.")
+        }
+    )
+    @RequestMapping(
+        method = RequestMethod.POST,
+        value = "/course/{courseId}/addStudent",
+        produces = { "application/json" },
+        consumes = { "application/json" }
+    )
+    
+    default ResponseEntity<heg.backendspring.models.StudentDto> addStudent(
+        @Parameter(name = "courseId", description = "Identifiant du cours.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId,
+        @Parameter(name = "StudentDto", description = "Données de l’étudiant à ajouter.", required = true) @Valid @RequestBody StudentDto studentDto
+    ) {
+        getRequest().ifPresent(request -> {
+            for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
+                if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
+                    String exampleString = "{ \"id\" : 300, \"name\" : \"George Dylan\", \"email\" : \"george.dylan@etu.hesge.ch\", \"studyType\" : \"FULL_TIME\", \"studentCourses\" : [ { \"id\" : 1, \"name\" : \"Python Introduction\", \"code\" : \"61-13\", \"semester\" : \"AUTOMNE\", \"courseType\" : \"PYTHON\", \"year_course\" : 2025, \"teacher\" : \"Stettler\" } ] }";
+                    ApiUtil.setExampleResponse(request, "application/json", exampleString);
+                    break;
+                }
+            }
+        });
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+
+    }
+
+
+    /**
+     * POST /course/{courseId}/addStudentsFromFile : Ajout d’étudiants depuis un fichier.
+     * Ajoute plusieurs étudiants à partir d’un fichier texte.
+     *
+     * @param courseId Identifiant du cours. (required)
+     * @param file  (optional)
+     * @return Étudiants ajoutés. (status code 200)
+     *         or Fichier invalide. (status code 400)
+     *         or Cours introuvable. (status code 404)
+     *         or Erreur interne. (status code 500)
+     */
+    @Operation(
+        operationId = "addStudentsFromFile",
+        summary = "Ajout d’étudiants depuis un fichier.",
+        description = "Ajoute plusieurs étudiants à partir d’un fichier texte.",
+        tags = { "course" },
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Étudiants ajoutés.", content = {
+                @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = heg.backendspring.models.StudentDto.class)))
+            }),
+            @ApiResponse(responseCode = "400", description = "Fichier invalide."),
+            @ApiResponse(responseCode = "404", description = "Cours introuvable."),
+            @ApiResponse(responseCode = "500", description = "Erreur interne.")
+        }
+    )
+    @RequestMapping(
+        method = RequestMethod.POST,
+        value = "/course/{courseId}/addStudentsFromFile",
+        produces = { "application/json" },
+        consumes = { "multipart/form-data" }
+    )
+    
+    default ResponseEntity<List<heg.backendspring.models.StudentDto>> addStudentsFromFile(
+        @Parameter(name = "courseId", description = "Identifiant du cours.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId,
+        @Parameter(name = "file", description = "") @RequestPart(value = "file", required = false) MultipartFile file
+    ) {
+        getRequest().ifPresent(request -> {
+            for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
+                if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
+                    String exampleString = "[ { \"id\" : 300, \"name\" : \"George Dylan\", \"email\" : \"george.dylan@etu.hesge.ch\", \"studyType\" : \"FULL_TIME\", \"studentCourses\" : [ { \"id\" : 1, \"name\" : \"Python Introduction\", \"code\" : \"61-13\", \"semester\" : \"AUTOMNE\", \"courseType\" : \"PYTHON\", \"year_course\" : 2025, \"teacher\" : \"Stettler\" } ] }, { \"id\" : 300, \"name\" : \"George Dylan\", \"email\" : \"george.dylan@etu.hesge.ch\", \"studyType\" : \"FULL_TIME\", \"studentCourses\" : [ { \"id\" : 1, \"name\" : \"Python Introduction\", \"code\" : \"61-13\", \"semester\" : \"AUTOMNE\", \"courseType\" : \"PYTHON\", \"year_course\" : 2025, \"teacher\" : \"Stettler\" } ] } ]";
+                    ApiUtil.setExampleResponse(request, "application/json", exampleString);
+                    break;
+                }
+            }
+        });
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+
+    }
+
+
+    /**
+     * POST /course/{courseId}/TPs/{tpNumber} : Création d’un TP par numéro.
+     * Crée un TP en utilisant directement le numéro de TP.
+     *
+     * @param courseId Identifiant du cours. (required)
+     * @param tpNumber Numéro du TP. (required)
+     * @return TP créé. (status code 201)
+     *         or Cours introuvable. (status code 404)
+     *         or Erreur interne. (status code 500)
+     */
+    @Operation(
+        operationId = "addTPByNumber",
+        summary = "Création d’un TP par numéro.",
+        description = "Crée un TP en utilisant directement le numéro de TP.",
+        tags = { "course" },
+        responses = {
+            @ApiResponse(responseCode = "201", description = "TP créé.", content = {
+                @Content(mediaType = "application/json", schema = @Schema(implementation = heg.backendspring.models.TPDto.class))
+            }),
+            @ApiResponse(responseCode = "404", description = "Cours introuvable."),
+            @ApiResponse(responseCode = "500", description = "Erreur interne.")
+        }
+    )
+    @RequestMapping(
+        method = RequestMethod.POST,
+        value = "/course/{courseId}/TPs/{tpNumber}",
+        produces = { "application/json" }
+    )
+    
+    default ResponseEntity<heg.backendspring.models.TPDto> addTPByNumber(
+        @Parameter(name = "courseId", description = "Identifiant du cours.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId,
+        @Parameter(name = "tpNumber", description = "Numéro du TP.", required = true, in = ParameterIn.PATH) @PathVariable("tpNumber") Integer tpNumber
+    ) {
+        getRequest().ifPresent(request -> {
+            for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
+                if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
+                    String exampleString = "{ \"id\" : 10, \"false\" : 1, \"courseId\" : 1, \"submission\" : { \"id\" : 100, \"fileName\" : \"TP1_Rendus.zip\", \"pathStorage\" : \"/data/courses/61-13/TP1/TP1_Rendus.zip\", \"pathFileStructured\" : \"/data/courses/61-13/TP1/TP1_RenduRestructuration.zip\" }, \"statusStudents\" : [ { \"id\" : 1000, \"studentId\" : 300, \"tpId\" : 10, \"studentSubmission\" : true } ] }";
+                    ApiUtil.setExampleResponse(request, "application/json", exampleString);
+                    break;
+                }
+            }
+        });
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+
+    }
+
+
+    /**
+     * DELETE /course/{courseId}/TPs/{tpNumber} : Suppression d’un TP.
+     * Supprime un TP existant d’un cours.
+     *
+     * @param courseId Identifiant du cours. (required)
+     * @param tpNumber Numéro du TP. (required)
+     * @return TP supprimé. (status code 204)
+     *         or TP ou cours introuvable. (status code 404)
+     *         or Erreur interne. (status code 500)
+     */
+    @Operation(
+        operationId = "deleteTP",
+        summary = "Suppression d’un TP.",
+        description = "Supprime un TP existant d’un cours.",
+        tags = { "course" },
+        responses = {
+            @ApiResponse(responseCode = "204", description = "TP supprimé."),
+            @ApiResponse(responseCode = "404", description = "TP ou cours introuvable."),
+            @ApiResponse(responseCode = "500", description = "Erreur interne.")
+        }
+    )
+    @RequestMapping(
+        method = RequestMethod.DELETE,
+        value = "/course/{courseId}/TPs/{tpNumber}"
+    )
+    
+    default ResponseEntity<Void> deleteTP(
+        @Parameter(name = "courseId", description = "Identifiant du cours.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId,
+        @Parameter(name = "tpNumber", description = "Numéro du TP.", required = true, in = ParameterIn.PATH) @PathVariable("tpNumber") Integer tpNumber
+    ) {
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+
+    }
+
 
     /**
      * GET /course/{courseId} : Détails d’un cours.
@@ -117,6 +299,275 @@ public interface CourseApi {
             for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
                 if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
                     String exampleString = "[ { \"id\" : 1, \"name\" : \"Python Introduction\", \"code\" : \"61-13\", \"semester\" : \"AUTOMNE\", \"courseType\" : \"PYTHON\", \"year_course\" : 2025, \"teacher\" : \"Stettler\", \"students\" : [ ], \"tps\" : [ { \"id\" : 10, \"false\" : 1, \"courseId\" : 1, \"submission\" : { \"id\" : 100, \"fileName\" : \"TP1_Rendus.zip\", \"pathStorage\" : \"/data/courses/61-13/TP1/TP1_Rendus.zip\", \"pathFileStructured\" : \"/data/courses/61-13/TP1/TP1_RenduRestructuration.zip\" }, \"statusStudents\" : [ ] } ], \"evaluations\" : [ { \"id\" : 200, \"name\" : \"Examen final\", \"date\" : \"2025-01-15\", \"coefficient\" : 2, \"courseId\" : 1 } ] }, { \"id\" : 1, \"name\" : \"Python Introduction\", \"code\" : \"61-13\", \"semester\" : \"AUTOMNE\", \"courseType\" : \"PYTHON\", \"year_course\" : 2025, \"teacher\" : \"Stettler\", \"students\" : [ ], \"tps\" : [ { \"id\" : 10, \"false\" : 1, \"courseId\" : 1, \"submission\" : { \"id\" : 100, \"fileName\" : \"TP1_Rendus.zip\", \"pathStorage\" : \"/data/courses/61-13/TP1/TP1_Rendus.zip\", \"pathFileStructured\" : \"/data/courses/61-13/TP1/TP1_RenduRestructuration.zip\" }, \"statusStudents\" : [ ] } ], \"evaluations\" : [ { \"id\" : 200, \"name\" : \"Examen final\", \"date\" : \"2025-01-15\", \"coefficient\" : 2, \"courseId\" : 1 } ] } ]";
+                    ApiUtil.setExampleResponse(request, "application/json", exampleString);
+                    break;
+                }
+            }
+        });
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+
+    }
+
+
+    /**
+     * GET /course/{courseId}/students/{studentId} : Détail d&#39;un étudiant d&#39;un cours.
+     * Retourne un étudiant spécifique à un cours.
+     *
+     * @param courseId Identifiant du cours. (required)
+     * @param studentId Identifiant de l’étudiant. (required)
+     * @return Etudiant trouvé. (status code 201)
+     *         or Etudiant introuvable. (status code 404)
+     *         or Erreur interne. (status code 500)
+     */
+    @Operation(
+        operationId = "getStudentFromCourse",
+        summary = "Détail d'un étudiant d'un cours.",
+        description = "Retourne un étudiant spécifique à un cours.",
+        tags = { "course" },
+        responses = {
+            @ApiResponse(responseCode = "201", description = "Etudiant trouvé.", content = {
+                @Content(mediaType = "application/json", schema = @Schema(implementation = heg.backendspring.models.StudentDto.class))
+            }),
+            @ApiResponse(responseCode = "404", description = "Etudiant introuvable."),
+            @ApiResponse(responseCode = "500", description = "Erreur interne.")
+        }
+    )
+    @RequestMapping(
+        method = RequestMethod.GET,
+        value = "/course/{courseId}/students/{studentId}",
+        produces = { "application/json" }
+    )
+    
+    default ResponseEntity<heg.backendspring.models.StudentDto> getStudentFromCourse(
+        @Parameter(name = "courseId", description = "Identifiant du cours.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId,
+        @Parameter(name = "studentId", description = "Identifiant de l’étudiant.", required = true, in = ParameterIn.PATH) @PathVariable("studentId") Long studentId
+    ) {
+        getRequest().ifPresent(request -> {
+            for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
+                if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
+                    String exampleString = "{ \"id\" : 300, \"name\" : \"George Dylan\", \"email\" : \"george.dylan@etu.hesge.ch\", \"studyType\" : \"FULL_TIME\", \"studentCourses\" : [ { \"id\" : 1, \"name\" : \"Python Introduction\", \"code\" : \"61-13\", \"semester\" : \"AUTOMNE\", \"courseType\" : \"PYTHON\", \"year_course\" : 2025, \"teacher\" : \"Stettler\" } ] }";
+                    ApiUtil.setExampleResponse(request, "application/json", exampleString);
+                    break;
+                }
+            }
+        });
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+
+    }
+
+
+    /**
+     * GET /course/{courseId}/students : Liste des étudiants d’un cours.
+     * Retourne les étudiants inscrits à un cours.
+     *
+     * @param courseId Identifiant du cours. (required)
+     * @return Liste d’étudiants retournée. (status code 200)
+     *         or Cours introuvable. (status code 404)
+     *         or Erreur interne. (status code 500)
+     */
+    @Operation(
+        operationId = "getStudentsByCourse",
+        summary = "Liste des étudiants d’un cours.",
+        description = "Retourne les étudiants inscrits à un cours.",
+        tags = { "course" },
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Liste d’étudiants retournée.", content = {
+                @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = heg.backendspring.models.StudentDto.class)))
+            }),
+            @ApiResponse(responseCode = "404", description = "Cours introuvable."),
+            @ApiResponse(responseCode = "500", description = "Erreur interne.")
+        }
+    )
+    @RequestMapping(
+        method = RequestMethod.GET,
+        value = "/course/{courseId}/students",
+        produces = { "application/json" }
+    )
+    
+    default ResponseEntity<List<heg.backendspring.models.StudentDto>> getStudentsByCourse(
+        @Parameter(name = "courseId", description = "Identifiant du cours.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId
+    ) {
+        getRequest().ifPresent(request -> {
+            for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
+                if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
+                    String exampleString = "[ { \"id\" : 300, \"name\" : \"George Dylan\", \"email\" : \"george.dylan@etu.hesge.ch\", \"studyType\" : \"FULL_TIME\", \"studentCourses\" : [ { \"id\" : 1, \"name\" : \"Python Introduction\", \"code\" : \"61-13\", \"semester\" : \"AUTOMNE\", \"courseType\" : \"PYTHON\", \"year_course\" : 2025, \"teacher\" : \"Stettler\" } ] }, { \"id\" : 300, \"name\" : \"George Dylan\", \"email\" : \"george.dylan@etu.hesge.ch\", \"studyType\" : \"FULL_TIME\", \"studentCourses\" : [ { \"id\" : 1, \"name\" : \"Python Introduction\", \"code\" : \"61-13\", \"semester\" : \"AUTOMNE\", \"courseType\" : \"PYTHON\", \"year_course\" : 2025, \"teacher\" : \"Stettler\" } ] } ]";
+                    ApiUtil.setExampleResponse(request, "application/json", exampleString);
+                    break;
+                }
+            }
+        });
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+
+    }
+
+
+    /**
+     * GET /course/{courseId}/TPs/{tpNumber} : Détail d’un TP.
+     * Retourne les informations d’un TP spécifique.
+     *
+     * @param courseId Identifiant du cours. (required)
+     * @param tpNumber Numéro du TP. (required)
+     * @return TP trouvé. (status code 200)
+     *         or TP ou cours introuvable. (status code 404)
+     *         or Erreur interne. (status code 500)
+     */
+    @Operation(
+        operationId = "getTPById",
+        summary = "Détail d’un TP.",
+        description = "Retourne les informations d’un TP spécifique.",
+        tags = { "course" },
+        responses = {
+            @ApiResponse(responseCode = "200", description = "TP trouvé.", content = {
+                @Content(mediaType = "application/json", schema = @Schema(implementation = heg.backendspring.models.TPDto.class))
+            }),
+            @ApiResponse(responseCode = "404", description = "TP ou cours introuvable."),
+            @ApiResponse(responseCode = "500", description = "Erreur interne.")
+        }
+    )
+    @RequestMapping(
+        method = RequestMethod.GET,
+        value = "/course/{courseId}/TPs/{tpNumber}",
+        produces = { "application/json" }
+    )
+    
+    default ResponseEntity<heg.backendspring.models.TPDto> getTPById(
+        @Parameter(name = "courseId", description = "Identifiant du cours.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId,
+        @Parameter(name = "tpNumber", description = "Numéro du TP.", required = true, in = ParameterIn.PATH) @PathVariable("tpNumber") Integer tpNumber
+    ) {
+        getRequest().ifPresent(request -> {
+            for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
+                if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
+                    String exampleString = "{ \"id\" : 10, \"false\" : 1, \"courseId\" : 1, \"submission\" : { \"id\" : 100, \"fileName\" : \"TP1_Rendus.zip\", \"pathStorage\" : \"/data/courses/61-13/TP1/TP1_Rendus.zip\", \"pathFileStructured\" : \"/data/courses/61-13/TP1/TP1_RenduRestructuration.zip\" }, \"statusStudents\" : [ { \"id\" : 1000, \"studentId\" : 300, \"tpId\" : 10, \"studentSubmission\" : true } ] }";
+                    ApiUtil.setExampleResponse(request, "application/json", exampleString);
+                    break;
+                }
+            }
+        });
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+
+    }
+
+
+    /**
+     * GET /course/{courseId}/TPs : Liste des TPs d’un cours.
+     * Retourne les TPs associés à un cours.
+     *
+     * @param courseId Identifiant du cours. (required)
+     * @return Liste de TPs retournée. (status code 200)
+     *         or Cours introuvable. (status code 404)
+     *         or Erreur interne. (status code 500)
+     */
+    @Operation(
+        operationId = "getTPsByCourse",
+        summary = "Liste des TPs d’un cours.",
+        description = "Retourne les TPs associés à un cours.",
+        tags = { "course" },
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Liste de TPs retournée.", content = {
+                @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = heg.backendspring.models.TPDto.class)))
+            }),
+            @ApiResponse(responseCode = "404", description = "Cours introuvable."),
+            @ApiResponse(responseCode = "500", description = "Erreur interne.")
+        }
+    )
+    @RequestMapping(
+        method = RequestMethod.GET,
+        value = "/course/{courseId}/TPs",
+        produces = { "application/json" }
+    )
+    
+    default ResponseEntity<List<heg.backendspring.models.TPDto>> getTPsByCourse(
+        @Parameter(name = "courseId", description = "Identifiant du cours.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId
+    ) {
+        getRequest().ifPresent(request -> {
+            for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
+                if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
+                    String exampleString = "[ { \"id\" : 10, \"false\" : 1, \"courseId\" : 1, \"submission\" : { \"id\" : 100, \"fileName\" : \"TP1_Rendus.zip\", \"pathStorage\" : \"/data/courses/61-13/TP1/TP1_Rendus.zip\", \"pathFileStructured\" : \"/data/courses/61-13/TP1/TP1_RenduRestructuration.zip\" }, \"statusStudents\" : [ { \"id\" : 1000, \"studentId\" : 300, \"tpId\" : 10, \"studentSubmission\" : true } ] }, { \"id\" : 10, \"false\" : 1, \"courseId\" : 1, \"submission\" : { \"id\" : 100, \"fileName\" : \"TP1_Rendus.zip\", \"pathStorage\" : \"/data/courses/61-13/TP1/TP1_Rendus.zip\", \"pathFileStructured\" : \"/data/courses/61-13/TP1/TP1_RenduRestructuration.zip\" }, \"statusStudents\" : [ { \"id\" : 1000, \"studentId\" : 300, \"tpId\" : 10, \"studentSubmission\" : true } ] } ]";
+                    ApiUtil.setExampleResponse(request, "application/json", exampleString);
+                    break;
+                }
+            }
+        });
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+
+    }
+
+
+    /**
+     * DELETE /course/{courseId}/students/{studentId} : Suppression d’un étudiant d’un cours.
+     * Retire un étudiant d’un cours à partir de son identifiant.
+     *
+     * @param courseId Identifiant du cours. (required)
+     * @param studentId Identifiant de l’étudiant. (required)
+     * @return Étudiant retiré du cours. (status code 204)
+     *         or Cours ou étudiant introuvable. (status code 404)
+     *         or Erreur interne. (status code 500)
+     */
+    @Operation(
+        operationId = "removeStudentFromCourse",
+        summary = "Suppression d’un étudiant d’un cours.",
+        description = "Retire un étudiant d’un cours à partir de son identifiant.",
+        tags = { "course" },
+        responses = {
+            @ApiResponse(responseCode = "204", description = "Étudiant retiré du cours."),
+            @ApiResponse(responseCode = "404", description = "Cours ou étudiant introuvable."),
+            @ApiResponse(responseCode = "500", description = "Erreur interne.")
+        }
+    )
+    @RequestMapping(
+        method = RequestMethod.DELETE,
+        value = "/course/{courseId}/students/{studentId}"
+    )
+    
+    default ResponseEntity<Void> removeStudentFromCourse(
+        @Parameter(name = "courseId", description = "Identifiant du cours.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId,
+        @Parameter(name = "studentId", description = "Identifiant de l’étudiant.", required = true, in = ParameterIn.PATH) @PathVariable("studentId") Long studentId
+    ) {
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+
+    }
+
+
+    /**
+     * PUT /course/{courseId}/TPs/{tpNumber} : Mise à jour d’un TP.
+     * Met à jour les informations d’un TP existant.
+     *
+     * @param courseId Identifiant du cours. (required)
+     * @param tpNumber Numéro du TP. (required)
+     * @param tpDto Données mises à jour du TP. (required)
+     * @return TP mis à jour. (status code 200)
+     *         or TP ou cours introuvable. (status code 404)
+     *         or Erreur interne. (status code 500)
+     */
+    @Operation(
+        operationId = "updateTP",
+        summary = "Mise à jour d’un TP.",
+        description = "Met à jour les informations d’un TP existant.",
+        tags = { "course" },
+        responses = {
+            @ApiResponse(responseCode = "200", description = "TP mis à jour.", content = {
+                @Content(mediaType = "application/json", schema = @Schema(implementation = heg.backendspring.models.TPDto.class))
+            }),
+            @ApiResponse(responseCode = "404", description = "TP ou cours introuvable."),
+            @ApiResponse(responseCode = "500", description = "Erreur interne.")
+        }
+    )
+    @RequestMapping(
+        method = RequestMethod.PUT,
+        value = "/course/{courseId}/TPs/{tpNumber}",
+        produces = { "application/json" },
+        consumes = { "application/json" }
+    )
+    
+    default ResponseEntity<heg.backendspring.models.TPDto> updateTP(
+        @Parameter(name = "courseId", description = "Identifiant du cours.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId,
+        @Parameter(name = "tpNumber", description = "Numéro du TP.", required = true, in = ParameterIn.PATH) @PathVariable("tpNumber") Integer tpNumber,
+        @Parameter(name = "TPDto", description = "Données mises à jour du TP.", required = true) @Valid @RequestBody TPDto tpDto
+    ) {
+        getRequest().ifPresent(request -> {
+            for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
+                if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
+                    String exampleString = "{ \"id\" : 10, \"false\" : 1, \"courseId\" : 1, \"submission\" : { \"id\" : 100, \"fileName\" : \"TP1_Rendus.zip\", \"pathStorage\" : \"/data/courses/61-13/TP1/TP1_Rendus.zip\", \"pathFileStructured\" : \"/data/courses/61-13/TP1/TP1_RenduRestructuration.zip\" }, \"statusStudents\" : [ { \"id\" : 1000, \"studentId\" : 300, \"tpId\" : 10, \"studentSubmission\" : true } ] }";
                     ApiUtil.setExampleResponse(request, "application/json", exampleString);
                     break;
                 }

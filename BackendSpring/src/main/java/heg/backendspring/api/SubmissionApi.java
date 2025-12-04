@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.Optional;
 import jakarta.annotation.Generated;
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-11-26T16:20:52.056231300+01:00[Europe/Zurich]", comments = "Generator version: 7.9.0")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-12-04T16:08:10.970899+01:00[Europe/Zurich]", comments = "Generator version: 7.9.0")
 @Validated
 @Tag(name = "submission", description = "Gestion des soumissions de TP")
 public interface SubmissionApi {
@@ -82,6 +82,138 @@ public interface SubmissionApi {
             for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
                 if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
                     String exampleString = "{ \"id\" : 100, \"fileName\" : \"TP1_Rendus.zip\", \"pathStorage\" : \"/data/courses/61-13/TP1/TP1_Rendus.zip\", \"pathFileStructured\" : \"/data/courses/61-13/TP1/TP1_RenduRestructuration.zip\" }";
+                    ApiUtil.setExampleResponse(request, "application/json", exampleString);
+                    break;
+                }
+            }
+        });
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+
+    }
+
+
+    /**
+     * GET /course/{courseId}/downloadStructuredSubmission/{tpNo} : Téléchargement du rendu restructuré.
+     * Permet de télécharger le fichier ZIP restructuré des rendus d’un TP.
+     *
+     * @param courseId Identifiant du cours. (required)
+     * @param tpNo Numéro de TP. (required)
+     * @return Fichier ZIP restructuré retourné. (status code 200)
+     *         or Cours ou TP introuvable. (status code 404)
+     *         or Erreur interne. (status code 500)
+     */
+    @Operation(
+        operationId = "downloadStructuredSubmission",
+        summary = "Téléchargement du rendu restructuré.",
+        description = "Permet de télécharger le fichier ZIP restructuré des rendus d’un TP.",
+        tags = { "submission" },
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Fichier ZIP restructuré retourné.", content = {
+                @Content(mediaType = "application/zip", schema = @Schema(implementation = org.springframework.core.io.Resource.class))
+            }),
+            @ApiResponse(responseCode = "404", description = "Cours ou TP introuvable."),
+            @ApiResponse(responseCode = "500", description = "Erreur interne.")
+        }
+    )
+    @RequestMapping(
+        method = RequestMethod.GET,
+        value = "/course/{courseId}/downloadStructuredSubmission/{tpNo}",
+        produces = { "application/zip" }
+    )
+    
+    default ResponseEntity<org.springframework.core.io.Resource> downloadStructuredSubmission(
+        @Parameter(name = "courseId", description = "Identifiant du cours.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId,
+        @Parameter(name = "tpNo", description = "Numéro de TP.", required = true, in = ParameterIn.PATH) @PathVariable("tpNo") Integer tpNo
+    ) {
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+
+    }
+
+
+    /**
+     * POST /course/{courseId}/manageTP/{tpNo} : Gestion avancée d’un TP.
+     * Effectue des opérations de gestion avancée sur un TP.
+     *
+     * @param courseId Identifiant du cours. (required)
+     * @param tpNo Numéro de TP. (required)
+     * @return Résultat de la gestion du TP. (status code 200)
+     *         or Cours ou TP introuvable. (status code 404)
+     *         or Erreur interne. (status code 500)
+     */
+    @Operation(
+        operationId = "manageTP",
+        summary = "Gestion avancée d’un TP.",
+        description = "Effectue des opérations de gestion avancée sur un TP.",
+        tags = { "submission" },
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Résultat de la gestion du TP.", content = {
+                @Content(mediaType = "application/json", schema = @Schema(implementation = heg.backendspring.models.TPDto.class))
+            }),
+            @ApiResponse(responseCode = "404", description = "Cours ou TP introuvable."),
+            @ApiResponse(responseCode = "500", description = "Erreur interne.")
+        }
+    )
+    @RequestMapping(
+        method = RequestMethod.POST,
+        value = "/course/{courseId}/manageTP/{tpNo}",
+        produces = { "application/json" }
+    )
+    
+    default ResponseEntity<heg.backendspring.models.TPDto> manageTP(
+        @Parameter(name = "courseId", description = "Identifiant du cours.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId,
+        @Parameter(name = "tpNo", description = "Numéro de TP.", required = true, in = ParameterIn.PATH) @PathVariable("tpNo") Integer tpNo
+    ) {
+        getRequest().ifPresent(request -> {
+            for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
+                if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
+                    String exampleString = "{ \"id\" : 10, \"false\" : 1, \"courseId\" : 1, \"submission\" : { \"id\" : 100, \"fileName\" : \"TP1_Rendus.zip\", \"pathStorage\" : \"/data/courses/61-13/TP1/TP1_Rendus.zip\", \"pathFileStructured\" : \"/data/courses/61-13/TP1/TP1_RenduRestructuration.zip\" }, \"statusStudents\" : [ { \"id\" : 1000, \"studentId\" : 300, \"tpId\" : 10, \"studentSubmission\" : true } ] }";
+                    ApiUtil.setExampleResponse(request, "application/json", exampleString);
+                    break;
+                }
+            }
+        });
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+
+    }
+
+
+    /**
+     * POST /course/{courseId}/startProcessSubmission/{tpNo} : Lancement du traitement des rendus.
+     * Lance le processus de restructuration et de traitement des rendus pour un TP.
+     *
+     * @param courseId Identifiant du cours. (required)
+     * @param tpNo Numéro de TP. (required)
+     * @return Traitement lancé. (status code 200)
+     *         or Cours ou TP introuvable. (status code 404)
+     *         or Erreur interne. (status code 500)
+     */
+    @Operation(
+        operationId = "startProcessSubmission",
+        summary = "Lancement du traitement des rendus.",
+        description = "Lance le processus de restructuration et de traitement des rendus pour un TP.",
+        tags = { "submission" },
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Traitement lancé.", content = {
+                @Content(mediaType = "application/json", schema = @Schema(implementation = heg.backendspring.models.TPDto.class))
+            }),
+            @ApiResponse(responseCode = "404", description = "Cours ou TP introuvable."),
+            @ApiResponse(responseCode = "500", description = "Erreur interne.")
+        }
+    )
+    @RequestMapping(
+        method = RequestMethod.POST,
+        value = "/course/{courseId}/startProcessSubmission/{tpNo}",
+        produces = { "application/json" }
+    )
+    
+    default ResponseEntity<heg.backendspring.models.TPDto> startProcessSubmission(
+        @Parameter(name = "courseId", description = "Identifiant du cours.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId,
+        @Parameter(name = "tpNo", description = "Numéro de TP.", required = true, in = ParameterIn.PATH) @PathVariable("tpNo") Integer tpNo
+    ) {
+        getRequest().ifPresent(request -> {
+            for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
+                if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
+                    String exampleString = "{ \"id\" : 10, \"false\" : 1, \"courseId\" : 1, \"submission\" : { \"id\" : 100, \"fileName\" : \"TP1_Rendus.zip\", \"pathStorage\" : \"/data/courses/61-13/TP1/TP1_Rendus.zip\", \"pathFileStructured\" : \"/data/courses/61-13/TP1/TP1_RenduRestructuration.zip\" }, \"statusStudents\" : [ { \"id\" : 1000, \"studentId\" : 300, \"tpId\" : 10, \"studentSubmission\" : true } ] }";
                     ApiUtil.setExampleResponse(request, "application/json", exampleString);
                     break;
                 }

@@ -1,18 +1,17 @@
 package heg.backendspring.service;
 
-import heg.backendspring.entity.Student;
-import heg.backendspring.entity.Submission;
-import heg.backendspring.entity.TP;
-import heg.backendspring.entity.TPStatus;
+import heg.backendspring.entity.*;
 import heg.backendspring.mapping.MapperTP;
 import heg.backendspring.models.TPDto;
 import heg.backendspring.repository.RepositoryTP;
 import heg.backendspring.repository.RepositoryTPStatus;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileSystemUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -100,6 +99,7 @@ public class ServiceTP {
      */
     @Transactional
     public TPDto addTPStatusListToTP(TP tp, Set<Student> students) {
+        log.info("addTPStatusListToTP");
         List<String> renduEtudiants = serviceSubmission.getStudentsSubmission(tp.getSubmission());
         for( Student student : students){
             //Créer le TPStatus pour chaque étudiant
@@ -128,11 +128,69 @@ public class ServiceTP {
         //Récupérer le rendu
         Submission submission = tp.getSubmission();
         if(submission != null){
+            log.info("Path to restructurated file is not null : {}", submission.getPathFileStructured());
             Path pathFile = Paths.get(submission.getPathFileStructured());
             return pathFile.toFile();
         }
         return null;
     }
 
+    /**
+     * Méthode permettant de supprimer un TP par son id
+     * Supprimer les status associés et surtout les fichiers sur le disque
+     */
+    @Transactional
+    public void deleteTP(Long tpId) {
+        TP tp = repositoryTP.findById(tpId)
+                .orElseThrow(() -> new EntityNotFoundException("TP not found with id: " + tpId));
+
+        Course course = tp.getCourse();
+
+        // Supprimer le dossier du TP sur le disque
+        deleteTpDirectoryIfExists(tp, course);
+
+        // 2) Supprimer les éventuels statuts
+        if (tp.getStatusStudents() != null && !tp.getStatusStudents().isEmpty()) {
+            repositoryTPStatus.deleteAll(tp.getStatusStudents());
+            tp.getStatusStudents().clear();
+        }
+        // Supprimer le TP lui-même
+        repositoryTP.delete(tp);
+
+        log.info("Deleted TP {} (id={}) from course {}",
+                tp.getNo(),
+                tp.getId(),
+                (course != null ? course.getId() : null));
+    }
+
+    /**
+     * Supprime le dossier physique du TP sur le disque, s'il existe.
+     */
+    private void deleteTpDirectoryIfExists(TP tp, Course course) {
+        try {
+            Path tpRoot = null;
+
+            // Cas 1 : on a une submission avec un pathStorage → on en déduit le dossier TPx
+            if (tp.getSubmission() != null && tp.getSubmission().getPathStorage() != null) {
+                Path originalZip = Paths.get(tp.getSubmission().getPathStorage());
+                tpRoot = originalZip.getParent(); // .../DocumentsZip/69-23/TP4
+            } else if (course != null && course.getCode() != null) {
+                // Cas 2 : pas de submission → on reconstruit le chemin
+                // ex: DocumentsZip/69-23
+                Path courseRoot = Paths.get(zipStoragePath, course.getCode());
+                // ex: .../TP4
+                tpRoot = courseRoot.resolve("TP" + tp.getNo());
+            }
+
+            if (tpRoot != null && Files.exists(tpRoot)) {
+                FileSystemUtils.deleteRecursively(tpRoot);
+                log.info("Deleted TP folder: {}", tpRoot);
+            } else {
+                log.info("No TP folder found for TP {} (resolved path: {})", tp.getId(), tpRoot);
+            }
+        } catch (IOException e) {
+            log.error("Failed to delete TP folder for TP {}: {}", tp.getId(), e.getMessage(), e);
+        }
+    }
 
 }

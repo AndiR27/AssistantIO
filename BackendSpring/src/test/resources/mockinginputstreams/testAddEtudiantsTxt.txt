@@ -1,0 +1,2 @@
+marks3;mark3@hesge.ch;TEMPS_PLEIN
+hellyr3;helly3@hesge.ch;TEMPS_PARTIEL

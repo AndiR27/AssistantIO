@@ -17,6 +17,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.util.FileSystemUtils;
 
@@ -34,6 +35,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
+@ActiveProfiles("test")
 class TestServiceSubmission {
 
     @Autowired
@@ -287,7 +289,56 @@ class TestServiceSubmission {
     }
 
 
+    @Test
+    @DisplayName("processZipSubmission - ne plante pas si un rendu est en 7zip dans test_zip.zip")
+    void testProcessZipSubmission_contains7zipFile() throws IOException {
+
+        // ----- Arrange -----
+        // testZipInput est déjà initialisé dans @BeforeEach
+        assertTrue(Files.exists(testZipInput), "Le fichier test_zip.zip doit exister");
+
+        // Vérifier que le ZIP d'entrée contient bien au moins un .7z
+        try (ZipFile inputZip = new ZipFile(testZipInput.toFile())) {
+            boolean has7zInInput = inputZip.stream()
+                    .anyMatch(entry -> entry.getName().toLowerCase().endsWith(".7z"));
+
+            assertTrue(
+                    has7zInInput,
+                    "Le ZIP d'entrée doit contenir au moins un fichier .7z pour valider le scénario de test."
+            );
+        }
+
+        Course course = new Course();
+        course.setId(50L);
+        course.setName("Cours avec rendu 7zip");
+        course.setCode("77-77");
+        course.setCourseType(CourseType.PYTHON); // ou null, selon ce que tu veux tester
+
+        TP tp = new TP();
+        tp.setId(15L);
+        tp.setNo(1);
+        tp.setCourse(course);
+
+        Submission submission = new Submission();
+        submission.setPathStorage(testZipInput.toString());
+        tp.setSubmission(submission);
+
+        // ----- Act -----
+        serviceSubmission.processZipSubmission(course, tp);
+
+        // ----- Assert -----
+        Submission updated = tp.getSubmission();
+        assertNotNull(updated, "La submission ne doit pas être nulle après traitement");
+        assertNotNull(updated.getPathFileStructured(), "Le chemin du zip restructuré doit être renseigné");
+
+        Path structuredZip = Path.of(updated.getPathFileStructured());
+        assertTrue(Files.exists(structuredZip), "Le zip restructuré doit exister sur le disque");
     }
+
+
+
+
+}
 
 
 

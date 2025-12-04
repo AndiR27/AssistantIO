@@ -420,7 +420,7 @@ export class ApiService {
 
   /** GET download a TP structured file; on error, alert + re-throw */
   downloadTP(courseId: number, tpNo: number) {
-    const downloadUrl = `${API_URL}/course/${courseId}/downloadRestructuredZip/${tpNo}`;
+    const downloadUrl = `${API_URL}/course/${courseId}/downloadStructuredSubmission/${tpNo}`;
     return this.http.get(downloadUrl, { responseType: 'blob' });
   }
 

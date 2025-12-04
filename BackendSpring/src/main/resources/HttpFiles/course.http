@@ -1,6 +1,6 @@
 @host = http://localhost:8088
 @base = {{host}}/course
-@courseId = 2
+@courseId = 1
 @studentId = 1
 @tpNumber = 1
 @tpNo = 1
@@ -44,7 +44,7 @@ Content-Type: application/json
   "id": null,
   "name": "Alice Dupont",
   "email": "alice.dupont@example.com",
-  "studyType": "temps_plein",
+  "studyType": "TEMPS_PLEIN",
   "courseStudentList": []
 }
 
@@ -60,9 +60,14 @@ Accept: application/json
 # POST /course/{courseId}/addStudentsFromFile
 ###
 POST {{base}}/{{courseId}}/addStudentsFromFile
-Content-Type: multipart/form-data
+Content-Type: multipart/form-data; boundary=MyBoundary
 
-file=@../../../src/test/resources/TestAddEtudiantsTxt.txt;type=text/plain
+--MyBoundary
+Content-Disposition: form-data; name="file"; filename="TestAddEtudiantsTxt.txt"
+Content-Type: text/plain
+
+< D:\AssistannatProg\AssistantIO\BackendSpring\src\test\resources\TestAddEtudiantsTxt.txt
+--MyBoundary--
 
 ###
 # 7) Get All TPs in Course
@@ -83,6 +88,10 @@ Accept: application/json
 # GET /course/{courseId}/TPs/{tpNumber}
 ###
 GET {{base}}/{{courseId}}/TPs/{{tpNumber}}
+Accept: application/json
+
+### Exemple for tpNumber = 4
+GET {{base}}/{{courseId}}/TPs/4
 Accept: application/json
 
 ###
@@ -112,18 +121,35 @@ Accept: application/json
 # POST /course/{courseId}/addRendu/{tpNo}
 ###
 POST {{base}}/{{courseId}}/addRendu/{{tpNo}}
-Content-Type: multipart/form-data
+Content-Type: multipart/form-data; boundary=MyBoundary
 
-file=@D:/AssistannatProg/AssistantIO/src/test/resources/mockinginputstreams/test_zip.zip;type=application/zip
+--MyBoundary
+Content-Disposition: form-data; name="file"; filename="test_zip.zip"
+Content-Type: application/zip
 
+< D:\AssistannatProg\AssistantIO\BackendSpring\src\test\resources\mockinginputstreams\test_zip.zip
+--MyBoundary--
 ###
 # 13) Start TP submission processing
 # POST /course/{courseId}/startProcessSubmission/{tpNo}
 ###
 POST {{base}}/{{courseId}}/startProcessSubmission/{{tpNo}}
 
+### Example for tpNo = 4
+POST {{base}}/{{courseId}}/startProcessSubmission/4
+
 ###
 # 14) Manage TP (advanced processing)
 # POST /course/{courseId}/manageTP/{tpNo}
 ###
 POST {{base}}/{{courseId}}/manageTP/{{tpNo}}
+
+### Example for tpNo = 4
+POST {{base}}/{{courseId}}/manageTP/4
+
+###
+# 15) Get Submission details for a TP
+# GET /course/{courseId}/TPs/{tpNumber}/submission
+###
+GET {{base}}/{{courseId}}/downloadStructuredSubmission/{{tpNo}}
+Accept: application/zip

@@ -2,42 +2,46 @@
    TABLE SECTION
 ======================================== */
 .table-section {
-    margin-top: 1rem;
+    margin-top: 1.5rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
 }
 
 .section-header {
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
 }
 
 .section-title {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    font-size: 1.75rem;
+    gap: 0.875rem;
+    font-size: 1.875rem;
     font-weight: 700;
-    color: #1f2937;
-    margin: 0 0 0.5rem 0;
+    color: #111827;
+    margin: 0 0 0.625rem 0;
+    letter-spacing: -0.025em;
 }
 
 .section-title mat-icon {
     color: #667eea;
-    font-size: 2rem;
-    width: 2rem;
-    height: 2rem;
+    font-size: 2.25rem;
+    width: 2.25rem;
+    height: 2.25rem;
 }
 
 .section-subtitle {
     margin: 0;
     color: #6b7280;
-    font-size: 1rem;
-    padding-left: 2.75rem;
+    font-size: 1.0625rem;
+    font-weight: 400;
+    padding-left: 3.125rem;
 }
 
 .table-wrapper {
     overflow-x: auto;
-    border-radius: 0.75rem;
+    border-radius: 1rem;
     background: #fff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 10px 25px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .etudiants-table {
@@ -49,60 +53,398 @@
 
 .etudiants-table th,
 .etudiants-table td {
-    padding: 1rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
     text-align: left;
-    color: #4b5563;
+    color: #374151;
+    font-size: 0.9375rem;
 }
 
 .etudiants-table thead th {
-    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+    background: linear-gradient(135deg, #fafbfc 0%, #f3f4f6 100%);
     position: sticky;
     top: 0;
     z-index: 2;
-    color: #1f2937;
+    color: #111827;
     font-weight: 600;
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.075em;
+    border-bottom: 2px solid rgba(102, 126, 234, 0.15);
 }
 
 .etudiants-table tbody tr {
-    transition: background-color 0.2s;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .etudiants-table tbody tr:hover {
-    background: rgba(102, 126, 234, 0.05);
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.04) 0%, rgba(118, 75, 162, 0.04) 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.08);
 }
 
+.etudiants-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* ========================================
+   STUDENT NAME COLUMN
+======================================== */
+.student-name-header {
+    min-width: 200px;
+}
+
+.student-name {
+    font-weight: 500;
+}
+
+.student-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.student-icon {
+    color: #667eea;
+    font-size: 1.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    opacity: 0.85;
+}
+
+/* ========================================
+   TP HEADER STYLING
+======================================== */
 .tp-header {
     white-space: nowrap;
+    min-width: 200px;
+    text-align: center;
+    padding: 1rem 1.25rem !important;
 }
 
 .tp-header-content {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
+    gap: 1rem;
 }
 
-.tp-cell {
+.tp-title-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.625rem;
+    width: 100%;
+}
+
+.tp-number {
+    font-size: 1.0625rem;
+    font-weight: 700;
+    color: #111827;
+    letter-spacing: -0.0125em;
+}
+
+/* ========================================
+   TP STATUS BADGES
+======================================== */
+.tp-status-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.tp-status-badge .status-icon {
+    font-size: 1.125rem;
+    width: 1.125rem;
+    height: 1.125rem;
+}
+
+.tp-status-badge .status-label {
     white-space: nowrap;
+    font-weight: 700;
+}
+
+/* Status: Ready (green) */
+.status-ready {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    color: #065f46;
+    border: 1.5px solid #6ee7b7;
+}
+
+.status-ready .status-icon {
+    color: #059669;
+}
+
+/* Status: Processing (blue) */
+.status-processing {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    color: #1e40af;
+    border: 1.5px solid #93c5fd;
+}
+
+.status-processing .status-icon {
+    color: #2563eb;
+    animation: spin 2s linear infinite;
+}
+
+/* Status: Needs Update (orange/warning) */
+.status-needs-update {
+    background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+    color: #92400e;
+    border: 1.5px solid #fb923c;
+}
+
+.status-needs-update .status-icon {
+    color: #ea580c;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ========================================
+   TP ACTIONS (ICON BUTTONS)
+======================================== */
+.tp-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    align-items: center;
+}
+
+.action-icon-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 0.625rem;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.action-icon-btn mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: white;
+}
+
+.action-icon-btn:hover:not([disabled]) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.action-icon-btn:disabled {
+    opacity: 0.5;
+}
+
+/* Icon button gradient backgrounds */
+.download-icon {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.download-icon:hover:not([disabled]) {
+    background: linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%);
+}
+
+.restructure-icon {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.restructure-icon:hover:not([disabled]) {
+    background: linear-gradient(135deg, #e07fe8 0%, #e14359 100%);
+}
+
+.refresh-icon {
+    background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+}
+
+.refresh-icon:hover:not([disabled]) {
+    background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+}
+
+.delete-icon {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.delete-icon:hover:not([disabled]) {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+}
+
+/* ========================================
+   TP CELL (SUBMISSION STATUS)
+======================================== */
+.tp-cell {
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 1rem !important;
+}
+
+.tp-cell:hover {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%) !important;
+}
+
+/* ========================================
+   SUBMISSION STATUS STYLING
+======================================== */
+.submission-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    padding: 0.625rem 0.875rem;
+    border-radius: 0.625rem;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 500;
+}
+
+.submission-status:hover {
+    transform: scale(1.05);
+}
+
+.submission-status .status-icon {
+    font-size: 1.375rem;
+    width: 1.375rem;
+    height: 1.375rem;
+}
+
+.submission-status .status-text {
+    font-size: 0.9375rem;
+    font-weight: 600;
+}
+
+/* Submission status classes */
+.submission-status.submitted {
+    background: rgba(16, 185, 129, 0.1);
+}
+
+.submission-status.submitted .status-icon {
+    color: #10b981;
+}
+
+.submission-status.submitted .status-text {
+    color: #065f46;
+}
+
+.submission-status.not-submitted {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.submission-status.not-submitted .status-icon {
+    color: #ef4444;
+}
+
+.submission-status.not-submitted .status-text {
+    color: #991b1b;
+}
+
+.submission-status.unknown {
+    background: rgba(156, 163, 175, 0.1);
+}
+
+.submission-status.unknown .status-icon {
+    color: #9ca3af;
+}
+
+.submission-status.unknown .status-text {
+    color: #6b7280;
+}
+
+/* ========================================
+   STUDENT ACTIONS COLUMN
+======================================== */
+.actions-header {
+    min-width: 120px;
     text-align: center;
 }
 
-.tp-actions {
-    display: flex;
-    gap: 0.25rem;
-    justify-content: center;
+.actions-cell {
+    text-align: center;
 }
 
-/* Responsive adjustments */
+.student-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    align-items: center;
+}
+
+.student-action-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 0.625rem;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.student-action-btn mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: white;
+}
+
+.student-action-btn:hover:not([disabled]) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.student-action-btn.edit-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.student-action-btn.edit-btn:hover:not([disabled]) {
+    background: linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%);
+}
+
+.student-action-btn.delete-btn {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.student-action-btn.delete-btn:hover:not([disabled]) {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+======================================== */
+@media (max-width: 1024px) {
+    .tp-status-badge .status-label {
+        display: none;
+    }
+
+    .tp-status-badge {
+        padding: 0.5rem;
+    }
+
+    .submission-status .status-text {
+        display: none;
+    }
+
+    .tp-header {
+        min-width: 160px;
+        padding: 0.875rem 1rem !important;
+    }
+}
+
 @media (max-width: 768px) {
 
     .etudiants-table th,
     .etudiants-table td {
-        padding: 0.75rem 0.5rem;
+        padding: 1rem 0.75rem;
         font-size: 0.875rem;
     }
 
@@ -113,5 +455,36 @@
     .section-subtitle {
         padding-left: 0;
         margin-top: 0.5rem;
+        font-size: 0.9375rem;
     }
+
+    .tp-header {
+        min-width: 140px;
+    }
+
+    .student-name-header {
+        min-width: 160px;
+    }
+}
+
+/* ========================================
+   LOADING STATES
+======================================== */
+::ng-deep .mat-progress-spinner circle {
+    stroke: currentColor;
+}
+
+/* ========================================
+   ACCESSIBILITY & FOCUS STATES
+======================================== */
+.action-icon-btn:focus-visible,
+.student-action-btn:focus-visible {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+.tp-cell:focus-visible {
+    outline: 2px solid #667eea;
+    outline-offset: -2px;
+    border-radius: 0.5rem;
 }

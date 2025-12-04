@@ -18,6 +18,7 @@ public class FileUploadForm {
      /** Transforme le contenu d’un MultipartFile en tableau de lignes.*/
     public static String[] transformData(MultipartFile file) throws IOException {
         if (file == null || file.isEmpty()) {
+            log.info("File is null or empty");
             return new String[0];
         }
 

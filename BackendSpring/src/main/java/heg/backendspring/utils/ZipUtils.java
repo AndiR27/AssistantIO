@@ -7,6 +7,7 @@ import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
@@ -26,7 +27,13 @@ public class ZipUtils {
             Files.createDirectories(targetDir);
         }
 
-        try (FileSystem zipFs = newZipFileSystem(zipFile)) {
+        FileSystem zipFs = newZipFileSystem(zipFile);
+        if (zipFs == null) {
+            // Fichier non valide ou impossible à ouvrir → on log déjà côté helper, on sort.
+            return;
+        }
+
+        try (zipFs) {
             for (Path root : zipFs.getRootDirectories()) {
                 Files.walkFileTree(root, new SimpleFileVisitor<>() {
 
@@ -104,14 +111,27 @@ public class ZipUtils {
         }
     }
 
+    // =============================
+    //           7-ZIP EXTRACTION
+    // =============================
     public void extract7z(Path sevenZipFile, Path outputDir) {
-        try (SevenZFile sevenZFile = new SevenZFile(sevenZipFile.toFile())) {
+        if (sevenZipFile == null || !Files.isRegularFile(sevenZipFile)) {
+            return;
+        }
+
+        try (
+                SeekableByteChannel channel = Files.newByteChannel(sevenZipFile);
+                SevenZFile sevenZFile = SevenZFile.builder()
+                        .setSeekableByteChannel(channel)
+                        .get()
+        ) {
 
             if (Files.notExists(outputDir)) {
                 Files.createDirectories(outputDir);
             }
 
             SevenZArchiveEntry entry;
+            byte[] buffer = new byte[8192];
 
             while ((entry = sevenZFile.getNextEntry()) != null) {
 
@@ -119,22 +139,47 @@ public class ZipUtils {
                     continue;
                 }
 
-                Path outputFile = outputDir.resolve(entry.getName());
+                Path outputFile = outputDir.resolve(entry.getName()).normalize();
+
+                // Anti path traversal
+                if (!outputFile.startsWith(outputDir.normalize())) {
+                    continue;
+                }
+
                 Files.createDirectories(outputFile.getParent());
 
-                byte[] buffer = new byte[(int) entry.getSize()];
-                int read = sevenZFile.read(buffer);
+                try (java.io.OutputStream out = Files.newOutputStream(
+                        outputFile,
+                        StandardOpenOption.CREATE,
+                        StandardOpenOption.TRUNCATE_EXISTING
+                )) {
 
-                if (read > 0) {
-                    Files.write(outputFile, buffer, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-                    log.info("Extracted 7z entry: {}", outputFile);
+                    long remaining = entry.getSize();
+
+                    if (remaining < 0) {
+                        // Taille inconnue => lire jusqu'à EOF
+                        int read;
+                        while ((read = sevenZFile.read(buffer)) > 0) {
+                            out.write(buffer, 0, read);
+                        }
+                    } else {
+                        long toRead = remaining;
+                        while (toRead > 0) {
+                            int read = sevenZFile.read(buffer, 0, (int) Math.min(buffer.length, toRead));
+                            if (read < 0) break;
+                            out.write(buffer, 0, read);
+                            toRead -= read;
+                        }
+                    }
                 }
             }
 
         } catch (IOException e) {
-            log.error("Error extracting 7z file {} → {}", sevenZipFile, e.getMessage(), e);
+            log.debug("7z extraction skipped for {} ({})", sevenZipFile, e.getMessage());
         }
     }
+
+
 
     public void copyJavaProject(Path sourceDir, Path targetDir) {
         Set<String> ignoreDirs = Set.of(".git", ".idea", "target", "build", "out");
@@ -236,13 +281,42 @@ public class ZipUtils {
         if (Files.notExists(zipFile)) {
             throw new NoSuchFileException("Zip file does not exist: " + zipFile);
         }
+        if (!isValidZip(zipFile)) {
+            log.warn("File {} is not a valid ZIP archive. Skipping.", zipFile);
+            return null; // on signalera à unzip() de ne rien faire
+        }
+
         URI uri = URI.create("jar:" + zipFile.toUri());
         Map<String, String> env = Map.of("create", "false");
 
         try {
             return FileSystems.newFileSystem(uri, env);
         } catch (IOException e) {
-            throw new IOException("Unable to open ZIP filesystem for: " + zipFile, e);
+            log.warn("Unable to open ZIP filesystem for {} → {}. Skipping this archive.",
+                    zipFile, e.getMessage());
+            return null;
         }
     }
+
+    private boolean isValidZip(Path path) {
+        if (!Files.isRegularFile(path)) {
+            return false;
+        }
+
+        // Vérifie la "magic signature" d'un ZIP : PK\003\004
+        try (var in = Files.newInputStream(path)) {
+            byte[] signature = new byte[4];
+            int read = in.read(signature);
+            if (read < 4) {
+                return false;
+            }
+            return signature[0] == 'P'
+                    && signature[1] == 'K'
+                    && signature[2] == 3
+                    && signature[3] == 4;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
 }

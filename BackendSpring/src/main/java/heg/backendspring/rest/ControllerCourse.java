@@ -7,11 +7,17 @@ import heg.backendspring.service.ServiceTP;
 import heg.backendspring.utils.FileUploadForm;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -19,10 +25,9 @@ import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
-public class ControllerCourse implements CourseApi, ProcessingApi, StudentApi, SubmissionApi, TpApi {
+@Slf4j
+public class ControllerCourse implements CourseApi, SubmissionApi {
     private final ServiceCourse serviceCourse;
-    private final ServiceTP serviceTP;
-
 
     @Override
     public Optional<NativeWebRequest> getRequest() {
@@ -64,6 +69,7 @@ public class ControllerCourse implements CourseApi, ProcessingApi, StudentApi, S
 
     @Override
     public ResponseEntity<List<StudentDto>> addStudentsFromFile(Long courseId, MultipartFile file) {
+        log.info("Received file: {}", file.getOriginalFilename());
         try {
             return ResponseEntity.status(201).body(serviceCourse.addAllStudentsFromFile(courseId, FileUploadForm.transformData(file)));
         } catch (IOException e) {
@@ -96,6 +102,26 @@ public class ControllerCourse implements CourseApi, ProcessingApi, StudentApi, S
         } catch (IOException e) {
             return ResponseEntity.status(500).build();
         }
+    }
+
+    @Override
+    public ResponseEntity<Resource> downloadStructuredSubmission(Long courseId, Integer tpNo) {
+        // Récupère le fichier zip restructuré
+        File file = serviceCourse.getTPSubmissionRestructurated(courseId, tpNo);
+
+        if (file == null || !file.exists()) {
+            throw new EntityNotFoundException(
+                    "Aucun fichier restructuré trouvé pour le cours " + courseId + " et le TP " + tpNo
+            );
+        }
+
+        Resource resource = new FileSystemResource(file);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
+                .contentLength(file.length())
+                .contentType(MediaType.APPLICATION_OCTET_STREAM) // ou MediaType.valueOf("application/zip")
+                .body(resource);
     }
 
     @Override

@@ -1,170 +1,179 @@
-# AssistantIO : Fullstack App 
+# AssistantIO — Fullstack Application (Spring Boot + Angular)
 
-[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/ashusharmatech/todo-quarkus-angular/issues)  
-![Java CI with Maven](https://github.com/ashusharmatech/todo-quarkus-angular/workflows/Java%20CI%20with%20Maven/badge.svg)  
-![Node.js CI](https://github.com/ashusharmatech/todo-quarkus-angular/workflows/Node.js%20CI/badge.svg)
-
----
-
-## Description
-
-Cette application fullstack est conçue avec **Quarkus** pour le backend (REST API), **Angular** pour le frontend (interface utilisateur)
-et PostgreSQL pour la base de données.
-Elle permet de gérer d'automatiser la gestion des cours, de ses étudiants et des rendus de travaux pratiques 
-avec des opérations CRUD et une interface utilisateur simple mais efficace.
-L'idée principale est de se débarrasser de la gestion de ses tâches via des tableaux excels et
-de les gérer de manière centralisée.
+<p align="center">
+  <img src="https://img.shields.io/badge/Spring%20Boot-3.3+-6DB33F?style=for-the-badge&logo=springboot&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Angular-17+-DD0031?style=for-the-badge&logo=angular&logoColor=white"/>
+  <img src="https://img.shields.io/badge/PostgreSQL-15+-4169E1?style=for-the-badge&logo=postgresql&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white"/>
+  <img src="https://img.shields.io/badge/GitHub_Actions-CI/CD-2088FF?style=for-the-badge&logo=githubactions&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Architecture-Fullstack-9C27B0?style=for-the-badge&logo=stackshare&logoColor=white"/>
+</p>
 
 ---
 
-## Technologies
+## 📝 Description
 
-### Backend (Quarkus)
+**AssistantIO** est une plateforme complète de gestion académique développée en **Spring Boot**, **Angular** et **PostgreSQL**.  
+Elle répond à un besoin concret : remplacer les suivis pédagogiques traditionnels basés sur des fichiers Excel par une solution centralisée, automatisée et fiable.
 
-- Java 17+
-- Quarkus
-- RESTEasy Reactive
-- Hibernate ORM avec Panache
-- JPA / PostgreSQL
+Conçue pour les établissements d'enseignement supérieur, l'application permet :
+
+- de gérer les étudiants, les cours et les travaux pratiques (TP) de manière structurée ;
+- d'importer facilement des listes d'étudiants ;
+- de traiter automatiquement les rendus d’étudiants issus de plateformes externes (ex. Cyberlearn) ;
+- de restructurer des archives ZIP / 7z et de générer des projets de correction unifiés ;
+- de suivre l’avancement et la complétude des rendus par étudiant.
+
+AssistantIO a été pensé comme un outil **moderne, maintenable et extensible**, respectant les standards d’architecture logicielle (layers, DTOs, mappers, services) et intégrant des tests automatisés.  
+Il constitue une base robuste pour toute institution souhaitant moderniser ses flux pédagogiques.
+
+---
+
+## 🛠️ Technologies
+
+### Backend — Spring Boot
+- Java 21+
+- Spring Boot 3.x
+- Spring Web (REST)
+- Spring Data JPA / Hibernate
+- PostgreSQL
 - MapStruct
-- Validation Jakarta
-- Swagger (OpenAPI)
-- JUnit, REST Assured
+- Jakarta Validation
+- Swagger / OpenAPI
+- JUnit 5 / Mockito
 
-### Frontend (Angular)
-
+### Frontend — Angular
 - Angular 17+
 - Angular Material
 - RxJS
 - SCSS
-- Formulaires réactifs
-- HttpClient
 - Lazy loading
-- Environnement dev/prod
+- HttpClient
 
 ---
 
-## Prérequis
+## 🚀 Lancement du projet
 
-- **Java 17+**
-- **Maven 3.8+**
-- **Node.js 18+**
-- **Angular CLI**
-- **PostgreSQL** (ou H2 pour test)
-- Docker (optionnel)
-
----
-
-## Installation
-
-### 1. Backend
+### Backend Spring Boot
 
 ```bash
-cd backend
-./mvnw clean install
-./mvnw quarkus:dev
+cd BackendSpring
+mvn clean install
+mvn spring-boot:run
 ```
 
-- Accès Swagger : http://localhost:8080/q/swagger-ui
+API disponible sur :  
+http://localhost:8088  
+Swagger UI : http://localhost:8088/swagger-ui/index.html
 
-### 2. Frontend
+---
+
+### Frontend Angular
 
 ```bash
-cd frontend
+cd FrontendAngular
 npm install
 ng serve
 ```
 
-- Accès Angular : http://localhost:4200/
+UI disponible sur :  
+http://localhost:4200/
 
 ---
 
-## Structure du Projet
+## 🧱 Architecture du Projet
 
 ```text
-todo-quarkus-angular/
+AssistantIO/
 │
-├── backend/           → Projet Quarkus (Java)
-│   ├── src/main/java/
-│   ├── src/test/java/
-│   ├── application.properties
-│   └── pom.xml
+├── BackendSpring/       → API REST (Spring Boot)
+│   ├── controllers/
+│   ├── services/
+│   ├── repositories/
+│   ├── entities/
+│   ├── dto/
+│   ├── mappers/
+│   └── utils/
 │
-├── frontend/          → Projet Angular
-│   ├── src/app/
-│   ├── angular.json
-│   └── package.json
+├── FrontendAngular/     → Interface Web (Angular)
+│   ├── components/
+│   ├── services/
+│   ├── models/
+│   └── pages/
 │
 └── README.md
 ```
 
 ---
 
-## Fonctionnalités
+## 🎯 Fonctionnalités clés 
 
-### Backend
+### Gestion académique centralisée
+- Cours, étudiants et travaux pratiques structurés.
+- Importation massive via fichiers TXT/CSV.
+- Export consolidé pour suivi administratif.
 
-- Création, mise à jour, suppression, consultation de tâches
-- Architecture RESTful
-- DTO + Mapping via MapStruct
-- Tests unitaires et d’intégration
-- Validation d’entrée
+### Automatisation des rendus étudiants
+- Upload des archives Cyberlearn (ZIP + 7z embarqués).
+- Extraction intelligente par étudiant.
+- Reconstruction de projets Java/Python uniformisés.
+- Génération automatique d’un ZIP de correction.
 
-### Frontend
+### Supervision pédagogique
+- Statut des rendus par étudiant (avec code couleur).
+- Statistiques et contrôle qualité intégrés.
+- Interface moderne et rapide (Angular Material).
 
-- Interface Material Design
-- Ajout / modification / suppression de tâches
-- Notification utilisateur
-- Formulaires dynamiques avec validation
-- Communication avec l’API via HttpClient
-- Routing et composants modulaires
-
----
-
-## Lancement avec Docker
-
-> À configurer selon vos images préférées de PostgreSQL et front-end.
-
-```bash
-docker-compose up --build
-```
+### Fiabilité & Maintenabilité
+- Architecture en couches.
+- Mapping propre via MapStruct.
+- Validation et gestion d’erreurs standardisées.
+- Tests unitaires avancés (services + ZipUtils).
 
 ---
 
-## Tests
+## 🧪 Tests
 
 ### Backend
-
 ```bash
-./mvnw test
+mvn test
 ```
 
 ### Frontend
-
 ```bash
 ng test
 ```
 
 ---
 
-## Auteurs
+## 👤 Auteur
 
-- Andi R. – [Développeur Fullstack Java & Angular]
+**Andi R.**  
+Développeur Fullstack Java · Angular  
+Passionné par l’architecture logicielle, l’automatisation et les solutions pédagogiques modernes.
 
 ---
 
-## Contribuer
-
-Les contributions sont les bienvenues !
+## 🤝 Contribution
 
 1. Fork du repo
-2. Crée une branche : `git checkout -b feature/ton-idee`
-3. Commit : `git commit -m 'Ajoute une nouvelle fonctionnalité'`
-4. Push : `git push origin feature/ton-idee`
-5. Crée une pull request
+2. Crée une branche :
+   ```bash
+   git checkout -b feature/ma-feature
+   ```
+3. Commit :
+   ```bash
+   git commit -m "Nouvelle fonctionnalité"
+   ```
+4. Push :
+   ```bash
+   git push origin feature/ma-feature
+   ```
+5. Ouvre une Pull Request 🚀
 
 ---
 
-## Licence
+## 📄 Licence
 
-Ce projet est sous licence MIT – voir le fichier `LICENSE` pour plus de détails.
+Projet sous licence **MIT**.
+

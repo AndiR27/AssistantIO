@@ -1,25 +1,25 @@
 @host = http://localhost:8088
-@base = {{host}}/admin/v2/courses
+@base = {{host}}/admin/courses
 
 ###
-# 1) Get Course by ID
-# GET /admin/v2/courses/{id}
+# 1) Get All Courses (admin)
+# GET /admin/courses
+###
+GET {{base}}
+Accept: application/json
+
+###
+# 2) Get Course by ID (admin)
+# GET /admin/courses/{courseId}
 ###
 GET {{base}}/1
 Accept: application/json
 
 ###
-# 2) Get All Courses
-# GET /admin/v2/courses/all
+# 3) Create a new course (admin)
+# POST /admin/courses
 ###
-GET {{base}}/all
-Accept: application/json
-
-###
-# 3) Create a new course
-# POST /admin/v2/courses/addCourse
-###
-POST {{base}}/addCourse
+POST {{base}}
 Content-Type: application/json
 
 {
@@ -36,10 +36,10 @@ Content-Type: application/json
 }
 
 ###
-# 3) Create a new course
-# POST /admin/v2/courses/addCourse
+# 4) Create another course (admin)
+# POST /admin/courses
 ###
-POST {{base}}/addCourse
+POST {{base}}
 Content-Type: application/json
 
 {
@@ -56,10 +56,11 @@ Content-Type: application/json
 }
 
 ###
-# 4) Update an existing course
-# PUT /admin/v2/courses/{id}
+# 5) Update an existing course (admin)
+# PUT /admin/courses
+# (le cours à mettre à jour est identifié par son "id" dans le body)
 ###
-PUT {{base}}/1
+PUT {{base}}
 Content-Type: application/json
 
 {
@@ -76,8 +77,8 @@ Content-Type: application/json
 }
 
 ###
-# 5) Delete a course
-# DELETE /admin/v2/courses/{id}
+# 6) Delete a course (admin)
+# DELETE /admin/courses/{courseId}
 ###
 DELETE {{base}}/1
 Accept: application/json

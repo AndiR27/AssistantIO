@@ -1,0 +1,129 @@
+@host = http://localhost:8088
+@base = {{host}}/course
+@courseId = 2
+@studentId = 1
+@tpNumber = 1
+@tpNo = 1
+
+###
+# 0) Get All Courses
+# GET /course
+###
+GET {{base}}
+Accept: application/json
+
+###
+# 1) Get Course by ID
+# GET /course/{courseId}
+###
+GET {{base}}/{{courseId}}
+Accept: application/json
+
+###
+# 2) Get All Students in Course
+# GET /course/{courseId}/students
+###
+GET {{base}}/{{courseId}}/students
+Accept: application/json
+
+###
+# 3) Get Student Details in Course
+# GET /course/{courseId}/students/{studentId}
+###
+GET {{base}}/{{courseId}}/students/{{studentId}}
+Accept: application/json
+
+###
+# 4) Add Student to Course
+# POST /course/{courseId}/addStudent
+###
+POST {{base}}/{{courseId}}/addStudent
+Content-Type: application/json
+
+{
+  "id": null,
+  "name": "Alice Dupont",
+  "email": "alice.dupont@example.com",
+  "studyType": "temps_plein",
+  "courseStudentList": []
+}
+
+###
+# 5) Remove Student from Course
+# DELETE /course/{courseId}/students/{studentId}
+###
+DELETE {{base}}/{{courseId}}/students/{{studentId}}
+Accept: application/json
+
+###
+# 6) Add Students from TXT File
+# POST /course/{courseId}/addStudentsFromFile
+###
+POST {{base}}/{{courseId}}/addStudentsFromFile
+Content-Type: multipart/form-data
+
+file=@../../../src/test/resources/TestAddEtudiantsTxt.txt;type=text/plain
+
+###
+# 7) Get All TPs in Course
+# GET /course/{courseId}/TPs
+###
+GET {{base}}/{{courseId}}/TPs
+Accept: application/json
+
+###
+# 8) Create a TP by number
+# POST /course/{courseId}/TPs/{tpNumber}
+###
+POST {{base}}/{{courseId}}/TPs/{{tpNumber}}
+Accept: application/json
+
+###
+# 9) Get TP details
+# GET /course/{courseId}/TPs/{tpNumber}
+###
+GET {{base}}/{{courseId}}/TPs/{{tpNumber}}
+Accept: application/json
+
+###
+# 10) Update a TP
+# PUT /course/{courseId}/TPs/{tpNumber}
+###
+PUT {{base}}/{{courseId}}/TPs/{{tpNumber}}
+Content-Type: application/json
+
+{
+  "id": null,
+  "no": {{tpNumber}},
+  "course": null,
+  "submission": null,
+  "statusStudents": []
+}
+
+###
+# 11) Delete a TP
+# DELETE /course/{courseId}/TPs/{tpNumber}
+###
+DELETE {{base}}/{{courseId}}/TPs/{{tpNumber}}
+Accept: application/json
+
+###
+# 12) Add a Submission to a TP in the Course
+# POST /course/{courseId}/addRendu/{tpNo}
+###
+POST {{base}}/{{courseId}}/addRendu/{{tpNo}}
+Content-Type: multipart/form-data
+
+file=@D:/AssistannatProg/AssistantIO/src/test/resources/mockinginputstreams/test_zip.zip;type=application/zip
+
+###
+# 13) Start TP submission processing
+# POST /course/{courseId}/startProcessSubmission/{tpNo}
+###
+POST {{base}}/{{courseId}}/startProcessSubmission/{{tpNo}}
+
+###
+# 14) Manage TP (advanced processing)
+# POST /course/{courseId}/manageTP/{tpNo}
+###
+POST {{base}}/{{courseId}}/manageTP/{{tpNo}}

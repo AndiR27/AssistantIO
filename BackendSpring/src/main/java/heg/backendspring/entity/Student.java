@@ -3,7 +3,10 @@ package heg.backendspring.entity;
 
 import heg.backendspring.enums.StudyType;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -23,7 +26,7 @@ public class Student {
     private Long id;
 
     //autres champs de la table
-    @Column( nullable = false)
+    @Column(nullable = false)
     private String name;
 
     @Column(nullable = false, unique = true)

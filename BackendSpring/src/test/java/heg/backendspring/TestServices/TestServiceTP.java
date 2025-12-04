@@ -181,7 +181,6 @@ class TestServiceTP {
     }
 
 
-
     @Test
     @DisplayName("getSubmissionFileRestructurated - TP with submission returns structured file")
     void testGetSubmissionFileRestructurated() {
@@ -282,7 +281,6 @@ class TestServiceTP {
 
         verify(repositoryTP, never()).delete(any());
     }
-
 
 
     private static Set<Student> getStudentsHelper() {

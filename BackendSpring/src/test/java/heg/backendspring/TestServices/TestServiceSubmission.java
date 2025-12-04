@@ -224,7 +224,6 @@ class TestServiceSubmission {
     }
 
 
-
     @Test
     @DisplayName("startZipProcess restructure ZIP and keeps expected content")
     void testContentZip_verifyZipContents() throws IOException {
@@ -334,8 +333,6 @@ class TestServiceSubmission {
         Path structuredZip = Path.of(updated.getPathFileStructured());
         assertTrue(Files.exists(structuredZip), "Le zip restructuré doit exister sur le disque");
     }
-
-
 
 
 }

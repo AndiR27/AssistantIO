@@ -3,10 +3,8 @@
   "library": "spring-boot",
   "interfaceOnly": true,
   "useSpringBoot3": true,
-
   "apiPackage": "heg.backendspring.api",
   "modelPackage": "heg.backendspring.models",
-
   "typeMappings": {
     "CourseDto": "heg.backendspring.models.CourseDto",
     "EvaluationDto": "heg.backendspring.models.EvaluationDto",

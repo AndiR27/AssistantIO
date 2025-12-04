@@ -1,6 +1,5 @@
 package heg.backendspring.models;
 
-import heg.backendspring.entity.Student;
 import heg.backendspring.enums.CourseType;
 import heg.backendspring.enums.SemesterType;
 

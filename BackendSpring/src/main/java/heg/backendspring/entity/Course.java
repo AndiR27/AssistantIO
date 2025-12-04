@@ -4,7 +4,10 @@ package heg.backendspring.entity;
 import heg.backendspring.enums.CourseType;
 import heg.backendspring.enums.SemesterType;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.Set;

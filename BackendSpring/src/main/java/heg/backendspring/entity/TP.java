@@ -22,7 +22,7 @@ public class TP {
     @EqualsAndHashCode.Include
     private Long id;
 
-    @Column(name = "TP_number" , nullable = false, unique = false)
+    @Column(name = "TP_number", nullable = false, unique = false)
     private int no;
 
     //Un TP est associé à un cours

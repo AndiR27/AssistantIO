@@ -46,6 +46,7 @@ public class ServiceTP {
     //==============================
     //    CRUD TP METHODS
     //==============================
+
     /**
      * Trouver un TP par son id
      */
@@ -57,14 +58,14 @@ public class ServiceTP {
      * Methode permettant d'ajouter un rendu au TP afin de pouvoir le stocker
      * On va utiliser un InputStream pour stocker le fichier zip : cela permet de ne pas
      * stocker le fichier en mémoire et de le stocker directement sur le disque
-     *
+     * <p>
      * De plus, la couche service ne dois pas connaitre le protocole HTTP ou le format
      * multipart, c'est pourquoi on utilise un InputStream
      */
     @Transactional
-    public TPDto addSubmissionToTP(Long idTP, InputStream zipFile){
+    public TPDto addSubmissionToTP(Long idTP, InputStream zipFile) {
         Optional<TP> tpOpt = repositoryTP.findById(idTP);
-        if(tpOpt.isPresent()){
+        if (tpOpt.isPresent()) {
             TP tp = tpOpt.get();
             //nom du fichier
             String nomFichier = "TP" + tp.getNo() + "_RenduCyberlearn.zip";
@@ -75,13 +76,12 @@ public class ServiceTP {
             //Chemin complet vers le fichier
             Path cheminVersZip = tpFolder.resolve(nomFichier);
             //Copier le stream
-            try{
+            try {
                 if (zipFile == null) {
                     log.info("Zip file is null");
                 }
                 Files.copy(zipFile, cheminVersZip, StandardCopyOption.REPLACE_EXISTING);
-            }
-            catch (IOException e){
+            } catch (IOException e) {
                 log.error("Unable to copy zip file", e);
             }
 
@@ -101,13 +101,13 @@ public class ServiceTP {
     public TPDto addTPStatusListToTP(TP tp, Set<Student> students) {
         log.info("addTPStatusListToTP");
         List<String> renduEtudiants = serviceSubmission.getStudentsSubmission(tp.getSubmission());
-        for( Student student : students){
+        for (Student student : students) {
             //Créer le TPStatus pour chaque étudiant
             log.info("Infos TPStatus : TP {} - Étudiant : {}", tp.getNo(), student.getEmail());
             TPStatus tpStatus = new TPStatus(student, tp, false);
             String nomEtudiantRefomated = student.getName().replaceAll(" ", "").toLowerCase();
             //Vérifier si l'étudiant a rendu son TP
-            if(renduEtudiants.contains(nomEtudiantRefomated)){
+            if (renduEtudiants.contains(nomEtudiantRefomated)) {
                 log.info("Student submission : {}", nomEtudiantRefomated);
                 tpStatus.setStudentSubmission(true);
             }
@@ -118,7 +118,6 @@ public class ServiceTP {
     }
 
 
-
     /**
      * Méthode permettant de récupérer le fichier zip restructuré pour un TP donné
      */
@@ -127,7 +126,7 @@ public class ServiceTP {
         TP tp = repositoryTP.findById(tpDto.id()).orElseThrow();
         //Récupérer le rendu
         Submission submission = tp.getSubmission();
-        if(submission != null){
+        if (submission != null) {
             log.info("Path to restructurated file is not null : {}", submission.getPathFileStructured());
             Path pathFile = Paths.get(submission.getPathFileStructured());
             return pathFile.toFile();

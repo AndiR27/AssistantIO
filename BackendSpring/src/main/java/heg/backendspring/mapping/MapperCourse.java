@@ -7,11 +7,11 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 @Mapper(config = CentralConfig.class,
-    uses = {
-        MapperTP.class,
-        MapperStudent.class,
-        MapperEvaluation.class
-    })
+        uses = {
+                MapperTP.class,
+                MapperStudent.class,
+                MapperEvaluation.class
+        })
 public interface MapperCourse {
 
 

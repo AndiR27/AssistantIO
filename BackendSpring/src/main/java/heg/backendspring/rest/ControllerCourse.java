@@ -1,9 +1,12 @@
 package heg.backendspring.rest;
 
-import heg.backendspring.api.*;
-import heg.backendspring.models.*;
+import heg.backendspring.api.CourseApi;
+import heg.backendspring.api.SubmissionApi;
+import heg.backendspring.models.CourseDto;
+import heg.backendspring.models.StudentDto;
+import heg.backendspring.models.SubmissionDto;
+import heg.backendspring.models.TPDto;
 import heg.backendspring.service.ServiceCourse;
-import heg.backendspring.service.ServiceTP;
 import heg.backendspring.utils.FileUploadForm;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +23,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @RestController

@@ -45,7 +45,7 @@ paths:
   # ========================================
   /admin/courses:
     get:
-      tags: [admin-course]
+      tags: [ admin-course ]
       summary: Liste des cours (admin).
       description: Retourne tous les cours pour la partie administrative.
       operationId: adminGetCourses
@@ -61,7 +61,7 @@ paths:
         '500':
           description: Erreur interne.
     post:
-      tags: [admin-course]
+      tags: [ admin-course ]
       summary: Création d’un cours (admin).
       description: Crée un nouveau cours dans la partie administrative.
       operationId: adminCreateCourse
@@ -110,7 +110,7 @@ paths:
           description: Erreur interne.
   /admin/courses/{courseId}:
     get:
-      tags: [admin-course]
+      tags: [ admin-course ]
       summary: Détail d’un cours (admin).
       description: Retourne le détail d’un cours pour la partie administrative.
       operationId: adminGetCourseById
@@ -135,7 +135,7 @@ paths:
           description: Erreur interne.
 
     delete:
-      tags: [admin-course]
+      tags: [ admin-course ]
       summary: Suppression d’un cours (admin).
       description: Supprime un cours existant.
       operationId: adminDeleteCourse
@@ -160,7 +160,7 @@ paths:
   # ========================================
   /course:
     get:
-      tags: [course]
+      tags: [ course ]
       summary: Liste des cours.
       description: Retourne tous les cours accessibles.
       operationId: getCourses
@@ -178,7 +178,7 @@ paths:
 
   /course/{courseId}:
     get:
-      tags: [course]
+      tags: [ course ]
       summary: Détails d’un cours.
       description: Retourne les informations d’un cours spécifique.
       operationId: getCourseById
@@ -207,7 +207,7 @@ paths:
   # ========================================
   /course/{courseId}/students:
     get:
-      tags: [course]
+      tags: [ course ]
       summary: Liste des étudiants d’un cours.
       description: Retourne les étudiants inscrits à un cours.
       operationId: getStudentsByCourse
@@ -235,7 +235,7 @@ paths:
 
   /course/{courseId}/students/{studentId}:
     delete:
-      tags: [course]
+      tags: [ course ]
       summary: Suppression d’un étudiant d’un cours.
       description: Retire un étudiant d’un cours à partir de son identifiant.
       operationId: removeStudentFromCourse
@@ -262,7 +262,7 @@ paths:
         '500':
           description: Erreur interne.
     get:
-      tags: [course]
+      tags: [ course ]
       summary: Détail d'un étudiant d'un cours.
       description: Retourne un étudiant spécifique à un cours.
       operationId: getStudentFromCourse
@@ -297,7 +297,7 @@ paths:
   # ========================================
   /course/{courseId}/addStudent:
     post:
-      tags: [course]
+      tags: [ course ]
       summary: Ajout d’un étudiant (route spécifique).
       description: Ajoute un étudiant à un cours via une route spécifique existante.
       operationId: addStudent
@@ -330,7 +330,7 @@ paths:
 
   /course/{courseId}/addStudentsFromFile:
     post:
-      tags: [course]
+      tags: [ course ]
       summary: Ajout d’étudiants depuis un fichier.
       description: Ajoute plusieurs étudiants à partir d’un fichier texte.
       operationId: addStudentsFromFile
@@ -374,7 +374,7 @@ paths:
   # ========================================
   /course/{courseId}/TPs:
     get:
-      tags: [course]
+      tags: [ course ]
       summary: Liste des TPs d’un cours.
       description: Retourne les TPs associés à un cours.
       operationId: getTPsByCourse
@@ -404,7 +404,7 @@ paths:
   # Routes spécifique de gestion des TPs par leur numéro
   /course/{courseId}/TPs/{tpNumber}:
     post:
-      tags: [course]
+      tags: [ course ]
       summary: Création d’un TP par numéro.
       description: Crée un TP en utilisant directement le numéro de TP.
       operationId: addTPByNumber
@@ -434,7 +434,7 @@ paths:
         '500':
           description: Erreur interne.
     get:
-      tags: [course]
+      tags: [ course ]
       summary: Détail d’un TP.
       description: Retourne les informations d’un TP spécifique.
       operationId: getTPById
@@ -465,7 +465,7 @@ paths:
           description: Erreur interne.
 
     delete:
-      tags: [course]
+      tags: [ course ]
       summary: Suppression d’un TP.
       description: Supprime un TP existant d’un cours.
       operationId: deleteTP
@@ -491,7 +491,7 @@ paths:
         '500':
           description: Erreur interne.
     put:
-      tags: [course]
+      tags: [ course ]
       summary: Mise à jour d’un TP.
       description: Met à jour les informations d’un TP existant.
       operationId: updateTP
@@ -662,7 +662,7 @@ paths:
   # ========================================
   /course/{courseId}/addRendu/{tpNo}:
     post:
-      tags: [submission]
+      tags: [ submission ]
       summary: Ajout d’un rendu de TP.
       description: Ajoute un rendu de TP sous forme de fichier ZIP.
       operationId: addSubmission
@@ -707,7 +707,7 @@ paths:
 
   /course/{courseId}/startProcessSubmission/{tpNo}:
     post:
-      tags: [submission]
+      tags: [ submission ]
       summary: Lancement du traitement des rendus.
       description: Lance le processus de restructuration et de traitement des rendus pour un TP.
       operationId: startProcessSubmission
@@ -739,7 +739,7 @@ paths:
 
   /course/{courseId}/manageTP/{tpNo}:
     post:
-      tags: [submission]
+      tags: [ submission ]
       summary: Gestion avancée d’un TP.
       description: Effectue des opérations de gestion avancée sur un TP.
       operationId: manageTP
@@ -770,7 +770,7 @@ paths:
           description: Erreur interne.
   /course/{courseId}/downloadStructuredSubmission/{tpNo}:
     get:
-      tags: [submission]
+      tags: [ submission ]
       summary: Téléchargement du rendu restructuré.
       description: Permet de télécharger le fichier ZIP restructuré des rendus d’un TP.
       operationId: downloadStructuredSubmission
@@ -863,7 +863,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/EvaluationDto'
-      required: ["id", "name", "code"]
+      required: [ "id", "name", "code" ]
       example:
         id: 1
         name: "Python Introduction"
@@ -872,7 +872,7 @@ components:
         courseType: "PYTHON"
         year_course: 2025
         teacher: "Stettler"
-        students: []
+        students: [ ]
         tps:
           - id: 10
             no: 1
@@ -882,7 +882,7 @@ components:
               fileName: "TP1_Rendus.zip"
               pathStorage: "/data/courses/61-13/TP1/TP1_Rendus.zip"
               pathFileStructured: "/data/courses/61-13/TP1/TP1_RenduRestructuration.zip"
-            statusStudents: []
+            statusStudents: [ ]
         evaluations:
           - id: 200
             name: "Examen final"
@@ -912,7 +912,7 @@ components:
           type: integer
           format: int64
           example: 1
-      required: ["name", "date", "coefficient", "courseId"]
+      required: [ "name", "date", "coefficient", "courseId" ]
       example:
         id: 200
         name: "Examen final"
@@ -941,7 +941,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CourseDto'
-      required: ["name", "email", "studyType"]
+      required: [ "name", "email", "studyType" ]
       example:
         id: 300
         name: "George Dylan"
@@ -975,7 +975,7 @@ components:
           type: string
           description: Chemin du ZIP restructuré.
           example: "/data/courses/61-13/TP1/TP1_RenduRestructuration.zip"
-      required: ["fileName", "pathStorage"]
+      required: [ "fileName", "pathStorage" ]
       example:
         id: 100
         fileName: "TP1_Rendus.zip"
@@ -1003,7 +1003,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TPStatusDto'
-      required: ["no", "courseId"]
+      required: [ "no", "courseId" ]
       example:
         id: 10
         no: 1
@@ -1038,7 +1038,7 @@ components:
         studentSubmission:
           type: boolean
           example: true
-      required: ["studentId", "tpId", "studentSubmission"]
+      required: [ "studentId", "tpId", "studentSubmission" ]
       example:
         id: 1000
         studentId: 300

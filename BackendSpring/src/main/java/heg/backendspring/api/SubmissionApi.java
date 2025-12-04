@@ -5,31 +5,26 @@
  */
 package heg.backendspring.api;
 
-import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import jakarta.annotation.Generated;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import jakarta.annotation.Generated;
 
 @Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-12-04T16:08:10.970899+01:00[Europe/Zurich]", comments = "Generator version: 7.9.0")
 @Validated
@@ -45,41 +40,41 @@ public interface SubmissionApi {
      * Ajoute un rendu de TP sous forme de fichier ZIP.
      *
      * @param courseId Identifiant du cours. (required)
-     * @param tpNo Numéro de TP. (required)
-     * @param file  (optional)
+     * @param tpNo     Numéro de TP. (required)
+     * @param file     (optional)
      * @return Rendu ajouté. (status code 201)
-     *         or Fichier invalide. (status code 400)
-     *         or Cours ou TP introuvable. (status code 404)
-     *         or Erreur interne. (status code 500)
+     * or Fichier invalide. (status code 400)
+     * or Cours ou TP introuvable. (status code 404)
+     * or Erreur interne. (status code 500)
      */
     @Operation(
-        operationId = "addSubmission",
-        summary = "Ajout d’un rendu de TP.",
-        description = "Ajoute un rendu de TP sous forme de fichier ZIP.",
-        tags = { "submission" },
-        responses = {
-            @ApiResponse(responseCode = "201", description = "Rendu ajouté.", content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = heg.backendspring.models.SubmissionDto.class))
-            }),
-            @ApiResponse(responseCode = "400", description = "Fichier invalide."),
-            @ApiResponse(responseCode = "404", description = "Cours ou TP introuvable."),
-            @ApiResponse(responseCode = "500", description = "Erreur interne.")
-        }
+            operationId = "addSubmission",
+            summary = "Ajout d’un rendu de TP.",
+            description = "Ajoute un rendu de TP sous forme de fichier ZIP.",
+            tags = {"submission"},
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Rendu ajouté.", content = {
+                            @Content(mediaType = "application/json", schema = @Schema(implementation = heg.backendspring.models.SubmissionDto.class))
+                    }),
+                    @ApiResponse(responseCode = "400", description = "Fichier invalide."),
+                    @ApiResponse(responseCode = "404", description = "Cours ou TP introuvable."),
+                    @ApiResponse(responseCode = "500", description = "Erreur interne.")
+            }
     )
     @RequestMapping(
-        method = RequestMethod.POST,
-        value = "/course/{courseId}/addRendu/{tpNo}",
-        produces = { "application/json" },
-        consumes = { "multipart/form-data" }
+            method = RequestMethod.POST,
+            value = "/course/{courseId}/addRendu/{tpNo}",
+            produces = {"application/json"},
+            consumes = {"multipart/form-data"}
     )
-    
+
     default ResponseEntity<heg.backendspring.models.SubmissionDto> addSubmission(
-        @Parameter(name = "courseId", description = "Identifiant du cours.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId,
-        @Parameter(name = "tpNo", description = "Numéro de TP.", required = true, in = ParameterIn.PATH) @PathVariable("tpNo") Integer tpNo,
-        @Parameter(name = "file", description = "") @RequestPart(value = "file", required = false) MultipartFile file
+            @Parameter(name = "courseId", description = "Identifiant du cours.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId,
+            @Parameter(name = "tpNo", description = "Numéro de TP.", required = true, in = ParameterIn.PATH) @PathVariable("tpNo") Integer tpNo,
+            @Parameter(name = "file", description = "") @RequestPart(value = "file", required = false) MultipartFile file
     ) {
         getRequest().ifPresent(request -> {
-            for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
+            for (MediaType mediaType : MediaType.parseMediaTypes(request.getHeader("Accept"))) {
                 if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
                     String exampleString = "{ \"id\" : 100, \"fileName\" : \"TP1_Rendus.zip\", \"pathStorage\" : \"/data/courses/61-13/TP1/TP1_Rendus.zip\", \"pathFileStructured\" : \"/data/courses/61-13/TP1/TP1_RenduRestructuration.zip\" }";
                     ApiUtil.setExampleResponse(request, "application/json", exampleString);
@@ -97,33 +92,33 @@ public interface SubmissionApi {
      * Permet de télécharger le fichier ZIP restructuré des rendus d’un TP.
      *
      * @param courseId Identifiant du cours. (required)
-     * @param tpNo Numéro de TP. (required)
+     * @param tpNo     Numéro de TP. (required)
      * @return Fichier ZIP restructuré retourné. (status code 200)
-     *         or Cours ou TP introuvable. (status code 404)
-     *         or Erreur interne. (status code 500)
+     * or Cours ou TP introuvable. (status code 404)
+     * or Erreur interne. (status code 500)
      */
     @Operation(
-        operationId = "downloadStructuredSubmission",
-        summary = "Téléchargement du rendu restructuré.",
-        description = "Permet de télécharger le fichier ZIP restructuré des rendus d’un TP.",
-        tags = { "submission" },
-        responses = {
-            @ApiResponse(responseCode = "200", description = "Fichier ZIP restructuré retourné.", content = {
-                @Content(mediaType = "application/zip", schema = @Schema(implementation = org.springframework.core.io.Resource.class))
-            }),
-            @ApiResponse(responseCode = "404", description = "Cours ou TP introuvable."),
-            @ApiResponse(responseCode = "500", description = "Erreur interne.")
-        }
+            operationId = "downloadStructuredSubmission",
+            summary = "Téléchargement du rendu restructuré.",
+            description = "Permet de télécharger le fichier ZIP restructuré des rendus d’un TP.",
+            tags = {"submission"},
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Fichier ZIP restructuré retourné.", content = {
+                            @Content(mediaType = "application/zip", schema = @Schema(implementation = org.springframework.core.io.Resource.class))
+                    }),
+                    @ApiResponse(responseCode = "404", description = "Cours ou TP introuvable."),
+                    @ApiResponse(responseCode = "500", description = "Erreur interne.")
+            }
     )
     @RequestMapping(
-        method = RequestMethod.GET,
-        value = "/course/{courseId}/downloadStructuredSubmission/{tpNo}",
-        produces = { "application/zip" }
+            method = RequestMethod.GET,
+            value = "/course/{courseId}/downloadStructuredSubmission/{tpNo}",
+            produces = {"application/zip"}
     )
-    
+
     default ResponseEntity<org.springframework.core.io.Resource> downloadStructuredSubmission(
-        @Parameter(name = "courseId", description = "Identifiant du cours.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId,
-        @Parameter(name = "tpNo", description = "Numéro de TP.", required = true, in = ParameterIn.PATH) @PathVariable("tpNo") Integer tpNo
+            @Parameter(name = "courseId", description = "Identifiant du cours.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId,
+            @Parameter(name = "tpNo", description = "Numéro de TP.", required = true, in = ParameterIn.PATH) @PathVariable("tpNo") Integer tpNo
     ) {
         return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
 
@@ -135,36 +130,36 @@ public interface SubmissionApi {
      * Effectue des opérations de gestion avancée sur un TP.
      *
      * @param courseId Identifiant du cours. (required)
-     * @param tpNo Numéro de TP. (required)
+     * @param tpNo     Numéro de TP. (required)
      * @return Résultat de la gestion du TP. (status code 200)
-     *         or Cours ou TP introuvable. (status code 404)
-     *         or Erreur interne. (status code 500)
+     * or Cours ou TP introuvable. (status code 404)
+     * or Erreur interne. (status code 500)
      */
     @Operation(
-        operationId = "manageTP",
-        summary = "Gestion avancée d’un TP.",
-        description = "Effectue des opérations de gestion avancée sur un TP.",
-        tags = { "submission" },
-        responses = {
-            @ApiResponse(responseCode = "200", description = "Résultat de la gestion du TP.", content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = heg.backendspring.models.TPDto.class))
-            }),
-            @ApiResponse(responseCode = "404", description = "Cours ou TP introuvable."),
-            @ApiResponse(responseCode = "500", description = "Erreur interne.")
-        }
+            operationId = "manageTP",
+            summary = "Gestion avancée d’un TP.",
+            description = "Effectue des opérations de gestion avancée sur un TP.",
+            tags = {"submission"},
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Résultat de la gestion du TP.", content = {
+                            @Content(mediaType = "application/json", schema = @Schema(implementation = heg.backendspring.models.TPDto.class))
+                    }),
+                    @ApiResponse(responseCode = "404", description = "Cours ou TP introuvable."),
+                    @ApiResponse(responseCode = "500", description = "Erreur interne.")
+            }
     )
     @RequestMapping(
-        method = RequestMethod.POST,
-        value = "/course/{courseId}/manageTP/{tpNo}",
-        produces = { "application/json" }
+            method = RequestMethod.POST,
+            value = "/course/{courseId}/manageTP/{tpNo}",
+            produces = {"application/json"}
     )
-    
+
     default ResponseEntity<heg.backendspring.models.TPDto> manageTP(
-        @Parameter(name = "courseId", description = "Identifiant du cours.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId,
-        @Parameter(name = "tpNo", description = "Numéro de TP.", required = true, in = ParameterIn.PATH) @PathVariable("tpNo") Integer tpNo
+            @Parameter(name = "courseId", description = "Identifiant du cours.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId,
+            @Parameter(name = "tpNo", description = "Numéro de TP.", required = true, in = ParameterIn.PATH) @PathVariable("tpNo") Integer tpNo
     ) {
         getRequest().ifPresent(request -> {
-            for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
+            for (MediaType mediaType : MediaType.parseMediaTypes(request.getHeader("Accept"))) {
                 if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
                     String exampleString = "{ \"id\" : 10, \"false\" : 1, \"courseId\" : 1, \"submission\" : { \"id\" : 100, \"fileName\" : \"TP1_Rendus.zip\", \"pathStorage\" : \"/data/courses/61-13/TP1/TP1_Rendus.zip\", \"pathFileStructured\" : \"/data/courses/61-13/TP1/TP1_RenduRestructuration.zip\" }, \"statusStudents\" : [ { \"id\" : 1000, \"studentId\" : 300, \"tpId\" : 10, \"studentSubmission\" : true } ] }";
                     ApiUtil.setExampleResponse(request, "application/json", exampleString);
@@ -182,36 +177,36 @@ public interface SubmissionApi {
      * Lance le processus de restructuration et de traitement des rendus pour un TP.
      *
      * @param courseId Identifiant du cours. (required)
-     * @param tpNo Numéro de TP. (required)
+     * @param tpNo     Numéro de TP. (required)
      * @return Traitement lancé. (status code 200)
-     *         or Cours ou TP introuvable. (status code 404)
-     *         or Erreur interne. (status code 500)
+     * or Cours ou TP introuvable. (status code 404)
+     * or Erreur interne. (status code 500)
      */
     @Operation(
-        operationId = "startProcessSubmission",
-        summary = "Lancement du traitement des rendus.",
-        description = "Lance le processus de restructuration et de traitement des rendus pour un TP.",
-        tags = { "submission" },
-        responses = {
-            @ApiResponse(responseCode = "200", description = "Traitement lancé.", content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = heg.backendspring.models.TPDto.class))
-            }),
-            @ApiResponse(responseCode = "404", description = "Cours ou TP introuvable."),
-            @ApiResponse(responseCode = "500", description = "Erreur interne.")
-        }
+            operationId = "startProcessSubmission",
+            summary = "Lancement du traitement des rendus.",
+            description = "Lance le processus de restructuration et de traitement des rendus pour un TP.",
+            tags = {"submission"},
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Traitement lancé.", content = {
+                            @Content(mediaType = "application/json", schema = @Schema(implementation = heg.backendspring.models.TPDto.class))
+                    }),
+                    @ApiResponse(responseCode = "404", description = "Cours ou TP introuvable."),
+                    @ApiResponse(responseCode = "500", description = "Erreur interne.")
+            }
     )
     @RequestMapping(
-        method = RequestMethod.POST,
-        value = "/course/{courseId}/startProcessSubmission/{tpNo}",
-        produces = { "application/json" }
+            method = RequestMethod.POST,
+            value = "/course/{courseId}/startProcessSubmission/{tpNo}",
+            produces = {"application/json"}
     )
-    
+
     default ResponseEntity<heg.backendspring.models.TPDto> startProcessSubmission(
-        @Parameter(name = "courseId", description = "Identifiant du cours.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId,
-        @Parameter(name = "tpNo", description = "Numéro de TP.", required = true, in = ParameterIn.PATH) @PathVariable("tpNo") Integer tpNo
+            @Parameter(name = "courseId", description = "Identifiant du cours.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId,
+            @Parameter(name = "tpNo", description = "Numéro de TP.", required = true, in = ParameterIn.PATH) @PathVariable("tpNo") Integer tpNo
     ) {
         getRequest().ifPresent(request -> {
-            for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
+            for (MediaType mediaType : MediaType.parseMediaTypes(request.getHeader("Accept"))) {
                 if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
                     String exampleString = "{ \"id\" : 10, \"false\" : 1, \"courseId\" : 1, \"submission\" : { \"id\" : 100, \"fileName\" : \"TP1_Rendus.zip\", \"pathStorage\" : \"/data/courses/61-13/TP1/TP1_Rendus.zip\", \"pathFileStructured\" : \"/data/courses/61-13/TP1/TP1_RenduRestructuration.zip\" }, \"statusStudents\" : [ { \"id\" : 1000, \"studentId\" : 300, \"tpId\" : 10, \"studentSubmission\" : true } ] }";
                     ApiUtil.setExampleResponse(request, "application/json", exampleString);

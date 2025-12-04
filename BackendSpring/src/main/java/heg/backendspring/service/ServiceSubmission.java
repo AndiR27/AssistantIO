@@ -3,12 +3,9 @@ package heg.backendspring.service;
 import heg.backendspring.entity.Course;
 import heg.backendspring.entity.Submission;
 import heg.backendspring.entity.TP;
-import heg.backendspring.mapping.MapperStudent;
 import heg.backendspring.mapping.MapperSubmission;
 import heg.backendspring.models.SubmissionDto;
-import heg.backendspring.repository.RepositoryStudent;
 import heg.backendspring.repository.RepositorySubmission;
-import heg.backendspring.repository.RepositoryTP;
 import heg.backendspring.utils.ZipUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +21,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
-import java.util.zip.ZipEntry;
 
 @Slf4j
 @Service
@@ -43,6 +39,7 @@ public class ServiceSubmission {
     //==============================
     //    CRUD COURSE METHODS
     //==============================
+
     /**
      * Trouver une soumission par son id
      */
@@ -52,7 +49,7 @@ public class ServiceSubmission {
 
     /**
      * Methode permettant de restructurer le rendu d'un fichier zip
-     *
+     * <p>
      * Logique de restructuration : Chaque dossier dans le zip est un étudiant (le
      * nom du fichier contient les infos de rendu, dont le nom au début) et
      * contient dedans un fichier zip qui est son rendu : ce fichier zip est un
@@ -60,28 +57,28 @@ public class ServiceSubmission {
      * stocker dans un nouveau dossier "Nom_Prenom" qui sera lui-même dans un dossier
      * "RenduRestructuration" et qui sera zippé puis stocké au même endroit que le zip
      * d'origine
-     *
+     * <p>
      * Cas à gérer :
      * — Lister les dossiers à ignorer (dossiers d'environnements, de build, etc...)
      * — Les fichiers MacOS (._) à ignorer
      * — Les fichiers cachés à ignorer
-     *
+     * <p>
      * - Gérer le cas ou c'est un projet Java ou Python (si java, on prends tout le
      * dossier src, si python, on ne prend que les fichiers .py par exemple)
      * — si java avancé, il faudrait récupérer aussi des fichiers supplémentaires tel
      * que les tests unitaires ou dossiers ressources et pom.xml
-     *
+     * <p>
      * Une entité TP a les infos de stockage du zip d'origine
      */
     @Transactional
-    public void processZipSubmission(Course c, TP tp) throws IOException{
+    public void processZipSubmission(Course c, TP tp) throws IOException {
         Submission submission = tp.getSubmission();
-        if(submission == null) {
+        if (submission == null) {
             log.error("Aucune soumission trouvée pour le TP id {} du cours {}", tp.getId(), c.getName());
             return;
         }
         //gérer le type de cours
-        if(c.getCourseType() != null) {
+        if (c.getCourseType() != null) {
             typeCours = String.valueOf(c.getCourseType());
         }
 
@@ -229,11 +226,9 @@ public class ServiceSubmission {
                 ZipUtils.copyJavaProject(projetExtract, etudiantDirRestructured);
             } else if (typeCours.equals("PYTHON")) {
                 ZipUtils.copyPythonProject(projetExtract, etudiantDirRestructured);
-            }
-            else if (typeCours.equals("JAVA_JEE")) {
+            } else if (typeCours.equals("JAVA_JEE")) {
                 ZipUtils.copyJavaJEEProject(projetExtract, etudiantDirRestructured);
-            }
-            else {
+            } else {
                 //les deux sets à ignorer sont vides
                 ZipUtils.copyAll(projetExtract, etudiantDirRestructured, Set.of(), Set.of());
             }
@@ -269,7 +264,6 @@ public class ServiceSubmission {
             ZipUtils.extract7z(zipEtudiantPath, projetExtract);
         }
     }
-
 
 
 }

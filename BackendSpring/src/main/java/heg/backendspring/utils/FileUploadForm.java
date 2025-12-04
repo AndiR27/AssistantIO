@@ -2,7 +2,6 @@ package heg.backendspring.utils;
 
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
@@ -15,7 +14,9 @@ import java.nio.charset.StandardCharsets;
 @UtilityClass
 
 public class FileUploadForm {
-     /** Transforme le contenu d’un MultipartFile en tableau de lignes.*/
+    /**
+     * Transforme le contenu d’un MultipartFile en tableau de lignes.
+     */
     public static String[] transformData(MultipartFile file) throws IOException {
         if (file == null || file.isEmpty()) {
             log.info("File is null or empty");
@@ -28,7 +29,9 @@ public class FileUploadForm {
         }
     }
 
-    /** Transforme le contenu d'un MultipartFile en InputStream. */
+    /**
+     * Transforme le contenu d'un MultipartFile en InputStream.
+     */
     public static InputStream getFileInputStream(MultipartFile file) throws IOException {
         if (file == null || file.isEmpty()) {
             return null;

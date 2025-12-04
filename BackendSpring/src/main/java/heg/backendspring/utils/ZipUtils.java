@@ -180,7 +180,6 @@ public class ZipUtils {
     }
 
 
-
     public void copyJavaProject(Path sourceDir, Path targetDir) {
         Set<String> ignoreDirs = Set.of(".git", ".idea", "target", "build", "out");
         Set<String> ignoreFiles = Set.of(".DS_Store", "Thumbs.db", "desktop.ini",

@@ -59,9 +59,6 @@ public class TestServiceCourse {
     private MapperStudent mapperStudent;
 
 
-
-
-
     @Test
     @DisplayName("findCourseById - course exists")
     void testFindCourseById_CourseExists() {
@@ -95,7 +92,7 @@ public class TestServiceCourse {
     @Test
     @DisplayName("findAllCourses - returns list of dtos")
     void testFindAllCourses() {
-        CourseDto dto1 = new CourseDto(1L, "Python 1", "63-11", null, null,2024, "Dupont",
+        CourseDto dto1 = new CourseDto(1L, "Python 1", "63-11", null, null, 2024, "Dupont",
                 null, null, null);
         CourseDto dto2 = new CourseDto(2L, "Java JEE", "63-41", SemesterType.PRINTEMPS, CourseType.JAVA_JEE, 2025, "Durand",
                 null, null, null);
@@ -158,7 +155,7 @@ public class TestServiceCourse {
 
         // Cours existant
         CourseDto cDto = new CourseDto(
-                1L, "Java", "63-21", SemesterType.PRINTEMPS,CourseType.JAVA, 2024,
+                1L, "Java", "63-21", SemesterType.PRINTEMPS, CourseType.JAVA, 2024,
                 "Dupont", null, null, null
         );
         Course course = mapperCourse.toEntity(cDto);
@@ -569,8 +566,6 @@ public class TestServiceCourse {
                 )
         );
     }
-
-
 
 
 }

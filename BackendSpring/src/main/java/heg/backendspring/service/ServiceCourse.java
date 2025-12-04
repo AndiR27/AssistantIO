@@ -122,7 +122,6 @@ public class ServiceCourse {
     }
 
 
-
     /**
      * Ajouter un student à un cours
      * 3 cas possibles : l'étudiant n'existe pas (on le crée), l'étudiant existe déjà dans le cours (on ne fait rien),
@@ -160,6 +159,7 @@ public class ServiceCourse {
         return repositoryCourse.findStudentByCourseIdAndStudentId(courseId, studentId)
                 .map(mapperStudent::tDto);
     }
+
     /**
      * Methode permettant d'ajouter une liste d'étudiants à un cours
      */
@@ -237,7 +237,7 @@ public class ServiceCourse {
     public TPDto addTPtoCourse(Long idCourse, int no) {
         Course course = repositoryCourse.findById(idCourse).get();
         //throw exception si le TP existe déjà
-        if(repositoryCourse.findTPByCourseIdAndNo(idCourse, no).isPresent()){
+        if (repositoryCourse.findTPByCourseIdAndNo(idCourse, no).isPresent()) {
             throw new CourseException(
                     "Le TP" + no + "' est déjà associé au cours.",
                     CourseErrorCode.TP_ALREADY_EXISTS,
@@ -317,8 +317,7 @@ public class ServiceCourse {
         Optional<Course> courseOpt = repositoryCourse.findById(idCourse);
         if (courseOpt.isEmpty()) {
             throw new EntityNotFoundException("Course not found with id: " + idCourse);
-        }
-        else{
+        } else {
             log.info("Adding submission to TP no={} for course id={}", tpNo, idCourse);
             Optional<TP> tpOpt = repositoryCourse.findTPByCourseIdAndNo(idCourse, tpNo);
             TPDto tpDto = serviceTP.addSubmissionToTP(tpOpt.get().getId(), zipFile);
@@ -357,13 +356,13 @@ public class ServiceCourse {
     public TPDto manageSubmissionsTP(Long idCourse, int tp_no) {
         log.info("Gestion des rendus pour le TP numéro : {} du cours id : {}", tp_no, idCourse);
         Optional<Course> course = repositoryCourse.findById(idCourse);
-        if(course.isEmpty()){
+        if (course.isEmpty()) {
             throw new EntityNotFoundException("Course not found with id: " + idCourse);
         }
 
         //Récupérer le TP
         Optional<TP> tpOpt = repositoryCourse.findTPByCourseIdAndNo(idCourse, tp_no);
-        if(tpOpt.isEmpty()){
+        if (tpOpt.isEmpty()) {
             log.info("not found");
             throw new EntityNotFoundException("TP not found for course id=" + idCourse + " and tp no=" + tp_no);
         }

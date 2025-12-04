@@ -4,10 +4,8 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import org.apache.coyote.BadRequestException;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -37,7 +35,7 @@ public class GlobalExceptionHandler {
      * On retourne ici un "wrapper" contenant le HttpStatus + le ProblemDetail.
      */
     private ProblemDetail mapException(Exception ex,
-                                           jakarta.servlet.http.HttpServletRequest request) {
+                                       jakarta.servlet.http.HttpServletRequest request) {
 
         URI instance = buildInstanceUri(request);
 

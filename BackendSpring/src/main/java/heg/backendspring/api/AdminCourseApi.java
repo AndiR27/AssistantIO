@@ -8,24 +8,26 @@ package heg.backendspring.api;
 import heg.backendspring.models.CourseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import jakarta.annotation.Generated;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.context.request.NativeWebRequest;
 
-
-import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Optional;
-import jakarta.annotation.Generated;
 
 @Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-12-04T16:08:10.970899+01:00[Europe/Zurich]", comments = "Generator version: 7.9.0")
 @Validated
@@ -42,34 +44,34 @@ public interface AdminCourseApi {
      *
      * @param courseDto Données du cours à créer. (required)
      * @return Cours créé. (status code 201)
-     *         or Données invalides. (status code 400)
-     *         or Erreur interne. (status code 500)
+     * or Données invalides. (status code 400)
+     * or Erreur interne. (status code 500)
      */
     @Operation(
-        operationId = "adminCreateCourse",
-        summary = "Création d’un cours (admin).",
-        description = "Crée un nouveau cours dans la partie administrative.",
-        tags = { "admin-course" },
-        responses = {
-            @ApiResponse(responseCode = "201", description = "Cours créé.", content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = heg.backendspring.models.CourseDto.class))
-            }),
-            @ApiResponse(responseCode = "400", description = "Données invalides."),
-            @ApiResponse(responseCode = "500", description = "Erreur interne.")
-        }
+            operationId = "adminCreateCourse",
+            summary = "Création d’un cours (admin).",
+            description = "Crée un nouveau cours dans la partie administrative.",
+            tags = {"admin-course"},
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Cours créé.", content = {
+                            @Content(mediaType = "application/json", schema = @Schema(implementation = heg.backendspring.models.CourseDto.class))
+                    }),
+                    @ApiResponse(responseCode = "400", description = "Données invalides."),
+                    @ApiResponse(responseCode = "500", description = "Erreur interne.")
+            }
     )
     @RequestMapping(
-        method = RequestMethod.POST,
-        value = "/admin/courses",
-        produces = { "application/json" },
-        consumes = { "application/json" }
+            method = RequestMethod.POST,
+            value = "/admin/courses",
+            produces = {"application/json"},
+            consumes = {"application/json"}
     )
-    
+
     default ResponseEntity<heg.backendspring.models.CourseDto> adminCreateCourse(
-        @Parameter(name = "CourseDto", description = "Données du cours à créer.", required = true) @Valid @RequestBody CourseDto courseDto
+            @Parameter(name = "CourseDto", description = "Données du cours à créer.", required = true) @Valid @RequestBody CourseDto courseDto
     ) {
         getRequest().ifPresent(request -> {
-            for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
+            for (MediaType mediaType : MediaType.parseMediaTypes(request.getHeader("Accept"))) {
                 if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
                     String exampleString = "{ \"id\" : 1, \"name\" : \"Python Introduction\", \"code\" : \"61-13\", \"semester\" : \"AUTOMNE\", \"courseType\" : \"PYTHON\", \"year_course\" : 2025, \"teacher\" : \"Stettler\", \"students\" : [ ], \"tps\" : [ { \"id\" : 10, \"false\" : 1, \"courseId\" : 1, \"submission\" : { \"id\" : 100, \"fileName\" : \"TP1_Rendus.zip\", \"pathStorage\" : \"/data/courses/61-13/TP1/TP1_Rendus.zip\", \"pathFileStructured\" : \"/data/courses/61-13/TP1/TP1_RenduRestructuration.zip\" }, \"statusStudents\" : [ ] } ], \"evaluations\" : [ { \"id\" : 200, \"name\" : \"Examen final\", \"date\" : \"2025-01-15\", \"coefficient\" : 2, \"courseId\" : 1 } ] }";
                     ApiUtil.setExampleResponse(request, "application/json", exampleString);
@@ -88,27 +90,27 @@ public interface AdminCourseApi {
      *
      * @param courseId Identifiant du cours à supprimer. (required)
      * @return Cours supprimé. (status code 204)
-     *         or Cours introuvable. (status code 404)
-     *         or Erreur interne. (status code 500)
+     * or Cours introuvable. (status code 404)
+     * or Erreur interne. (status code 500)
      */
     @Operation(
-        operationId = "adminDeleteCourse",
-        summary = "Suppression d’un cours (admin).",
-        description = "Supprime un cours existant.",
-        tags = { "admin-course" },
-        responses = {
-            @ApiResponse(responseCode = "204", description = "Cours supprimé."),
-            @ApiResponse(responseCode = "404", description = "Cours introuvable."),
-            @ApiResponse(responseCode = "500", description = "Erreur interne.")
-        }
+            operationId = "adminDeleteCourse",
+            summary = "Suppression d’un cours (admin).",
+            description = "Supprime un cours existant.",
+            tags = {"admin-course"},
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Cours supprimé."),
+                    @ApiResponse(responseCode = "404", description = "Cours introuvable."),
+                    @ApiResponse(responseCode = "500", description = "Erreur interne.")
+            }
     )
     @RequestMapping(
-        method = RequestMethod.DELETE,
-        value = "/admin/courses/{courseId}"
+            method = RequestMethod.DELETE,
+            value = "/admin/courses/{courseId}"
     )
-    
+
     default ResponseEntity<Void> adminDeleteCourse(
-        @Parameter(name = "courseId", description = "Identifiant du cours à supprimer.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId
+            @Parameter(name = "courseId", description = "Identifiant du cours à supprimer.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId
     ) {
         return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
 
@@ -121,33 +123,33 @@ public interface AdminCourseApi {
      *
      * @param courseId Identifiant du cours. (required)
      * @return Cours trouvé. (status code 200)
-     *         or Cours introuvable. (status code 404)
-     *         or Erreur interne. (status code 500)
+     * or Cours introuvable. (status code 404)
+     * or Erreur interne. (status code 500)
      */
     @Operation(
-        operationId = "adminGetCourseById",
-        summary = "Détail d’un cours (admin).",
-        description = "Retourne le détail d’un cours pour la partie administrative.",
-        tags = { "admin-course" },
-        responses = {
-            @ApiResponse(responseCode = "200", description = "Cours trouvé.", content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = heg.backendspring.models.CourseDto.class))
-            }),
-            @ApiResponse(responseCode = "404", description = "Cours introuvable."),
-            @ApiResponse(responseCode = "500", description = "Erreur interne.")
-        }
+            operationId = "adminGetCourseById",
+            summary = "Détail d’un cours (admin).",
+            description = "Retourne le détail d’un cours pour la partie administrative.",
+            tags = {"admin-course"},
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Cours trouvé.", content = {
+                            @Content(mediaType = "application/json", schema = @Schema(implementation = heg.backendspring.models.CourseDto.class))
+                    }),
+                    @ApiResponse(responseCode = "404", description = "Cours introuvable."),
+                    @ApiResponse(responseCode = "500", description = "Erreur interne.")
+            }
     )
     @RequestMapping(
-        method = RequestMethod.GET,
-        value = "/admin/courses/{courseId}",
-        produces = { "application/json" }
+            method = RequestMethod.GET,
+            value = "/admin/courses/{courseId}",
+            produces = {"application/json"}
     )
-    
+
     default ResponseEntity<heg.backendspring.models.CourseDto> adminGetCourseById(
-        @Parameter(name = "courseId", description = "Identifiant du cours.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId
+            @Parameter(name = "courseId", description = "Identifiant du cours.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId
     ) {
         getRequest().ifPresent(request -> {
-            for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
+            for (MediaType mediaType : MediaType.parseMediaTypes(request.getHeader("Accept"))) {
                 if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
                     String exampleString = "{ \"id\" : 1, \"name\" : \"Python Introduction\", \"code\" : \"61-13\", \"semester\" : \"AUTOMNE\", \"courseType\" : \"PYTHON\", \"year_course\" : 2025, \"teacher\" : \"Stettler\", \"students\" : [ ], \"tps\" : [ { \"id\" : 10, \"false\" : 1, \"courseId\" : 1, \"submission\" : { \"id\" : 100, \"fileName\" : \"TP1_Rendus.zip\", \"pathStorage\" : \"/data/courses/61-13/TP1/TP1_Rendus.zip\", \"pathFileStructured\" : \"/data/courses/61-13/TP1/TP1_RenduRestructuration.zip\" }, \"statusStudents\" : [ ] } ], \"evaluations\" : [ { \"id\" : 200, \"name\" : \"Examen final\", \"date\" : \"2025-01-15\", \"coefficient\" : 2, \"courseId\" : 1 } ] }";
                     ApiUtil.setExampleResponse(request, "application/json", exampleString);
@@ -165,31 +167,31 @@ public interface AdminCourseApi {
      * Retourne tous les cours pour la partie administrative.
      *
      * @return Liste de cours retournée. (status code 200)
-     *         or Erreur interne. (status code 500)
+     * or Erreur interne. (status code 500)
      */
     @Operation(
-        operationId = "adminGetCourses",
-        summary = "Liste des cours (admin).",
-        description = "Retourne tous les cours pour la partie administrative.",
-        tags = { "admin-course" },
-        responses = {
-            @ApiResponse(responseCode = "200", description = "Liste de cours retournée.", content = {
-                @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = heg.backendspring.models.CourseDto.class)))
-            }),
-            @ApiResponse(responseCode = "500", description = "Erreur interne.")
-        }
+            operationId = "adminGetCourses",
+            summary = "Liste des cours (admin).",
+            description = "Retourne tous les cours pour la partie administrative.",
+            tags = {"admin-course"},
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Liste de cours retournée.", content = {
+                            @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = heg.backendspring.models.CourseDto.class)))
+                    }),
+                    @ApiResponse(responseCode = "500", description = "Erreur interne.")
+            }
     )
     @RequestMapping(
-        method = RequestMethod.GET,
-        value = "/admin/courses",
-        produces = { "application/json" }
+            method = RequestMethod.GET,
+            value = "/admin/courses",
+            produces = {"application/json"}
     )
-    
+
     default ResponseEntity<List<heg.backendspring.models.CourseDto>> adminGetCourses(
-        
+
     ) {
         getRequest().ifPresent(request -> {
-            for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
+            for (MediaType mediaType : MediaType.parseMediaTypes(request.getHeader("Accept"))) {
                 if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
                     String exampleString = "[ { \"id\" : 1, \"name\" : \"Python Introduction\", \"code\" : \"61-13\", \"semester\" : \"AUTOMNE\", \"courseType\" : \"PYTHON\", \"year_course\" : 2025, \"teacher\" : \"Stettler\", \"students\" : [ ], \"tps\" : [ { \"id\" : 10, \"false\" : 1, \"courseId\" : 1, \"submission\" : { \"id\" : 100, \"fileName\" : \"TP1_Rendus.zip\", \"pathStorage\" : \"/data/courses/61-13/TP1/TP1_Rendus.zip\", \"pathFileStructured\" : \"/data/courses/61-13/TP1/TP1_RenduRestructuration.zip\" }, \"statusStudents\" : [ ] } ], \"evaluations\" : [ { \"id\" : 200, \"name\" : \"Examen final\", \"date\" : \"2025-01-15\", \"coefficient\" : 2, \"courseId\" : 1 } ] }, { \"id\" : 1, \"name\" : \"Python Introduction\", \"code\" : \"61-13\", \"semester\" : \"AUTOMNE\", \"courseType\" : \"PYTHON\", \"year_course\" : 2025, \"teacher\" : \"Stettler\", \"students\" : [ ], \"tps\" : [ { \"id\" : 10, \"false\" : 1, \"courseId\" : 1, \"submission\" : { \"id\" : 100, \"fileName\" : \"TP1_Rendus.zip\", \"pathStorage\" : \"/data/courses/61-13/TP1/TP1_Rendus.zip\", \"pathFileStructured\" : \"/data/courses/61-13/TP1/TP1_RenduRestructuration.zip\" }, \"statusStudents\" : [ ] } ], \"evaluations\" : [ { \"id\" : 200, \"name\" : \"Examen final\", \"date\" : \"2025-01-15\", \"coefficient\" : 2, \"courseId\" : 1 } ] } ]";
                     ApiUtil.setExampleResponse(request, "application/json", exampleString);
@@ -208,36 +210,36 @@ public interface AdminCourseApi {
      *
      * @param courseDto Données mises à jour du cours. (required)
      * @return Cours mis à jour. (status code 200)
-     *         or Données invalides. (status code 400)
-     *         or Cours introuvable. (status code 404)
-     *         or Erreur interne. (status code 500)
+     * or Données invalides. (status code 400)
+     * or Cours introuvable. (status code 404)
+     * or Erreur interne. (status code 500)
      */
     @Operation(
-        operationId = "adminUpdateCourse",
-        summary = "Mise à jour d’un cours (admin).",
-        description = "Met à jour les informations d’un cours existant.",
-        tags = { "admin-course" },
-        responses = {
-            @ApiResponse(responseCode = "200", description = "Cours mis à jour.", content = {
-                @Content(mediaType = "application/json", schema = @Schema(implementation = heg.backendspring.models.CourseDto.class))
-            }),
-            @ApiResponse(responseCode = "400", description = "Données invalides."),
-            @ApiResponse(responseCode = "404", description = "Cours introuvable."),
-            @ApiResponse(responseCode = "500", description = "Erreur interne.")
-        }
+            operationId = "adminUpdateCourse",
+            summary = "Mise à jour d’un cours (admin).",
+            description = "Met à jour les informations d’un cours existant.",
+            tags = {"admin-course"},
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Cours mis à jour.", content = {
+                            @Content(mediaType = "application/json", schema = @Schema(implementation = heg.backendspring.models.CourseDto.class))
+                    }),
+                    @ApiResponse(responseCode = "400", description = "Données invalides."),
+                    @ApiResponse(responseCode = "404", description = "Cours introuvable."),
+                    @ApiResponse(responseCode = "500", description = "Erreur interne.")
+            }
     )
     @RequestMapping(
-        method = RequestMethod.PUT,
-        value = "/admin/courses",
-        produces = { "application/json" },
-        consumes = { "application/json" }
+            method = RequestMethod.PUT,
+            value = "/admin/courses",
+            produces = {"application/json"},
+            consumes = {"application/json"}
     )
-    
+
     default ResponseEntity<heg.backendspring.models.CourseDto> adminUpdateCourse(
-        @Parameter(name = "CourseDto", description = "Données mises à jour du cours.", required = true) @Valid @RequestBody CourseDto courseDto
+            @Parameter(name = "CourseDto", description = "Données mises à jour du cours.", required = true) @Valid @RequestBody CourseDto courseDto
     ) {
         getRequest().ifPresent(request -> {
-            for (MediaType mediaType: MediaType.parseMediaTypes(request.getHeader("Accept"))) {
+            for (MediaType mediaType : MediaType.parseMediaTypes(request.getHeader("Accept"))) {
                 if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
                     String exampleString = "{ \"id\" : 1, \"name\" : \"Python Introduction\", \"code\" : \"61-13\", \"semester\" : \"AUTOMNE\", \"courseType\" : \"PYTHON\", \"year_course\" : 2025, \"teacher\" : \"Stettler\", \"students\" : [ ], \"tps\" : [ { \"id\" : 10, \"false\" : 1, \"courseId\" : 1, \"submission\" : { \"id\" : 100, \"fileName\" : \"TP1_Rendus.zip\", \"pathStorage\" : \"/data/courses/61-13/TP1/TP1_Rendus.zip\", \"pathFileStructured\" : \"/data/courses/61-13/TP1/TP1_RenduRestructuration.zip\" }, \"statusStudents\" : [ ] } ], \"evaluations\" : [ { \"id\" : 200, \"name\" : \"Examen final\", \"date\" : \"2025-01-15\", \"coefficient\" : 2, \"courseId\" : 1 } ] }";
                     ApiUtil.setExampleResponse(request, "application/json", exampleString);

@@ -9,21 +9,96 @@
   </section>
   <!-- TITRE PRINCIPAL -->
   <h1 class="title-large">Liste des Cours</h1>
-  <!-- SECTION D’AFFICHAGE DES COURS -->
+  <!-- SECTION D'AFFICHAGE DES COURS -->
   <section class="courses-grid" id="courses-list">
     @for (course of courseList; track course.id) {
-      <article class="course-card">
-        <a [routerLink]="['courses', course.id]" class="card-link">
-          <h2>{{ course.name }}</h2>
-          <p>Code : {{ course.code }}</p>
-          <p>Prof : {{ course.teacher }}</p>
-          <p class="last-info">
-            Semestre : {{ course.semester }} — Année : {{ course.year_course }}
-          </p>
-        </a>
-      </article>
+    <article class="course-card" [class.editing]="editingCourseId === course.id">
+
+      <!-- ACTION BUTTONS (visible on hover) -->
+      @if (editingCourseId !== course.id) {
+      <div class="course-actions">
+        <button mat-icon-button class="action-btn edit-btn" (click)="onEditCourse(course, $event)"
+          matTooltip="Modifier">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button class="action-btn delete-btn" (click)="onDeleteCourse(course, $event)"
+          matTooltip="Supprimer">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+      }
+
+      <!-- VIEW MODE -->
+      @if (editingCourseId !== course.id) {
+      <a [routerLink]="['courses', course.id]" class="card-link">
+        <h2>{{ course.name }}</h2>
+        <p>Code : {{ course.code }}</p>
+        <p>Prof : {{ course.teacher }}</p>
+        <p class="last-info">
+          Semestre : {{ course.semester }} — Année : {{ course.year_course }}
+        </p>
+      </a>
+      }
+
+      <!-- EDIT MODE -->
+      @if (editingCourseId === course.id && editingCourse) {
+      <div class="edit-form">
+        <h3>Modifier le cours</h3>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nom du cours</mat-label>
+          <input matInput [(ngModel)]="editingCourse.name" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Code</mat-label>
+          <input matInput [(ngModel)]="editingCourse.code" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Professeur</mat-label>
+          <input matInput [(ngModel)]="editingCourse.teacher" />
+        </mat-form-field>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Semestre</mat-label>
+            <mat-select [(ngModel)]="editingCourse.semester">
+              <mat-option value="S1">S1</mat-option>
+              <mat-option value="S2">S2</mat-option>
+              <mat-option value="S3">S3</mat-option>
+              <mat-option value="S4">S4</mat-option>
+              <mat-option value="S5">S5</mat-option>
+              <mat-option value="S6">S6</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Année</mat-label>
+            <input matInput type="number" [(ngModel)]="editingCourse.year_course" />
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Type de cours</mat-label>
+          <mat-select [(ngModel)]="editingCourse.courseType">
+            <mat-option value="CM">CM</mat-option>
+            <mat-option value="TD">TD</mat-option>
+            <mat-option value="TP">TP</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <div class="edit-actions">
+          <button mat-button (click)="onCancelEdit($event)">Annuler</button>
+          <button mat-raised-button color="primary" (click)="onSaveEdit($event)">
+            Enregistrer
+          </button>
+        </div>
+      </div>
+      }
+    </article>
     } @empty {
-      <p>Aucun cours trouvé.</p>
+    <p>Aucun cours trouvé.</p>
     }
   </section>
 

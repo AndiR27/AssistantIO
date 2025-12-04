@@ -1,27 +1,77 @@
-/* Garde la même classe pour l’alignement et la taille max */
-.card-form {
-  max-width: 500px;
-  margin: 0 auto 1.5rem;
+.student-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.5rem 0;
 }
 
-/* Chaque champ prend toute la largeur disponible */
 .full-width {
   width: 100%;
 }
 
-/* Un peu d’espace entre champs */
-mat-form-field.full-width {
-  margin-bottom: 1rem;
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
 }
 
-/* Le bouton aussi plein écran et marge supérieure */
-button.full-width {
+.submit-btn {
+  min-width: 180px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.submit-btn mat-icon {
+  margin: 0;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.success-message {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background-color: #d4edda;
+  color: #155724;
+  border-radius: 0.375rem;
   margin-top: 1rem;
+  animation: slideIn 0.3s ease-out;
 }
 
-/* On peut conserver helper-text si besoin ailleurs */
-.helper-text {
-  font-size: 0.9rem;
-  color: #6b7280;
-  margin-bottom: 1rem;
+.success-message mat-icon {
+  color: #28a745;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .submit-btn {
+    width: 100%;
+    justify-content: center;
+  }
 }

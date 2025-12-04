@@ -1,63 +1,57 @@
-<form [formGroup]="form" (ngSubmit)="onSubmit()" class="upload-form">
-  <h3 class="form-subtitle">Ajout d'un TP & rendu (.zip)</h3>
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="tp-form">
 
-  <!-- Numéro du TP -->
-  <div class="tp-input-wrapper">
-    <label for="noTp">Numéro du TP</label>
-    <input
-      type="number"
-      id="noTp"
-      formControlName="noTp"
-      min="1"
-      required
-      class="tp-input"
-      [class.input-error]="form.controls.noTp.touched && form.controls.noTp.invalid"
-    />
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Numéro du TP</mat-label>
+    <input matInput type="number" id="noTp" formControlName="noTp" min="1" placeholder="Ex: 1, 2, 3..." />
+    <mat-icon matPrefix>assignment</mat-icon>
     @if (form.controls.noTp.touched && form.controls.noTp.invalid) {
-      <div class="helper-text">Le numéro du TP est requis.</div>
+    <mat-error>Le numéro du TP est requis.</mat-error>
+    }
+  </mat-form-field>
+
+  <div class="file-upload-section">
+    <input type="file" id="zipFile" #fileInputRef (change)="onFileChange($event)" accept=".zip" hidden />
+
+    <button mat-raised-button type="button" color="accent" class="choose-file-btn" (click)="fileInputRef.click()">
+      <mat-icon>attach_file</mat-icon>
+      <span>{{ file ? 'Changer de fichier' : 'Choisir un fichier .zip' }}</span>
+    </button>
+
+    @if (file) {
+    <div class="file-info">
+      <mat-chip class="file-chip">
+        <mat-icon matChipAvatar>folder_zip</mat-icon>
+        {{ file.name }}
+      </mat-chip>
+      <span class="file-size">{{ (file.size / 1024).toFixed(2) }} KB</span>
+    </div>
     }
   </div>
 
-  <!-- Sélection du fichier ZIP -->
-  <div class="file-input-wrapper">
-    <input
-      type="file"
-      id="zipFile"
-      #fileInputRef
-      (change)="onFileChange($event)"
-      accept=".zip"
-      hidden
-    />
-    <button
-      type="button"
-      class="choose-btn mat-stroked-button mat-primary"
-      (click)="fileInputRef.click()"
-    >
-      <mat-icon >attach_file</mat-icon>
-      {{ file ? 'Changer de fichier' : 'Choisir un fichier .zip' }}
-    </button>
-      @if (file) {
-        <mat-chip class="file-chip">{{ file.name }}</mat-chip>
+  <div class="form-actions">
+    <button mat-raised-button color="primary" class="submit-btn" type="submit"
+      [disabled]="form.invalid || !file || isUploading">
+      @if (isUploading) {
+      <mat-icon class="spinning">sync</mat-icon>
+      <span>Ajout en cours...</span>
+      } @else {
+      <mat-icon>add_circle</mat-icon>
+      <span>Ajouter le TP</span>
       }
+    </button>
   </div>
 
-  <!-- Bouton de soumission -->
-  <button
-    mat-raised-button
-    color="accent"
-    class="import-btn"
-    type="submit"
-    [disableRipple]="true"
-    [disabled]="form.invalid || !file || isUploading"
-  >
-    {{ isUploading ? 'Ajout en cours…' : 'Ajouter le TP' }}
-  </button>
-
-  <!-- Message de succès ou erreur -->
   @if (successMsg) {
-    <p class="success-text">{{ successMsg }}</p>
+  <div class="success-message">
+    <mat-icon>check_circle</mat-icon>
+    <span>{{ successMsg }}</span>
+  </div>
   }
+
   @if (errorMsg) {
-    <p class="error-msg">{{ errorMsg }}</p>
+  <div class="error-message">
+    <mat-icon>error</mat-icon>
+    <span>{{ errorMsg }}</span>
+  </div>
   }
 </form>

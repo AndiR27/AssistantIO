@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import {catchError, Observable, of, tap, throwError} from 'rxjs';
+import { catchError, Observable, of, tap, throwError } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { CoursePreview } from '../models/coursePreview.model';
-import {ApiService} from '../../shared/services/api.service';
-import {SemesterType} from '../models/semesterType.model';
-import {CourseType} from '../models/courseType.model';
+import { ApiService } from '../../shared/services/api.service';
+import { SemesterType } from '../models/semesterType.model';
+import { CourseType } from '../models/courseType.model';
 
 /**
  * Service : pour gérer les opérations liées aux cours sur la page d'accueil.
@@ -22,9 +22,9 @@ import {CourseType} from '../models/courseType.model';
   providedIn: 'root' // Le service est disponible dans toute l'application
 })
 
-export class HomeService{
+export class HomeService {
   coursePreviews: CoursePreview[] = []; // Propriété pour stocker la liste des cours
-  private baseURL = '/admin/v2/courses';
+  private baseURL = '/admin/courses';
   constructor(private api: ApiService) {
     // Le constructeur initialise le service avec HttpClient pour faire des requêtes HTTP
   }
@@ -34,7 +34,7 @@ export class HomeService{
   getCoursePreviews(): Observable<CoursePreview[]> {
     console.log('getCoursePreviews called');
     return this.api.getAllCourses().pipe(
-      tap(res => console.log('API ', this.api.getRoute(this.baseURL + "/all"),' raw response:', res)),
+      tap(res => console.log('API ', this.api.getRoute(this.baseURL + "/all"), ' raw response:', res)),
       map((res: any) => {
         const arr: any[] = Array.isArray(res)
           ? res
@@ -42,13 +42,13 @@ export class HomeService{
             ? res.data
             : [];
         return arr.map(dto => ({
-          id:           dto.id,
-          name:         dto.name,
-          code:         dto.code,
-          teacher:      dto.teacher,
-          year_course:  dto.year_course,
-          semester:     dto.semester  as SemesterType,
-          courseType:   dto.courseType as CourseType
+          id: dto.id,
+          name: dto.name,
+          code: dto.code,
+          teacher: dto.teacher,
+          year_course: dto.year_course,
+          semester: dto.semester as SemesterType,
+          courseType: dto.courseType as CourseType
         }));
       }),
       catchError(err => {
@@ -61,7 +61,7 @@ export class HomeService{
 
 
   // Add a course
-  addCourse(course : CoursePreview): Observable<CoursePreview> {
+  addCourse(course: CoursePreview): Observable<CoursePreview> {
     console.log('addCourse called');
     return this.api.addCourse(course).pipe(
       map(dto => ({
@@ -80,6 +80,35 @@ export class HomeService{
     );
   }
 
-  // Fetch a course by ID
+  // Update a course
+  updateCourse(course: CoursePreview): Observable<CoursePreview> {
+    console.log('updateCourse called', course);
+    return this.api.updateCourse(course).pipe(
+      map(dto => ({
+        id: dto.id,
+        name: dto.name,
+        code: dto.code,
+        teacher: dto.teacher,
+        year_course: dto.year_course,
+        semester: dto.semester as SemesterType,
+        courseType: dto.courseType as CourseType
+      })),
+      catchError(error => {
+        console.error('Error updating course:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  // Delete a course
+  deleteCourse(courseId: number): Observable<void> {
+    console.log('deleteCourse called', courseId);
+    return this.api.deleteCourse(courseId).pipe(
+      catchError(error => {
+        console.error('Error deleting course:', error);
+        return throwError(() => error);
+      })
+    );
+  }
 
 }

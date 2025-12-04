@@ -1,13 +1,13 @@
-import {Component, computed, EventEmitter, inject, Input, Output, signal} from '@angular/core';
-import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
-import {CourseService} from '../../../../services/course.service';
-import {StudyType} from '../../../../models/studyType.model';
-import {StudentModel} from '../../../../models/courseDetails.model';
-import {ActivatedRoute} from '@angular/router';
-import {CommonModule} from '@angular/common';
-import {MatCard} from '@angular/material/card';
-import {MatFormField} from '@angular/material/input';
-import {MATERIAL_MODULES} from '../../../../../shared/imports/material-imports';
+import { Component, computed, EventEmitter, inject, Input, Output, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { CourseService } from '../../../../services/course.service';
+import { StudyType } from '../../../../models/studyType.model';
+import { StudentModel } from '../../../../models/courseDetails.model';
+import { ActivatedRoute } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { MatCard } from '@angular/material/card';
+import { MatFormField } from '@angular/material/input';
+import { MATERIAL_MODULES } from '../../../../../shared/imports/material-imports';
 
 
 @Component({
@@ -61,22 +61,22 @@ export class AddStudent {
     this.courseService
       .addStudentToCourse(courseId, payload)
       .subscribe({
-          next: student => {
-            //log
+        next: student => {
+          //log
 
-            this.addedStudent.set(student);
-            this.added.emit();
-            console.log('Emit Etudiant avec succès:', student);
-            this.form.reset({studyType: StudyType.TEMPLS_PLEIN})
-          },
-          error: err => {
-            console.error('Error adding student:', err);
-            this.addedStudent.set(null);
-          },
-          complete: () => {
-            this.isSubmitting.set(false);
-          }
+          this.addedStudent.set(student);
+          this.added.emit();
+          console.log('Emit Etudiant avec succès:', student);
+          this.form.reset({ studyType: StudyType.TEMPS_PLEIN })
         },
+        error: err => {
+          console.error('Error adding student:', err);
+          this.addedStudent.set(null);
+        },
+        complete: () => {
+          this.isSubmitting.set(false);
+        }
+      },
       )
 
   }

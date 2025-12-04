@@ -5,6 +5,8 @@ import heg.backendspring.entity.Course;
 import heg.backendspring.entity.Student;
 import heg.backendspring.entity.TP;
 import heg.backendspring.enums.StudyType;
+import heg.backendspring.exception.CourseErrorCode;
+import heg.backendspring.exception.CourseException;
 import heg.backendspring.mapping.MapperCourse;
 import heg.backendspring.mapping.MapperStudent;
 import heg.backendspring.mapping.MapperTP;
@@ -234,6 +236,14 @@ public class ServiceCourse {
      */
     public TPDto addTPtoCourse(Long idCourse, int no) {
         Course course = repositoryCourse.findById(idCourse).get();
+        //throw exception si le TP existe déjà
+        if(repositoryCourse.findTPByCourseIdAndNo(idCourse, no).isPresent()){
+            throw new CourseException(
+                    "Le TP" + no + "' est déjà associé au cours.",
+                    CourseErrorCode.TP_ALREADY_EXISTS,
+                    course.getId()
+            );
+        }
         TP tp = new TP(no, course, null);
         course.getTps().add(tp);
         repositoryCourse.save(course);

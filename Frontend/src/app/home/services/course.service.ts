@@ -1,95 +1,74 @@
-import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {ApiService} from '../../shared/services/api.service';
-import {catchError, Observable, of, tap, throwError} from 'rxjs';
-import {map} from 'rxjs/operators';
-import {SemesterType} from '../models/semesterType.model';
-import {CourseType} from '../models/courseType.model';
-import {CoursePreview} from '../models/coursePreview.model';
-import {CourseDetailsModel, StudentModel, TP_Model} from '../models/courseDetails.model';
+import { Injectable } from '@angular/core';
+import { ApiService } from '../../shared/services/api.service';
+import { catchError, Observable, tap, throwError } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { SemesterType } from '../models/semesterType.model';
+import { CourseType } from '../models/courseType.model';
+import { CourseDetailsModel, StudentModel, TP_Model } from '../models/courseDetails.model';
 
+/**
+ * Service for managing course details operations.
+ * Handles students, TPs, and course-specific data.
+ * Uses ApiService for HTTP requests.
+ */
 @Injectable({ providedIn: 'root' })
 export class CourseService {
-  private baseUrl = '/admin/v2/course/{courseId}';
 
-  constructor(private api: ApiService) {
-  }
+  constructor(private api: ApiService) { }
 
-  // Récupère un cours par son ID et toutes ses informations
-  /** Récupère un seul cours par son ID */
+  // ========================================
+  // COURSE OPERATIONS
+  // ========================================
+
+  /**
+   * Get course details by ID (admin endpoint)
+   * GET /admin/courses/{courseId}
+   */
   getCourseById(id: number): Observable<CourseDetailsModel> {
     return this.api.getCourseById(id).pipe(
-      tap(res => console.log('API', this.api.getRoute("/admin/v2/course/{courseId}"), 'raw response:', res)),
+      tap(res => console.log('API getCourseById response:', res)),
       map((res: any) => {
-        // Si données sont sous res.data ou directement dans res
+        // Handle different response structures
         const dto = Array.isArray(res)
           ? res[0]
           : res.data
             ? (Array.isArray(res.data) ? res.data[0] : res.data)
             : res;
 
-        // On reconstruit notre modèle
         return {
-          /**
-           * id?: number;
-           *   name: string;
-           *   code: string;
-           *   semester: SemesterType;
-           *   year_course: number;
-           *   teacher: string;
-           *   courseType: CourseType;
-           *   studentList: StudentModel[];
-           *   tpsList:     TP_Model[];
-           *   evaluations: EvaluationModel[];
-           */
-          id:           dto.id,
-          name:         dto.name,
-          code:         dto.code,
-          teacher:      dto.teacher,
-          year_course:  dto.year_course,
-          semester:     dto.semester  as SemesterType,
-          courseType:   dto.courseType as CourseType,
-          studentList:  dto.studentList  || [],
-          tpsList:      dto.tpsList      || [],
-          evaluations:  dto.evaluations  || []
+          id: dto.id,
+          name: dto.name,
+          code: dto.code,
+          teacher: dto.teacher,
+          year_course: dto.year_course,
+          semester: dto.semester as SemesterType,
+          courseType: dto.courseType as CourseType,
+          studentList: dto.studentList || [],
+          tpsList: dto.tpsList || [],
+          evaluations: dto.evaluations || []
         } as CourseDetailsModel;
       }),
       catchError(err => {
         console.error('Error in getCourseById():', err);
-        // selon besoin, vous pouvez renvoyer un fallback ou propager l'erreur
-        return throwError(() => err);
-        // ou : return of(null as any);
-      })
-    );
-  }
-
-  // Add one student to course
-  addStudentToCourse(courseId: number, student: StudentModel): Observable<StudentModel> {
-    return this.api.addStudentToCourse(courseId, student).pipe(
-      tap(res => console.log('API', this.api.getRoute("/course/{courseId}/addStudent"), 'raw response:', res)),
-      map((res: any) => {
-        // On reconstruit notre modèle
-        return {
-          id: res.id,
-          name: res.name,
-          email: res.email,
-          studyType: res.studyType
-        } as StudentModel; // Remplacer 'any' par le type approprié si nécessaire
-      }),
-      catchError(err => {
-        console.error('Error in addStudentToCourse():', err);
         return throwError(() => err);
       })
     );
   }
 
-  // Get all students of a course
+  // ========================================
+  // STUDENT OPERATIONS
+  // ========================================
+
+  /**
+   * Get all students of a course
+   * GET /course/{courseId}/students
+   */
   getStudentsByCourseId(courseId: number): Observable<StudentModel[]> {
     return this.api.getStudentsByCourseId(courseId).pipe(
-      tap(res => console.log('API', this.api.getRoute("/course/{courseId}/students"), 'raw response:', res)),
+      tap(res => console.log('API getStudentsByCourseId response:', res)),
       map((res: any) => {
-        // On reconstruit notre modèle
-        return res.map((student: any) => ({
+        const students = Array.isArray(res) ? res : [];
+        return students.map((student: any) => ({
           id: student.id,
           name: student.name,
           email: student.email,
@@ -103,10 +82,33 @@ export class CourseService {
     );
   }
 
-  // Add students from file
+  /**
+   * Add one student to a course
+   * POST /course/{courseId}/addStudent
+   */
+  addStudentToCourse(courseId: number, student: StudentModel): Observable<StudentModel> {
+    return this.api.addStudentToCourse(courseId, student).pipe(
+      tap(res => console.log('API addStudentToCourse response:', res)),
+      map((res: any) => ({
+        id: res.id,
+        name: res.name,
+        email: res.email,
+        studyType: res.studyType
+      } as StudentModel)),
+      catchError(err => {
+        console.error('Error in addStudentToCourse():', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  /**
+   * Add students from a .txt file
+   * POST /course/{courseId}/addStudentsFromFile
+   */
   addStudentsFromFile(courseId: number, file: File): Observable<any> {
     return this.api.addStudentsFromFile(courseId, file).pipe(
-      tap(res => console.log('API', this.api.getRoute("/course/{courseId}/addStudentsFromFile"), 'raw response:', res)),
+      tap(res => console.log('API addStudentsFromFile response:', res)),
       catchError(err => {
         console.error('Error in addStudentsFromFile():', err);
         return throwError(() => err);
@@ -114,24 +116,20 @@ export class CourseService {
     );
   }
 
-  // Add a TP to a course (and add submission directly to it)
-  addTpToCourse(courseId: number, tpNo: number, file: File): Observable<TP_Model>{
-    return this.api.addTpToCourse(courseId, tpNo, file).pipe(
-      tap(res => console.log('API', this.api.getRoute("/course/{courseId}/addTP"), 'raw response:', res)),
-      catchError(err => {
-        console.error('Error in addTpToCourse():', err);
-        return throwError(() => err);
-      })
-    );
-  }
+  // ========================================
+  // TP (TRAVAUX PRATIQUES) OPERATIONS
+  // ========================================
 
-  // Get all TPs of a course
+  /**
+   * Get all TPs of a course
+   * GET /course/{courseId}/TPs
+   */
   getTPsByCourseId(courseId: number): Observable<TP_Model[]> {
     return this.api.getTPsByCourseId(courseId).pipe(
-      tap(res => console.log('API', this.api.getRoute("/course/{courseId}/tps"), 'raw response:', res)),
+      tap(res => console.log('API getTPsByCourseId response:', res)),
       map((res: any) => {
-        // On reconstruit notre modèle
-        return res.map((tp: any) => ({
+        const tps = Array.isArray(res) ? res : [];
+        return tps.map((tp: any) => ({
           id: tp.id,
           no: tp.no,
           course: tp.course,
@@ -146,10 +144,14 @@ export class CourseService {
     );
   }
 
-  //start process submission and manage TPstatus for every student for a given TP and course
-  startProcessSubmission(courseId: number, tpNo: number): Observable<any>{
-    return this.api.manageTPsubmission(courseId, tpNo).pipe(
-      tap(res => console.log('API', this.api.getRoute("/course/{courseId}/addTP"), 'raw response:', res)),
+  /**
+   * Add a TP to a course with submission file
+   * POST /course/{courseId}/TPs/{tpNumber}
+   * POST /course/{courseId}/addRendu/{tpNo}
+   */
+  addTpToCourse(courseId: number, tpNo: number, file: File): Observable<TP_Model> {
+    return this.api.addTpToCourse(courseId, tpNo, file).pipe(
+      tap(res => console.log('API addTpToCourse response:', res)),
       catchError(err => {
         console.error('Error in addTpToCourse():', err);
         return throwError(() => err);
@@ -157,23 +159,73 @@ export class CourseService {
     );
   }
 
-
-  //Download the structured file of a TP
-  downloadStructuredFile(courseId: number, tpNo: number): Observable<Blob> {
-    return this.api.downloadTP(courseId, tpNo).pipe(
+  /**
+   * Start submission processing and manage TP status for all students
+   * POST /course/{courseId}/startProcessSubmission/{tpNo}
+   * POST /course/{courseId}/manageTP/{tpNo}
+   */
+  startProcessSubmission(courseId: number, tpNo: number): Observable<any> {
+    return this.api.manageTPsubmission(courseId, tpNo).pipe(
+      tap(res => console.log('API startProcessSubmission response:', res)),
       catchError(err => {
-        console.error('Error in downloadTP():', err);
+        console.error('Error in startProcessSubmission():', err);
         return throwError(() => err);
       })
     );
   }
 
+  /**
+   * Download the structured ZIP file of a TP
+   * GET /course/{courseId}/downloadRestructuredZip/{tpNo}
+   */
+  downloadStructuredFile(courseId: number, tpNo: number): Observable<Blob> {
+    return this.api.downloadTP(courseId, tpNo).pipe(
+      catchError(err => {
+        console.error('Error in downloadStructuredFile():', err);
+        return throwError(() => err);
+      })
+    );
+  }
 
+  /**
+   * Delete a student from a course
+   * DELETE /course/{courseId}/students/{studentId}
+   */
+  deleteStudent(courseId: number, studentId: number): Observable<void> {
+    return this.api.deleteStudent(courseId, studentId).pipe(
+      tap(() => console.log(`Student ${studentId} deleted from course ${courseId}`)),
+      catchError(err => {
+        console.error('Error in deleteStudent():', err);
+        return throwError(() => err);
+      })
+    );
+  }
 
+  /**
+   * Delete a TP from a course
+   * DELETE /course/{courseId}/TPs/{tpNo}
+   */
+  deleteTP(courseId: number, tpNo: number): Observable<void> {
+    return this.api.deleteTP(courseId, tpNo).pipe(
+      tap(() => console.log(`TP ${tpNo} deleted from course ${courseId}`)),
+      catchError(err => {
+        console.error('Error in deleteTP():', err);
+        return throwError(() => err);
+      })
+    );
+  }
 
+  /**
+   * Update a TP
+   * PUT /course/{courseId}/TPs/{tpNo}
+   */
+  updateTP(courseId: number, tpNo: number, tpData: any): Observable<TP_Model> {
+    return this.api.updateTP(courseId, tpNo, tpData).pipe(
+      tap(res => console.log('API updateTP response:', res)),
+      catchError(err => {
+        console.error('Error in updateTP():', err);
+        return throwError(() => err);
+      })
+    );
+  }
 }
-
-
-
-
-

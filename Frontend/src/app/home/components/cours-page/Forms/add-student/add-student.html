@@ -1,36 +1,50 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="student-form">
 
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
-    <label for="name">Nom</label>
-    <input id="name" formControlName="name" placeholder="Nom de l’étudiant" />
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Nom de l'étudiant</mat-label>
+    <input matInput id="name" formControlName="name" placeholder="Entrez le nom complet" />
+    <mat-icon matPrefix>person</mat-icon>
     @if (form.controls.name.touched && form.controls.name.invalid) {
-      <div class="helper-text">Le nom est requis.</div>
+    <mat-error>Le nom est requis.</mat-error>
     }
+  </mat-form-field>
 
-    <label for="email">Email</label>
-    <input
-      id="email"
-      type="email"
-      formControlName="email"
-      placeholder="exemple@domaine.com"
-    />
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Email</mat-label>
+    <input matInput id="email" type="email" formControlName="email" placeholder="exemple@domaine.com" />
+    <mat-icon matPrefix>email</mat-icon>
     @if (form.controls.email.touched && form.controls.email.invalid) {
-      <div class="helper-text">Adresse email invalide.</div>
+    <mat-error>Adresse email invalide.</mat-error>
     }
+  </mat-form-field>
 
-    <label for="studyType">Type d’études</label>
-    <select id="studyType" formControlName="studyType">
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Type d'études</mat-label>
+    <mat-select id="studyType" formControlName="studyType">
       @for (type of studyTypes(); track type) {
-        <option [value]="type">{{ type }}</option>
+      <mat-option [value]="type">{{ type }}</mat-option>
       }
-    </select>
+    </mat-select>
+    <mat-icon matPrefix>school</mat-icon>
+  </mat-form-field>
 
-    <button
-      mat-raised-button
-      type="submit"
-      class="btn-primary"
-      [disabled]="form.invalid || !canSubmit()"
-    >
-      {{ isSubmitting() ? 'En cours...' : 'Ajouter l’étudiant' }}
+  <div class="form-actions">
+    <button mat-raised-button color="primary" type="submit" class="submit-btn"
+      [disabled]="form.invalid || !canSubmit()">
+      @if (isSubmitting()) {
+      <mat-icon class="spinning">sync</mat-icon>
+      <span>Ajout en cours...</span>
+      } @else {
+      <mat-icon>person_add</mat-icon>
+      <span>Ajouter l'étudiant</span>
+      }
     </button>
-  </form>
+  </div>
 
+  @if (addedStudent()) {
+  <div class="success-message">
+    <mat-icon>check_circle</mat-icon>
+    <span>Étudiant ajouté avec succès !</span>
+  </div>
+  }
+</form>

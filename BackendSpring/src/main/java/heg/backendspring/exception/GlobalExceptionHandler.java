@@ -107,7 +107,34 @@ public class GlobalExceptionHandler {
 
         }
 
-        // 6) Par défaut → erreur interne (500)
+        // 6) Erreur liée à la gestion des Courses : CourseException
+        if (ex instanceof CourseException ce) {
+            HttpStatus status;
+            String detailMessage = firstNonBlank(ce.getMessage(), "Une erreur liée au cours est survenue.");
+            switch (ce.getErrorCode()) {
+                case COURSE_NOT_FOUND:
+                    status = HttpStatus.NOT_FOUND;
+                    break;
+                case TP_ALREADY_EXISTS:
+                case STUDENT_ALREADY_IN_COURSE:
+                case INVALID_COURSE_CODE:
+                case OPERATION_NOT_ALLOWED:
+                    status = HttpStatus.BAD_REQUEST;
+                    break;
+                case GENERIC_COURSE_ERROR:
+                default:
+                    status = HttpStatus.INTERNAL_SERVER_ERROR;
+                    break;
+            }
+            return baseProblem(
+                    status,
+                    defaultTitleFor(status),
+                    detailMessage,
+                    instance
+            );
+        }
+
+        // 7) Par défaut → erreur interne (500)
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         return baseProblem(
                 status,

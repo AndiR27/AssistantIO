@@ -1,0 +1,72 @@
+<div class="table-section">
+    <div class="section-header">
+        <h2 class="section-title">
+            <mat-icon>table_chart</mat-icon>
+            <span>Étudiants & Travaux Pratiques</span>
+        </h2>
+        <p class="section-subtitle">Suivi des rendus par étudiant</p>
+    </div>
+
+    <div class="table-wrapper mat-elevation-z1">
+        <table class="etudiants-table">
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Email</th>
+                    @for (tp of tps; track tp.id) {
+                    <th class="tp-header">
+                        <div class="tp-header-content">
+                            <span>TP {{ tp.no }}</span>
+                            <div class="tp-actions">
+                                @if (shouldShowDownload(tp)) {
+                                <button mat-icon-button color="primary" [disabled]="isDownloading"
+                                    (click)="onDownloadClick(tp)" matTooltip="Télécharger le ZIP">
+                                    @if(!isDownloading) {
+                                    <mat-icon>download</mat-icon>
+                                    } @else {
+                                    <mat-progress-spinner mode="indeterminate" diameter="20"></mat-progress-spinner>
+                                    }
+                                </button>
+                                } @else {
+                                <button mat-icon-button color="warn" (click)="startProcessSubmission(tp)"
+                                    matTooltip="Recreer le ZIP">
+                                    <mat-icon>autorenew</mat-icon>
+                                </button>
+                                }
+                                <button mat-icon-button color="warn" (click)="deleteTP(tp)"
+                                    matTooltip="Supprimer le TP">
+                                    <mat-icon>delete</mat-icon>
+                                </button>
+                            </div>
+                        </div>
+                    </th>
+                    }
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (etudiant of students; track etudiant.id) {
+                <tr>
+                    <td>{{ etudiant.name }}</td>
+                    <td>{{ etudiant.email }}</td>
+                    @for (tp of tps; track tp.no) {
+                    <td class="tp-cell">
+                        {{ formatStatut(getStatutForStudent(tp, etudiant.id)) }}
+                    </td>
+                    }
+                    <td>
+                        <!-- Placeholder for student actions -->
+                        <button mat-icon-button color="primary" matTooltip="Modifier (Bientôt)">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-icon-button color="warn" (click)="deleteStudent(etudiant)"
+                            matTooltip="Supprimer l'étudiant">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

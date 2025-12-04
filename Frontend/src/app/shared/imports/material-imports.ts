@@ -4,11 +4,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
-import {MatIcon} from '@angular/material/icon';
-import {MatChip} from '@angular/material/chips';
-import {MatTooltip} from '@angular/material/tooltip';
-import {MatProgressBar} from '@angular/material/progress-bar';
-import {MatProgressSpinner} from '@angular/material/progress-spinner';
+import { MatIcon } from '@angular/material/icon';
+import { MatChip } from '@angular/material/chips';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatProgressBar } from '@angular/material/progress-bar';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { MatDialogModule } from '@angular/material/dialog';
 
 /**
  * Tableau regroupant tous les modules Angular Material utilisés dans le projet.
@@ -23,5 +24,6 @@ export const MATERIAL_MODULES = [
   MatIcon,
   MatChip,
   MatTooltip,
-  MatProgressSpinner
+  MatProgressSpinner,
+  MatDialogModule
 ];

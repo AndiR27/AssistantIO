@@ -71,6 +71,12 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- Sécurité (SecurityFilterChain, HttpSecurity, CORS côté security) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+
 		<!-- Dependancy pour MapStruct -->
 		<dependency>
 			<groupId>org.mapstruct</groupId>

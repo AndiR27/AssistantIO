@@ -24,16 +24,26 @@ tags:
     description: Consultation des cours et opérations associées
   - name: submission
     description: Gestion des soumissions de TP
+  - name: tp-status
+    description: Gestion des statuts des étudiants pour un TP
+
+
 
 
 x-tagGroups:
   - name: Course
     tags:
       - course
+  - name: Submission
+    tags:
       - submission
   - name: Admin
     tags:
       - admin-course
+  - name: TP Status
+    tags:
+      - tp-status
+
 
 # ==============================
 #   PATHS (ENDPOINTS)
@@ -801,7 +811,158 @@ paths:
         '500':
           description: Erreur interne.
 
+  # ========================================
+  #   STATUTS DES ETUDIANTS POUR UN TP
+  #   (LISTE, DANS LE CONTEXTE D’UN COURS/TP)
+  # ========================================
+  /course/{courseId}/TPs/{tpNumber}/TPStatus:
+    get:
+      tags: [ course ]
+      summary: Liste des statuts des étudiants pour un TP.
+      description: Retourne tous les TPStatus (statuts étudiants) associés à un TP d’un cours.
+      operationId: getTPStatusesByTP
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+        - name: tpNumber
+          in: path
+          required: true
+          description: Numéro du TP.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Liste de statuts retournée.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TPStatusDto'
+        '404':
+          description: Cours ou TP introuvable.
+        '500':
+          description: Erreur interne.
+  /course/{courseId}/TPs/{tpNumber}/TPStatusRefresh:
+    post:
+      tags: [ course ]
+      summary: Rafraîchissement des statuts des étudiants pour un TP.
+      description: Met à jour les TPStatus (statuts étudiants) associés à un TP d’un cours, en fonction des rendus actuels.
+      operationId: refreshTPStatusByTP
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+        - name: tpNumber
+          in: path
+          required: true
+          description: Numéro du TP.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Statuts rafraîchis.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TPStatusDto'
+        '404':
+          description: Cours ou TP introuvable.
+        '500':
+          description: Erreur interne.
 
+  # ========================================
+  #   RESSOURCE TPSTATUS INDIVIDUELLE
+  #   (ACCÈS DIRECT PAR ID)
+  # ========================================
+  /TPStatus/{statusId}:
+    get:
+      tags: [ tp-status ]
+      summary: Détail d’un statut pour un TP.
+      description: Retourne un TPStatus spécifique. Le TP et le cours associés sont implicites via le statut.
+      operationId: getTPStatusById
+      parameters:
+        - name: statusId
+          in: path
+          required: true
+          description: Identifiant du statut (TPStatus).
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Statut trouvé.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TPStatusDto'
+        '404':
+          description: Statut introuvable.
+        '500':
+          description: Erreur interne.
+    delete:
+      tags: [ tp-status ]
+      summary: Suppression d’un statut pour un TP.
+      description: Supprime un TPStatus spécifique.
+      operationId: deleteTPStatus
+      parameters:
+        - name: statusId
+          in: path
+          required: true
+          description: Identifiant du statut (TPStatus).
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Statut supprimé.
+        '404':
+          description: Statut introuvable.
+        '500':
+          description: Erreur interne.
+    put:
+      tags: [ tp-status ]
+      summary: Mise à jour d’un statut pour un TP.
+      description: Met à jour un TPStatus, notamment le champ studentSubmission (enum).
+      operationId: updateTPStatus
+      parameters:
+        - name: statusId
+          in: path
+          required: true
+          description: Identifiant du statut (TPStatus).
+          schema:
+            type: integer
+            format: int64
+        - name: submissionType
+          in: query
+          required: true
+          description: Nouvelle valeur du statut de soumission (StudentSubmissionType).
+          schema:
+            $ref: '#/components/schemas/StudentSubmissionType'
+      responses:
+        '200':
+          description: Statut mis à jour.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TPStatusDto'
+        '400':
+          description: Données invalides.
+        '404':
+          description: Statut introuvable.
+        '500':
+          description: Erreur interne.
 
 # ==============================
 #   SCHEMAS (DTO)
@@ -818,12 +979,16 @@ components:
     CourseType:
       type: string
       description: Type de cours.
-      example: "PYTHON"
+      example: "JAVA"
 
     StudyType:
       type: string
       description: Type d’étude.
-      example: "FULL_TIME"
+      example: "TEMPS_PLEIN"
+    StudentSubmissionType:
+      type: string
+      description: Statut de la soumission d’un étudiant pour un TP.
+      example: "DONE"
 
     # --- DTO principaux exposés ---
 

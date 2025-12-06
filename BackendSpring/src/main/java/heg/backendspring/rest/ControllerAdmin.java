@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.NativeWebRequest;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +20,11 @@ public class ControllerAdmin implements AdminCourseApi {
 
     private final ServiceCourse serviceCourse;
 
+
+    @Override
+    public Optional<NativeWebRequest> getRequest() {
+        return AdminCourseApi.super.getRequest();
+    }
 
     @Override
     public ResponseEntity<CourseDto> adminCreateCourse(CourseDto courseDto) {

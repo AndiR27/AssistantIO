@@ -1,10 +1,11 @@
-import {SemesterType} from './semesterType.model';
-import {CourseType} from './courseType.model';
-import {StudyType} from './studyType.model';
+import { SemesterType } from './semesterType.model';
+import { CourseType } from './courseType.model';
+import { StudyType } from './studyType.model';
+import { TPStatusModel } from './tpStatus.model';
 
 
 
-export interface CourseDetailsModel{
+export interface CourseDetailsModel {
   id?: number;
   name: string;
   code: string;
@@ -13,18 +14,18 @@ export interface CourseDetailsModel{
   teacher: string;
   courseType: CourseType;
   studentList: StudentModel[];
-  tpsList:     TP_Model[];
+  tpsList: TP_Model[];
   evaluations: EvaluationModel[];
 }
 
-export interface StudentModel{
+export interface StudentModel {
   id?: number;
   name: string;
   email: string;
   studyType: StudyType;
 }
 
-interface EvaluationModel{
+interface EvaluationModel {
   // private Long id;
   // private String name;
   // private LocalDateTime date;
@@ -36,7 +37,7 @@ interface EvaluationModel{
 
 
 
-export interface TP_Model{
+export interface TP_Model {
 
   id?: number;
   no: number;
@@ -52,9 +53,5 @@ interface SubmissionModel {
   pathFileStructured: string;
 }
 
-interface TPStatusModel {
-  id?: number;
-  studentId: number;
-  tpId: number;
-  studentSubmission: boolean; // Could be an enum or string depending on your design
-}
+// Re-export TPStatusModel for convenience
+export type { TPStatusModel };

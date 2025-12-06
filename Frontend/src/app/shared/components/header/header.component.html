@@ -1,12 +1,18 @@
 <!-- HEADER COMMUN -->
 <header class="site-header">
   <div class="header-inner">
-    <!-- Titre de l’outil -->
-    <div class="header-logo">{{ title }}</div>
+    <!-- Logo with icon -->
+    <div class="header-logo">
+      <mat-icon class="logo-icon">school</mat-icon>
+      <span class="logo-text">{{ title }}</span>
+    </div>
+
     <!-- Navigation -->
     <nav class="header-nav">
-      <a href="/home">Accueil</a>
+      <a href="/home" class="nav-link">
+        <mat-icon>home</mat-icon>
+        <span>Accueil</span>
+      </a>
     </nav>
   </div>
 </header>
-

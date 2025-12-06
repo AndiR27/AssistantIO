@@ -10,10 +10,7 @@ import heg.backendspring.exception.CourseException;
 import heg.backendspring.mapping.MapperCourse;
 import heg.backendspring.mapping.MapperStudent;
 import heg.backendspring.mapping.MapperTP;
-import heg.backendspring.models.CourseDto;
-import heg.backendspring.models.StudentDto;
-import heg.backendspring.models.SubmissionDto;
-import heg.backendspring.models.TPDto;
+import heg.backendspring.models.*;
 import heg.backendspring.repository.RepositoryCourse;
 import heg.backendspring.repository.RepositoryStudent;
 import jakarta.persistence.EntityNotFoundException;
@@ -117,6 +114,14 @@ public class ServiceCourse {
      */
     @Transactional
     public void deleteCourse(Long courseId) {
+        Course course = repositoryCourse.findById(courseId)
+                .orElseThrow(() -> new EntityNotFoundException("Course not found with id: " + courseId));
+
+        // relation bidirectionnelle Course <-> Student
+        for (Student student : new HashSet<>(course.getStudents())) {
+            student.getStudentCourses().remove(course);
+        }
+        course.getStudents().clear();
         repositoryCourse.deleteById(courseId);
         log.info("Deleted course with id: {}", courseId);
     }
@@ -381,6 +386,44 @@ public class ServiceCourse {
         return null;
     }
 
+
+    /**
+     * Méthode permettant de récupérer tous les TPStatus d'un TP d'un cours
+     */
+    public List<TPStatusDto> getAllTPStatusFromTP(Long idCourse, int tp_no) {
+        Optional<Course> courseOpt = repositoryCourse.findById(idCourse);
+        if (courseOpt.isEmpty()) {
+            throw new EntityNotFoundException("Course not found with id: " + idCourse);
+        }
+        Optional<TP> tpOpt = repositoryCourse.findTPByCourseIdAndNo(idCourse, tp_no);
+        if (tpOpt.isEmpty()) {
+            throw new EntityNotFoundException("TP not found for course id=" + idCourse + " and tp no=" + tp_no);
+        } else {
+            TP tp = tpOpt.get();
+            return serviceTP.getAllTPStatusByTPId(tp.getId());
+        }
+    }
+
+    /**
+     * Méthode permettant de lancer la mise à jour des statuts des rendus d'un TP d'un cours
+     */
+    @Transactional
+    public List<TPStatusDto> refreshTPStatusesFromTP(Long courseId, Integer tpNumber) {
+        Optional<Course> courseOpt = repositoryCourse.findById(courseId);
+        if (courseOpt.isEmpty()) {
+            throw new EntityNotFoundException("Course not found with id: " + courseId);
+
+        }
+        Optional<TP> tpOpt = repositoryCourse.findTPByCourseIdAndNo(courseId, tpNumber);
+        if (tpOpt.isEmpty()) {
+            throw new EntityNotFoundException("TP not found for course id=" + courseId + " and tp no=" + tpNumber);
+        }
+        TP tp = tpOpt.get();
+        log.info("Refreshing TPStatuses for course id={} tp no={}", courseId, tpNumber);
+        serviceTP.addTPStatusListToTP(tp, courseOpt.get().getStudents());
+        return serviceTP.getAllTPStatusByTPId(tp.getId());
+    }
+
     //==============================
     //       PRIVATE METHODS
     //==============================
@@ -402,6 +445,8 @@ public class ServiceCourse {
             log.info("Folder {} already exists", nomDossier);
         }
     }
+
+
 }
 
 

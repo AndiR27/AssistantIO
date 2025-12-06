@@ -6,8 +6,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { StudentModel, TP_Model } from '../../../models/courseDetails.model';
+import { StudentModel, TP_Model, TPStatusModel } from '../../../models/courseDetails.model';
 import { CourseService } from '../../../services/course.service';
+import { TPStatusService } from '../../../services/tp-status.service';
+import { StudentSubmissionType } from '../../../models/tpStatus.model';
 import { EditStudentDialogComponent } from './dialogs/edit-student-dialog.component';
 import { EditSubmissionDialogComponent } from './dialogs/edit-submission-dialog.component';
 
@@ -33,6 +35,7 @@ export class TableSubmissionsComponent implements OnInit {
     @Output() refresh = new EventEmitter<void>();
 
     private courseService = inject(CourseService);
+    private tpStatusService = inject(TPStatusService);
     private dialog = inject(MatDialog);
     private snackBar = inject(MatSnackBar);
     isDownloading = false;
@@ -44,6 +47,15 @@ export class TableSubmissionsComponent implements OnInit {
         console.log('TableSubmissionsComponent initialized');
         console.log('Students:', this.students);
         console.log('TPs:', this.tps);
+    }
+
+    // Getter that returns students sorted alphabetically by name
+    get sortedStudents(): StudentModel[] {
+        return [...this.students].sort((a, b) => {
+            const nameA = a.name?.toLowerCase() || '';
+            const nameB = b.name?.toLowerCase() || '';
+            return nameA.localeCompare(nameB);
+        });
     }
 
     // Retourne true si le TP et le rendu sont créés et correctement formattés
@@ -159,24 +171,25 @@ export class TableSubmissionsComponent implements OnInit {
         }
 
         this.processingMapping.add(tp.no);
-        console.log(`Régénération du mapping pour le TP ${tp.no}`);
+        console.log(`Rafraîchissement des statuts pour le TP ${tp.no}`);
 
-        this.courseService.manageTP(this.courseId!, tp.no).subscribe({
-            next: () => {
-                console.log(`✅ Mapping régénéré pour le TP ${tp.no}`);
+        // Use the new refresh endpoint that checks submissions without recreating TPStatus
+        this.courseService.refreshTPStatusList(this.courseId!, tp.no).subscribe({
+            next: (updatedStatuses) => {
+                console.log(`✅ Statuts rafraîchis pour le TP ${tp.no}:`, updatedStatuses);
                 this.processingMapping.delete(tp.no);
                 this.refresh.emit();
                 this.snackBar.open(
-                    `TP ${tp.no}: Statuts des rendus mis à jour`,
+                    `TP ${tp.no}: Statuts des rendus rafraîchis`,
                     'OK',
                     { duration: 3000 }
                 );
             },
             error: (err) => {
-                console.error(`❌ Erreur lors de la régénération du mapping pour le TP ${tp.no}:`, err);
+                console.error(`❌ Erreur lors du rafraîchissement des statuts pour le TP ${tp.no}:`, err);
                 this.processingMapping.delete(tp.no);
                 this.snackBar.open(
-                    `Erreur lors de la mise à jour des statuts pour le TP ${tp.no}`,
+                    `Erreur lors du rafraîchissement des statuts pour le TP ${tp.no}`,
                     'Fermer',
                     { duration: 5000 }
                 );
@@ -227,51 +240,100 @@ export class TableSubmissionsComponent implements OnInit {
         });
 
         dialogRef.afterClosed().subscribe(result => {
-            if (result) {
-                // Update student via API (to be implemented)
-                console.log('Updated student:', result);
-                this.snackBar.open('Étudiant mis à jour avec succès', 'Fermer', { duration: 3000 });
-                this.refresh.emit();
+            if (result && this.courseId && student.id) {
+                // Update student via API
+                this.courseService.updateStudent(this.courseId!, student.id, result).subscribe({
+                    next: (updatedStudent) => {
+                        console.log('Student updated:', updatedStudent);
+                        this.snackBar.open('Étudiant mis à jour avec succès', 'Fermer', { duration: 3000 });
+                        this.refresh.emit();
+                    },
+                    error: (err) => {
+                        console.error('Error updating student:', err);
+                        this.snackBar.open('Erreur lors de la mise à jour de l\'étudiant', 'Fermer', { duration: 5000 });
+                    }
+                });
             }
         });
     }
 
     // Edit submission status for a student and TP
     editSubmission(student: StudentModel, tp: TP_Model) {
-        const currentStatus = this.getStatutForStudent(tp, student.id);
+        const currentStatus = this.getTPStatusForStudent(tp, student.id);
         const dialogRef = this.dialog.open(EditSubmissionDialogComponent, {
             width: '400px',
             data: {
                 studentName: student.name,
                 tpNo: tp.no,
-                currentStatus: currentStatus
+                currentStatus: this.convertToValidSubmissionType(currentStatus?.studentSubmission)
             }
         });
 
         dialogRef.afterClosed().subscribe(result => {
-            if (result !== undefined && result !== null) {
-                // Update submission status via API (to be implemented)
-                console.log('Updated submission status:', result);
-                this.snackBar.open('Statut de rendu mis à jour', 'Fermer', { duration: 3000 });
-                this.refresh.emit();
+            if (result !== undefined && result !== null && currentStatus?.id) {
+                // Validate and convert result to proper enum type
+                const validatedType = this.convertToValidSubmissionType(result);
+
+                if (!validatedType) {
+                    this.snackBar.open('Type de statut invalide', 'Fermer', { duration: 3000 });
+                    return;
+                }
+
+                // Update submission status via API with validated enum value
+                this.tpStatusService.updateTPStatus(currentStatus.id, validatedType).subscribe({
+                    next: (updatedStatus) => {
+                        console.log('Submission status updated:', updatedStatus);
+                        this.snackBar.open('Statut de rendu mis à jour', 'Fermer', { duration: 3000 });
+                        this.refresh.emit();
+                    },
+                    error: (err) => {
+                        console.error('Error updating submission status:', err);
+                        this.snackBar.open('Erreur lors de la mise à jour du statut', 'Fermer', { duration: 5000 });
+                    }
+                });
             }
         });
     }
 
+    // Helper: Convert any value to a valid StudentSubmissionType or null
+    // This handles old boolean data from backend
+    private convertToValidSubmissionType(value: any): StudentSubmissionType | null {
+        if (!value) return null;
+
+        // If it's already a valid enum value, return it
+        if (Object.values(StudentSubmissionType).includes(value as StudentSubmissionType)) {
+            return value as StudentSubmissionType;
+        }
+
+        // Handle boolean to enum conversion for old data
+        if (typeof value === 'boolean') {
+            return value ? StudentSubmissionType.DONE : StudentSubmissionType.NOT_DONE_MISSING;
+        }
+
+        // Handle string boolean values
+        if (value === 'true') return StudentSubmissionType.DONE;
+        if (value === 'false') return StudentSubmissionType.NOT_DONE_MISSING;
+
+        console.warn('Invalid submission type value:', value);
+        return null;
+    }
+
     // Permet de récupérer le statut d'un rendu pour un étudiant et un TP donnés
-    getStatutForStudent(tp: TP_Model, studentId: number | undefined): boolean | null {
+    getStatutForStudent(tp: TP_Model, studentId: number | undefined): StudentSubmissionType | null {
         if (!tp.statusStudents || !studentId) {
             return null;
         }
         const status = tp.statusStudents.find(s => s.studentId === studentId);
-        return status?.studentSubmission ?? null;
+        // Sanitize the data to ensure it's a valid enum value
+        return this.convertToValidSubmissionType(status?.studentSubmission);
     }
 
-    formatStatut(statut: boolean | null): boolean {
-        if (statut === null) {
-            return false;
+    // Get TPStatus object for a student (for accessing id and other fields)
+    getTPStatusForStudent(tp: TP_Model, studentId: number | undefined): TPStatusModel | null {
+        if (!tp.statusStudents || !studentId) {
+            return null;
         }
-        return statut;
+        return tp.statusStudents.find(s => s.studentId === studentId) ?? null;
     }
 
     // Get TP status: 'ready' | 'processing' | 'needs-update'
@@ -321,10 +383,72 @@ export class TableSubmissionsComponent implements OnInit {
         }
     }
 
-    // Get CSS class for submission status
-    getSubmissionStatusClass(status: boolean | null): string {
-        if (status === true) return 'submitted';
-        if (status === false) return 'not-submitted';
-        return 'unknown';
+    // Get CSS class for submission status based on StudentSubmissionType
+    getSubmissionStatusClass(status: StudentSubmissionType | null): string {
+        if (!status) return 'unknown';
+
+        switch (status) {
+            case StudentSubmissionType.DONE:
+            case StudentSubmissionType.DONE_LATE:
+            case StudentSubmissionType.DONE_GOOD:
+                return 'submitted';
+            case StudentSubmissionType.DONE_BUT_NOTHING:
+            case StudentSubmissionType.DONE_BUT_MEDIOCRE:
+                return 'submitted-partial';
+            case StudentSubmissionType.NOT_DONE_MISSING:
+                return 'not-submitted';
+            case StudentSubmissionType.EXEMPT:
+                return 'exempt';
+            default:
+                return 'unknown';
+        }
+    }
+
+    // Get display label for submission status
+    getSubmissionStatusLabel(status: StudentSubmissionType | null): string {
+        if (!status) return 'N/A';
+
+        switch (status) {
+            case StudentSubmissionType.DONE:
+                return 'Rendu';
+            case StudentSubmissionType.DONE_LATE:
+                return 'Rendu en retard';
+            case StudentSubmissionType.DONE_GOOD:
+                return 'Bon rendu';
+            case StudentSubmissionType.DONE_BUT_NOTHING:
+                return 'Rendu vide';
+            case StudentSubmissionType.DONE_BUT_MEDIOCRE:
+                return 'Rendu médiocre';
+            case StudentSubmissionType.NOT_DONE_MISSING:
+                return 'Non rendu';
+            case StudentSubmissionType.EXEMPT:
+                return 'Exempté';
+            default:
+                return 'Inconnu';
+        }
+    }
+
+    // Get icon for submission status
+    getSubmissionStatusIcon(status: StudentSubmissionType | null): string {
+        if (!status) return 'remove';
+
+        switch (status) {
+            case StudentSubmissionType.DONE:
+                return 'check';
+            case StudentSubmissionType.DONE_LATE:
+                return 'schedule';
+            case StudentSubmissionType.DONE_GOOD:
+                return 'star';
+            case StudentSubmissionType.DONE_BUT_NOTHING:
+                return 'warning';
+            case StudentSubmissionType.DONE_BUT_MEDIOCRE:
+                return 'info';
+            case StudentSubmissionType.NOT_DONE_MISSING:
+                return 'close';
+            case StudentSubmissionType.EXEMPT:
+                return 'block';
+            default:
+                return 'help';
+        }
     }
 }

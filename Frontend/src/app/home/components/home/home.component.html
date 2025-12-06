@@ -3,9 +3,7 @@
 
   <!-- SECTION POUR AJOUTER UN COURS -->
   <section class="add-section">
-    <div class="mini-card">
-      <app-cours-form (courseAdded)="refreshCourses()"></app-cours-form>
-    </div>
+    <app-cours-form (courseAdded)="refreshCourses()"></app-cours-form>
   </section>
   <!-- TITRE PRINCIPAL -->
   <h1 class="title-large">Liste des Cours</h1>
@@ -31,12 +29,24 @@
       <!-- VIEW MODE -->
       @if (editingCourseId !== course.id) {
       <a [routerLink]="['courses', course.id]" class="card-link">
-        <h2>{{ course.name }}</h2>
-        <p>Code : {{ course.code }}</p>
-        <p>Prof : {{ course.teacher }}</p>
-        <p class="last-info">
-          Semestre : {{ course.semester }} — Année : {{ course.year_course }}
-        </p>
+        <div class="card-header">
+          <mat-icon class="course-icon">book</mat-icon>
+          <h2>{{ course.name }}</h2>
+        </div>
+        <div class="card-content">
+          <div class="info-item">
+            <mat-icon>tag</mat-icon>
+            <span>{{ course.code }}</span>
+          </div>
+          <div class="info-item">
+            <mat-icon>person</mat-icon>
+            <span>{{ course.teacher }}</span>
+          </div>
+          <div class="info-item">
+            <mat-icon>calendar_today</mat-icon>
+            <span>{{ course.semester }} — {{ course.year_course }}</span>
+          </div>
+        </div>
       </a>
       }
 

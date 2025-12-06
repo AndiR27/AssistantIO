@@ -28,7 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Optional;
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-12-04T16:08:10.970899+01:00[Europe/Zurich]", comments = "Generator version: 7.9.0")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-12-06T02:17:46.797824400+01:00[Europe/Zurich]", comments = "Generator version: 7.9.0")
 @Validated
 @Tag(name = "course", description = "Consultation des cours et opérations associées")
 public interface CourseApi {
@@ -444,6 +444,53 @@ public interface CourseApi {
 
 
     /**
+     * GET /course/{courseId}/TPs/{tpNumber}/TPStatus : Liste des statuts des étudiants pour un TP.
+     * Retourne tous les TPStatus (statuts étudiants) associés à un TP d’un cours.
+     *
+     * @param courseId Identifiant du cours. (required)
+     * @param tpNumber Numéro du TP. (required)
+     * @return Liste de statuts retournée. (status code 200)
+     * or Cours ou TP introuvable. (status code 404)
+     * or Erreur interne. (status code 500)
+     */
+    @Operation(
+            operationId = "getTPStatusesByTP",
+            summary = "Liste des statuts des étudiants pour un TP.",
+            description = "Retourne tous les TPStatus (statuts étudiants) associés à un TP d’un cours.",
+            tags = {"course"},
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Liste de statuts retournée.", content = {
+                            @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = heg.backendspring.models.TPStatusDto.class)))
+                    }),
+                    @ApiResponse(responseCode = "404", description = "Cours ou TP introuvable."),
+                    @ApiResponse(responseCode = "500", description = "Erreur interne.")
+            }
+    )
+    @RequestMapping(
+            method = RequestMethod.GET,
+            value = "/course/{courseId}/TPs/{tpNumber}/TPStatus",
+            produces = {"application/json"}
+    )
+
+    default ResponseEntity<List<heg.backendspring.models.TPStatusDto>> getTPStatusesByTP(
+            @Parameter(name = "courseId", description = "Identifiant du cours.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId,
+            @Parameter(name = "tpNumber", description = "Numéro du TP.", required = true, in = ParameterIn.PATH) @PathVariable("tpNumber") Integer tpNumber
+    ) {
+        getRequest().ifPresent(request -> {
+            for (MediaType mediaType : MediaType.parseMediaTypes(request.getHeader("Accept"))) {
+                if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
+                    String exampleString = "[ { \"id\" : 1000, \"studentId\" : 300, \"tpId\" : 10, \"studentSubmission\" : true }, { \"id\" : 1000, \"studentId\" : 300, \"tpId\" : 10, \"studentSubmission\" : true } ]";
+                    ApiUtil.setExampleResponse(request, "application/json", exampleString);
+                    break;
+                }
+            }
+        });
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+
+    }
+
+
+    /**
      * GET /course/{courseId}/TPs : Liste des TPs d’un cours.
      * Retourne les TPs associés à un cours.
      *
@@ -478,6 +525,53 @@ public interface CourseApi {
             for (MediaType mediaType : MediaType.parseMediaTypes(request.getHeader("Accept"))) {
                 if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
                     String exampleString = "[ { \"id\" : 10, \"false\" : 1, \"courseId\" : 1, \"submission\" : { \"id\" : 100, \"fileName\" : \"TP1_Rendus.zip\", \"pathStorage\" : \"/data/courses/61-13/TP1/TP1_Rendus.zip\", \"pathFileStructured\" : \"/data/courses/61-13/TP1/TP1_RenduRestructuration.zip\" }, \"statusStudents\" : [ { \"id\" : 1000, \"studentId\" : 300, \"tpId\" : 10, \"studentSubmission\" : true } ] }, { \"id\" : 10, \"false\" : 1, \"courseId\" : 1, \"submission\" : { \"id\" : 100, \"fileName\" : \"TP1_Rendus.zip\", \"pathStorage\" : \"/data/courses/61-13/TP1/TP1_Rendus.zip\", \"pathFileStructured\" : \"/data/courses/61-13/TP1/TP1_RenduRestructuration.zip\" }, \"statusStudents\" : [ { \"id\" : 1000, \"studentId\" : 300, \"tpId\" : 10, \"studentSubmission\" : true } ] } ]";
+                    ApiUtil.setExampleResponse(request, "application/json", exampleString);
+                    break;
+                }
+            }
+        });
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+
+    }
+
+
+    /**
+     * POST /course/{courseId}/TPs/{tpNumber}/TPStatusRefresh : Rafraîchissement des statuts des étudiants pour un TP.
+     * Met à jour les TPStatus (statuts étudiants) associés à un TP d’un cours, en fonction des rendus actuels.
+     *
+     * @param courseId Identifiant du cours. (required)
+     * @param tpNumber Numéro du TP. (required)
+     * @return Statuts rafraîchis. (status code 200)
+     * or Cours ou TP introuvable. (status code 404)
+     * or Erreur interne. (status code 500)
+     */
+    @Operation(
+            operationId = "refreshTPStatusByTP",
+            summary = "Rafraîchissement des statuts des étudiants pour un TP.",
+            description = "Met à jour les TPStatus (statuts étudiants) associés à un TP d’un cours, en fonction des rendus actuels.",
+            tags = {"course"},
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Statuts rafraîchis.", content = {
+                            @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = heg.backendspring.models.TPStatusDto.class)))
+                    }),
+                    @ApiResponse(responseCode = "404", description = "Cours ou TP introuvable."),
+                    @ApiResponse(responseCode = "500", description = "Erreur interne.")
+            }
+    )
+    @RequestMapping(
+            method = RequestMethod.POST,
+            value = "/course/{courseId}/TPs/{tpNumber}/TPStatusRefresh",
+            produces = {"application/json"}
+    )
+
+    default ResponseEntity<List<heg.backendspring.models.TPStatusDto>> refreshTPStatusByTP(
+            @Parameter(name = "courseId", description = "Identifiant du cours.", required = true, in = ParameterIn.PATH) @PathVariable("courseId") Long courseId,
+            @Parameter(name = "tpNumber", description = "Numéro du TP.", required = true, in = ParameterIn.PATH) @PathVariable("tpNumber") Integer tpNumber
+    ) {
+        getRequest().ifPresent(request -> {
+            for (MediaType mediaType : MediaType.parseMediaTypes(request.getHeader("Accept"))) {
+                if (mediaType.isCompatibleWith(MediaType.valueOf("application/json"))) {
+                    String exampleString = "[ { \"id\" : 1000, \"studentId\" : 300, \"tpId\" : 10, \"studentSubmission\" : true }, { \"id\" : 1000, \"studentId\" : 300, \"tpId\" : 10, \"studentSubmission\" : true } ]";
                     ApiUtil.setExampleResponse(request, "application/json", exampleString);
                     break;
                 }

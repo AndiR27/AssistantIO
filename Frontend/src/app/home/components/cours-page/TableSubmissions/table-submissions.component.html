@@ -67,7 +67,7 @@
                 </tr>
             </thead>
             <tbody>
-                @for (etudiant of students; track etudiant.id) {
+                @for (etudiant of sortedStudents; track etudiant.id) {
                 <tr>
                     <td class="student-name">
                         <div class="student-info">
@@ -79,16 +79,10 @@
                     <td class="tp-cell" (click)="editSubmission(etudiant, tp)">
                         <div class="submission-status"
                             [ngClass]="getSubmissionStatusClass(getStatutForStudent(tp, etudiant.id))">
-                            @if (getStatutForStudent(tp, etudiant.id) === true) {
-                            <mat-icon class="status-icon">check</mat-icon>
-                            <span class="status-text">Rendu</span>
-                            } @else if (getStatutForStudent(tp, etudiant.id) === false) {
-                            <mat-icon class="status-icon">close</mat-icon>
-                            <span class="status-text">Non rendu</span>
-                            } @else {
-                            <mat-icon class="status-icon">remove</mat-icon>
-                            <span class="status-text">N/A</span>
-                            }
+                            <mat-icon class="status-icon">{{ getSubmissionStatusIcon(getStatutForStudent(tp,
+                                etudiant.id)) }}</mat-icon>
+                            <span class="status-text">{{ getSubmissionStatusLabel(getStatutForStudent(tp, etudiant.id))
+                                }}</span>
                         </div>
                     </td>
                     }

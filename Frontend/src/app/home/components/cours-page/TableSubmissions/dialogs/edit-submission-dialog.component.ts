@@ -3,12 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatDialogModule, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
-import { MatRadioModule } from '@angular/material/radio';
+import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { StudentSubmissionType, getSubmissionTypeOptions } from '../../../../models/tpStatus.model';
 
 export interface SubmissionDialogData {
     studentName: string;
     tpNo: number;
-    currentStatus: boolean | null;
+    currentStatus: StudentSubmissionType | null;
 }
 
 @Component({
@@ -19,7 +21,8 @@ export interface SubmissionDialogData {
         FormsModule,
         MatDialogModule,
         MatButtonModule,
-        MatRadioModule
+        MatSelectModule,
+        MatFormFieldModule
     ],
     template: `
         <h2 mat-dialog-title>Modifier le statut de rendu</h2>
@@ -30,11 +33,16 @@ export interface SubmissionDialogData {
                     <strong>TP:</strong> {{ data.tpNo }}
                 </p>
                 
-                <mat-radio-group [(ngModel)]="selectedStatus" class="status-options">
-                    <mat-radio-button [value]="true">Rendu</mat-radio-button>
-                    <mat-radio-button [value]="false">Non rendu</mat-radio-button>
-                    <mat-radio-button [value]="null">Non applicable</mat-radio-button>
-                </mat-radio-group>
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Statut du rendu</mat-label>
+                    <mat-select [(ngModel)]="selectedStatus">
+                        @for (option of statusOptions; track option.value) {
+                            <mat-option [value]="option.value">
+                                <span [style.color]="option.color">{{ option.label }}</span>
+                            </mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
             </div>
         </mat-dialog-content>
         <mat-dialog-actions align="end">
@@ -47,27 +55,27 @@ export interface SubmissionDialogData {
     styles: [`
         .dialog-content {
             padding: 1rem 0;
-            min-width: 300px;
+            min-width: 350px;
         }
 
         .info-text {
             margin-bottom: 1.5rem;
             color: #4b5563;
+            font-size: 0.9375rem;
         }
 
-        .status-options {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
+        .full-width {
+            width: 100%;
         }
 
-        mat-radio-button {
-            margin: 0.25rem 0;
+        ::ng-deep .mat-mdc-option {
+            font-weight: 500;
         }
     `]
 })
 export class EditSubmissionDialogComponent {
-    selectedStatus: boolean | null;
+    selectedStatus: StudentSubmissionType | null;
+    statusOptions = getSubmissionTypeOptions();
 
     constructor(
         public dialogRef: MatDialogRef<EditSubmissionDialogComponent>,

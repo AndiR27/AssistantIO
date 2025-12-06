@@ -2,29 +2,85 @@
  *       HEADER         *
  ************************/
 header.site-header {
-  background-color: #1f2937; /* Gris sombre */
-  padding: 1rem 0;
-  margin-bottom: 1rem; /* léger espace sous le header */
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+  padding: 1.25rem 0;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(10px);
 }
+
 .header-inner {
   max-width: 1200px;
   margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 1rem;
+  padding: 0 2rem;
 }
+
 .header-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   font-size: 1.5rem;
-  font-weight: bold;
+  font-weight: 700;
   color: #fff;
+  letter-spacing: -0.025em;
+  transition: all 0.3s ease;
 }
-.header-nav a {
-  color: #fff;
+
+.header-logo:hover {
+  transform: translateY(-1px);
+}
+
+.logo-icon {
+  color: #667eea;
+  font-size: 2rem;
+  width: 2rem;
+  height: 2rem;
+  filter: drop-shadow(0 2px 4px rgba(102, 126, 234, 0.4));
+}
+
+.logo-text {
+  background: linear-gradient(135deg, #ffffff 0%, #e5e7eb 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.header-nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #e5e7eb;
   text-decoration: none;
-  margin-left: 1.5rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
   font-weight: 500;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
-.header-nav a:hover {
-  text-decoration: underline;
+
+.nav-link mat-icon {
+  font-size: 1.25rem;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.nav-link:hover {
+  background: rgba(102, 126, 234, 0.15);
+  border-color: rgba(102, 126, 234, 0.3);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.2);
 }

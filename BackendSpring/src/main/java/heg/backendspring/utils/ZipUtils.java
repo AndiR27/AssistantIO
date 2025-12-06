@@ -181,9 +181,9 @@ public class ZipUtils {
 
 
     public void copyJavaProject(Path sourceDir, Path targetDir) {
-        Set<String> ignoreDirs = Set.of(".git", ".idea", "target", "build", "out");
+        Set<String> ignoreDirs = Set.of(".git", ".idea", "target", "build", "out", "__MACOSX");
         Set<String> ignoreFiles = Set.of(".DS_Store", "Thumbs.db", "desktop.ini",
-                ".iml", ".pdf", ".docx", ".txt");
+                ".iml", ".pdf", ".docx", ".txt", ".gitignore");
         copyAll(sourceDir, targetDir, ignoreDirs, ignoreFiles);
     }
 
@@ -219,6 +219,18 @@ public class ZipUtils {
             stream
                     .filter(path -> !path.equals(sourceDir))
                     .filter(path -> {
+
+                        // Ne rien copier qui se trouve DANS un répertoire ignoré
+                        Path current = path;
+                        while (current != null && !current.equals(sourceDir)) {
+                            String dirName = current.getFileName().toString();
+                            if (ignoreDirs.contains(dirName)) {
+                                return false; // on skip tout ce sous-arbre
+                            }
+                            current = current.getParent();
+                        }
+
+                        //Gestion des fichiers à ignorer
                         String filename = path.getFileName().toString();
 
                         if (Files.isDirectory(path) && ignoreDirs.contains(filename)) {

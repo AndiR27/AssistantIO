@@ -1,8 +1,12 @@
 package heg.backendspring.service;
 
+import static heg.backendspring.utils.StudentNameUtils.*;
 import heg.backendspring.entity.*;
+import heg.backendspring.enums.StudentSubmissionType;
 import heg.backendspring.mapping.MapperTP;
+import heg.backendspring.mapping.MapperTPStatus;
 import heg.backendspring.models.TPDto;
+import heg.backendspring.models.TPStatusDto;
 import heg.backendspring.repository.RepositoryTP;
 import heg.backendspring.repository.RepositoryTPStatus;
 import jakarta.persistence.EntityNotFoundException;
@@ -20,9 +24,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -39,8 +46,11 @@ public class ServiceTP {
     private final RepositoryTP repositoryTP;
     private final RepositoryTPStatus repositoryTPStatus;
     //private final ServiceCourse serviceCourse;
+    private final ServiceTPStatus serviceTPStatus;
+
 
     private final MapperTP mapperTP;
+    private final MapperTPStatus mapperTPStatus;
 
 
     //==============================
@@ -95,28 +105,76 @@ public class ServiceTP {
     }
 
     /**
+     * Méthode permettant de récupérer tous les TPStatus d'un TP
+     */
+    public List<TPStatusDto> getAllTPStatusByTPId(Long tpId) {
+        Optional<TP> tpOpt = repositoryTP.findById(tpId);
+        if (tpOpt.isPresent()) {
+            TP tp = tpOpt.get();
+            return tp.getStatusStudents().stream()
+                    .map(mapperTPStatus::toDto)
+                    .collect(Collectors.toList());
+        }
+        throw new EntityNotFoundException("TP not found with id: " + tpId);
+    }
+
+    /**
      * Méthode permettant de créer la liste des status des TP pour chaque étudiant
      */
     @Transactional
     public TPDto addTPStatusListToTP(TP tp, Set<Student> students) {
-        log.info("addTPStatusListToTP");
-        List<String> renduEtudiants = serviceSubmission.getStudentsSubmission(tp.getSubmission());
+
+        List<String> studentsSubmission = serviceSubmission.getStudentsSubmission(tp.getSubmission());
         for (Student student : students) {
             //Créer le TPStatus pour chaque étudiant
             log.info("Infos TPStatus : TP {} - Étudiant : {}", tp.getNo(), student.getEmail());
-            TPStatus tpStatus = new TPStatus(student, tp, false);
-            String nomEtudiantRefomated = student.getName().replaceAll(" ", "").toLowerCase();
-            //Vérifier si l'étudiant a rendu son TP
-            if (renduEtudiants.contains(nomEtudiantRefomated)) {
-                log.info("Student submission : {}", nomEtudiantRefomated);
-                tpStatus.setStudentSubmission(true);
+            //Vérifier si le status existe déjà pour cet étudiant et ce TP via le service TPstatus
+            //Si oui, on le récupère pour ne pas le dupliquer en base de données
+
+            TPStatus tpStatus = serviceTPStatus.getOrCreateTPStatus(student, tp);
+            //Si le status est deja existant (car ajouté à la main), on skip la suite
+            if(tpStatus.getId() != null){
+                continue;
             }
+            //Vérifier si l'étudiant a rendu son TP
+            if (matchesStudentNameInSubmissions(studentsSubmission, student.getName())) {
+                //Mettre à jour le TPStatus avec le status DONE
+                tpStatus.setStudentSubmission(StudentSubmissionType.DONE);
+            } else {
+                tpStatus.setStudentSubmission(StudentSubmissionType.NOT_DONE_MISSING);
+            }
+
+            //Associer le TPStatus au TP
             tp.getStatusStudents().add(tpStatus);
         }
         repositoryTP.save(tp);
         return mapperTP.toDto(tp);
     }
 
+    /**
+     * Méthode permettant de mettre à jour les status des TPStatus d'un TP
+     * Permet un "refresh" des status en fonction des rendus sans créer de doublons de TPStatus
+     */
+//    @Transactional
+//    public List<TPStatusDto> updateTPStatusListToTP(TP tp, Set<Student> students) {
+//        List<String> studentsSubmission = serviceSubmission.getStudentsSubmission(tp.getSubmission());
+//        for(Student student : students){
+//            //TPStatusDto tpStatusDto = serviceTPStatus.checkExistingTPstatus(student, tp);
+//            TPStatus tpStatus = serviceTPStatus.getOrCreateTPStatus(student, tp);
+//            //Mettre à jour le status si l'étudiant a rendu son TP
+//            if(checkStudentName(studentsSubmission, student.getName())) {
+//                serviceTPStatus.updateTPStatus(tpStatus.getId(), StudentSubmissionType
+//                        .DONE);
+//            }
+//            else{
+//                serviceTPStatus.updateTPStatus(tpStatus.getId(), StudentSubmissionType
+//                        .NOT_DONE_MISSING);
+//            }
+//            tp.getStatusStudents().add(tpStatus);
+//        }
+//        repositoryTP.save(tp);
+//        return this.getAllTPStatusByTPId(tp.getId());
+//    }
 
     /**
      * Méthode permettant de récupérer le fichier zip restructuré pour un TP donné
@@ -191,5 +249,8 @@ public class ServiceTP {
             log.error("Failed to delete TP folder for TP {}: {}", tp.getId(), e.getMessage(), e);
         }
     }
+
+
+
 
 }

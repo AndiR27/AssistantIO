@@ -5,6 +5,7 @@ import { retry, catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { CoursePreview } from '../../home/models/coursePreview.model';
 import { CourseDetailsModel, StudentModel, TP_Model } from '../../home/models/courseDetails.model';
+import { TPStatusModel, StudentSubmissionType } from '../../home/models/tpStatus.model';
 
 const API_URL = environment.apiUrl;
 
@@ -223,6 +224,23 @@ export class ApiService {
       );
   }
 
+  /** PUT update a student in a course; on error, alert + re-throw */
+  updateStudent(courseId: number, studentId: number, student: StudentModel): Observable<StudentModel> {
+    return this.http
+      .put<StudentModel>(
+        `${API_URL}/course/${courseId}/students/${studentId}`,
+        JSON.stringify(student),
+        this.httpOptions
+      )
+      .pipe(
+        retry(1),
+        catchError((err: HttpErrorResponse) => {
+          this.handleError(err);
+          return throwError(() => err);
+        })
+      );
+  }
+
   // ========================================
   // COURSE - TP operations
   // ========================================
@@ -422,6 +440,109 @@ export class ApiService {
   downloadTP(courseId: number, tpNo: number) {
     const downloadUrl = `${API_URL}/course/${courseId}/downloadStructuredSubmission/${tpNo}`;
     return this.http.get(downloadUrl, { responseType: 'blob' });
+  }
+
+  // ========================================
+  // TP STATUS operations
+  // ========================================
+
+  /**
+   * GET all TP statuses for a specific TP of a course
+   * GET /course/{courseId}/TPs/{tpNumber}/TPStatus
+   */
+  getAllTPStatusForTP(courseId: number, tpNumber: number): Observable<TPStatusModel[]> {
+    return this.http
+      .get<TPStatusModel[]>(
+        `${API_URL}/course/${courseId}/TPs/${tpNumber}/TPStatus`,
+        this.httpOptions
+      )
+      .pipe(
+        retry(1),
+        catchError((err: HttpErrorResponse) => {
+          this.handleError(err);
+          return of([] as TPStatusModel[]);
+        })
+      );
+  }
+
+  /**
+   * POST refresh TP statuses for a specific TP (updates or creates missing ones)
+   * POST /course/{courseId}/TPs/{tpNumber}/TPStatusRefresh
+   */
+  refreshTPStatus(courseId: number, tpNumber: number): Observable<TPStatusModel[]> {
+    return this.http
+      .post<TPStatusModel[]>(
+        `${API_URL}/course/${courseId}/TPs/${tpNumber}/TPStatusRefresh`,
+        {},
+        this.httpOptions
+      )
+      .pipe(
+        retry(1),
+        catchError((err: HttpErrorResponse) => {
+          this.handleError(err);
+          return throwError(() => err);
+        })
+      );
+  }
+
+  /**
+   * GET details of a specific TP status
+   * GET /TPStatus/{statusId}
+   */
+  getTPStatusById(statusId: number): Observable<TPStatusModel> {
+    return this.http
+      .get<TPStatusModel>(
+        `${API_URL}/TPStatus/${statusId}`,
+        this.httpOptions
+      )
+      .pipe(
+        retry(1),
+        catchError((err: HttpErrorResponse) => {
+          this.handleError(err);
+          return throwError(() => err);
+        })
+      );
+  }
+
+  /**
+   * PUT update a TP status (change submission type)
+   * PUT /TPStatus/{statusId}?submissionType={newType}
+   * @param statusId - The ID of the TPStatus to update
+   * @param newType - The new StudentSubmissionType
+   */
+  updateTPStatus(statusId: number, newType: StudentSubmissionType): Observable<TPStatusModel> {
+    return this.http
+      .put<TPStatusModel>(
+        `${API_URL}/TPStatus/${statusId}?submissionType=${newType}`,
+        {},
+        this.httpOptions
+      )
+      .pipe(
+        retry(1),
+        catchError((err: HttpErrorResponse) => {
+          this.handleError(err);
+          return throwError(() => err);
+        })
+      );
+  }
+
+  /**
+   * DELETE a TP status
+   * DELETE /TPStatus/{statusId}
+   */
+  deleteTPStatus(statusId: number): Observable<void> {
+    return this.http
+      .delete<void>(
+        `${API_URL}/TPStatus/${statusId}`,
+        this.httpOptions
+      )
+      .pipe(
+        retry(1),
+        catchError((err: HttpErrorResponse) => {
+          this.handleError(err);
+          return throwError(() => err);
+        })
+      );
   }
 
   // ========================================

@@ -1,66 +1,75 @@
 <!-- src/app/home/components/cours-form.component.html -->
-<form [formGroup]="form"
-      (ngSubmit)="submit()"
-      class="card-form">
+<form [formGroup]="form" (ngSubmit)="submit()" class="course-form">
 
-  <!-- Titre (sur toute la largeur) -->
-  <h2 class="title-form">Ajouter un cours</h2>
-
-  <!-- Champs : Nom | Code | Semestre | Année | Professeur | Type -->
-  <div class="field">
-    <label for="name">Nom du cours</label>
-    <input id="name" formControlName="name" />
-    @if (form.controls.name.touched && form.controls.name.invalid) {
-      <div class="helper-text">Le nom du cours est requis.</div>
-    }
-  </div>
-
-  <div class="field">
-    <label for="code">Code du cours</label>
-    <input id="code" formControlName="code" />
-    @if (form.controls.code.touched && form.controls.code.invalid) {
-      <div class="helper-text">Le code du cours est requis.</div>
-    }
-  </div>
-
-  <div class="field">
-    <label for="semester">Semestre</label>
-    <select id="semester" formControlName="semester">
-      @for (s of semesterOptions; track s) {
-        <option [value]="s">{{ s }}</option>
+  <div class="form-grid">
+    <!-- Nom du cours -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Nom du cours</mat-label>
+      <input matInput id="name" formControlName="name" placeholder="Ex: Programmation Web" />
+      <mat-icon matPrefix>book</mat-icon>
+      @if (form.controls.name.touched && form.controls.name.invalid) {
+      <mat-error>Le nom du cours est requis</mat-error>
       }
-    </select>
-  </div>
+    </mat-form-field>
 
-  <div class="field">
-    <label for="year_course">Année</label>
-    <input type="number" id="year_course" formControlName="year_course" />
-    @if (form.controls.year_course.touched && form.controls.year_course.invalid) {
-      <div class="helper-text">Entrer une année valide (≥ 2000).</div>
-    }
-  </div>
-
-  <div class="field">
-    <label for="teacher">Professeur</label>
-    <input id="teacher" formControlName="teacher" />
-    @if (form.controls.teacher.touched && form.controls.teacher.invalid) {
-      <div class="helper-text">Le nom du professeur est requis.</div>
-    }
-  </div>
-
-  <div class="field">
-    <label for="courseType">Type</label>
-    <select id="courseType" formControlName="courseType">
-      @for (t of courseTypeOptions; track t) {
-        <option [value]="t">{{ t }}</option>
+    <!-- Code du cours -->
+    <mat-form-field appearance="outline">
+      <mat-label>Code</mat-label>
+      <input matInput id="code" formControlName="code" placeholder="Ex: INF101" />
+      <mat-icon matPrefix>tag</mat-icon>
+      @if (form.controls.code.touched && form.controls.code.invalid) {
+      <mat-error>Le code est requis</mat-error>
       }
-    </select>
+    </mat-form-field>
+
+    <!-- Professeur -->
+    <mat-form-field appearance="outline">
+      <mat-label>Professeur</mat-label>
+      <input matInput id="teacher" formControlName="teacher" placeholder="Ex: Dr. Dupont" />
+      <mat-icon matPrefix>person</mat-icon>
+      @if (form.controls.teacher.touched && form.controls.teacher.invalid) {
+      <mat-error>Le nom du professeur est requis</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Semestre -->
+    <mat-form-field appearance="outline">
+      <mat-label>Semestre</mat-label>
+      <mat-select id="semester" formControlName="semester">
+        @for (s of semesterOptions; track s) {
+        <mat-option [value]="s">{{ s }}</mat-option>
+        }
+      </mat-select>
+      <mat-icon matPrefix>calendar_today</mat-icon>
+    </mat-form-field>
+
+    <!-- Année -->
+    <mat-form-field appearance="outline">
+      <mat-label>Année</mat-label>
+      <input matInput type="number" id="year_course" formControlName="year_course" placeholder="2024" />
+      <mat-icon matPrefix>event</mat-icon>
+      @if (form.controls.year_course.touched && form.controls.year_course.invalid) {
+      <mat-error>Année invalide (≥ 2000)</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Type de cours -->
+    <mat-form-field appearance="outline">
+      <mat-label>Type</mat-label>
+      <mat-select id="courseType" formControlName="courseType">
+        @for (t of courseTypeOptions; track t) {
+        <mat-option [value]="t">{{ t }}</mat-option>
+        }
+      </mat-select>
+      <mat-icon matPrefix>class</mat-icon>
+    </mat-form-field>
   </div>
 
-  <!-- Bouton Ajouter (sous le dernier champ, aligné à droite) -->
-  <button mat-button type="submit"
-          class="btn-primary"
-          [disabled]="form.invalid">
-    Ajouter
-  </button>
+  <!-- Submit Button -->
+  <div class="form-actions">
+    <button mat-raised-button color="primary" type="submit" class="submit-btn" [disabled]="form.invalid">
+      <mat-icon>add_circle</mat-icon>
+      <span>Ajouter le cours</span>
+    </button>
+  </div>
 </form>

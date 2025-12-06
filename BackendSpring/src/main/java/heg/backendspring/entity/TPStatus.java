@@ -1,5 +1,6 @@
 package heg.backendspring.entity;
 
+import heg.backendspring.enums.StudentSubmissionType;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -29,10 +30,11 @@ public class TPStatus {
     @EqualsAndHashCode.Include
     private TP tp;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "student_submitted")
-    private boolean studentSubmission;
+    private StudentSubmissionType studentSubmission;
 
-    public TPStatus(Student student, TP tp, boolean studentSubmission) {
+    public TPStatus(Student student, TP tp, StudentSubmissionType studentSubmission) {
         this.student = student;
         this.tp = tp;
         this.studentSubmission = studentSubmission;

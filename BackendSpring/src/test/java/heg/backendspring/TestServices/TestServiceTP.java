@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import static heg.backendspring.enums.StudentSubmissionType.DONE;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -171,10 +172,10 @@ class TestServiceTP {
                         ts -> ts
                 ));
 
-        assertTrue(statusByName.get("Scout Mark").isStudentSubmission());
-        assertTrue(statusByName.get("Riggs Helly").isStudentSubmission());
-        assertTrue(statusByName.get("George Dylan").isStudentSubmission());
-        assertFalse(statusByName.get("Bailiff Irving").isStudentSubmission());
+        assertEquals(DONE, statusByName.get("Scout Mark").getStudentSubmission());
+        assertEquals(DONE, statusByName.get("Riggs Helly").getStudentSubmission());
+        assertEquals(DONE, statusByName.get("George Dylan").getStudentSubmission());
+        assertNotEquals(DONE, statusByName.get("Bailiff Irving").getStudentSubmission());
 
         verify(serviceSubmission).getStudentsSubmission(submission);
         verify(repositoryTP).save(tp);

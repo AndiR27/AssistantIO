@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from '../../shared/services/api.service';
-import { catchError, Observable, tap, throwError } from 'rxjs';
+import { catchError, Observable, switchMap, tap, throwError } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { SemesterType } from '../models/semesterType.model';
 import { CourseType } from '../models/courseType.model';
-import { CourseDetailsModel, StudentModel, TP_Model } from '../models/courseDetails.model';
+import { CourseDetailsModel, StudentModel, TP_Model, TPStatusModel } from '../models/courseDetails.model';
 
 /**
  * Service for managing course details operations.
@@ -215,6 +215,26 @@ export class CourseService {
   }
 
   /**
+   * Update a student in a course
+   * PUT /course/{courseId}/students/{studentId}
+   */
+  updateStudent(courseId: number, studentId: number, student: StudentModel): Observable<StudentModel> {
+    return this.api.updateStudent(courseId, studentId, student).pipe(
+      tap(res => console.log(`Student ${studentId} updated in course ${courseId}:`, res)),
+      map((res: any) => ({
+        id: res.id,
+        name: res.name,
+        email: res.email,
+        studyType: res.studyType
+      } as StudentModel)),
+      catchError(err => {
+        console.error('Error in updateStudent():', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  /**
    * Delete a TP from a course
    * DELETE /course/{courseId}/TPs/{tpNo}
    */
@@ -238,6 +258,20 @@ export class CourseService {
       tap(res => console.log('API updateTP response:', res)),
       catchError(err => {
         console.error('Error in updateTP():', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  /**
+   * Refresh TP status list (POST updates/creates and returns updated list)
+   * POST /course/{courseId}/TPs/{tpNo}/TPStatusRefresh
+   */
+  refreshTPStatusList(courseId: number, tpNo: number): Observable<TPStatusModel[]> {
+    return this.api.refreshTPStatus(courseId, tpNo).pipe(
+      tap(res => console.log(`✅ Refreshed TPStatus list (Course: ${courseId}, TP: ${tpNo}):`, res)),
+      catchError(err => {
+        console.error('Error in refreshTPStatusList():', err);
         return throwError(() => err);
       })
     );

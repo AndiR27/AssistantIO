@@ -2,10 +2,7 @@ package heg.backendspring.rest;
 
 import heg.backendspring.api.CourseApi;
 import heg.backendspring.api.SubmissionApi;
-import heg.backendspring.models.CourseDto;
-import heg.backendspring.models.StudentDto;
-import heg.backendspring.models.SubmissionDto;
-import heg.backendspring.models.TPDto;
+import heg.backendspring.models.*;
 import heg.backendspring.service.ServiceCourse;
 import heg.backendspring.utils.FileUploadForm;
 import jakarta.persistence.EntityNotFoundException;
@@ -35,6 +32,7 @@ public class ControllerCourse implements CourseApi, SubmissionApi {
     public Optional<NativeWebRequest> getRequest() {
         return CourseApi.super.getRequest();
     }
+
 
     @Override
     public ResponseEntity<StudentDto> addStudent(Long courseId, StudentDto studentDto) {
@@ -143,10 +141,21 @@ public class ControllerCourse implements CourseApi, SubmissionApi {
         return tpDto.map(ResponseEntity::ok).orElseThrow(() -> new EntityNotFoundException("TP not found"));
     }
 
+    @Override
+    public ResponseEntity<List<TPStatusDto>> getTPStatusesByTP(Long courseId, Integer tpNumber) {
+        return ResponseEntity.ok(serviceCourse.getAllTPStatusFromTP(courseId, tpNumber));
+    }
+
 
     @Override
     public ResponseEntity<List<TPDto>> getTPsByCourse(Long courseId) {
         return ResponseEntity.ok(serviceCourse.getAllTPsFromCourse(courseId));
+    }
+
+    @Override
+    public ResponseEntity<List<TPStatusDto>> refreshTPStatusByTP(Long courseId, Integer tpNumber) {
+        return ResponseEntity.ok(serviceCourse.refreshTPStatusesFromTP(courseId, tpNumber));
+
     }
 
     @Override

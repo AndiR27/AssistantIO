@@ -1,21 +1,15 @@
-<form [formGroup]="form" (ngSubmit)="onSubmit()" class="student-form">
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="student-form" #formRef="ngForm">
 
   <mat-form-field appearance="outline" class="full-width">
     <mat-label>Nom de l'étudiant</mat-label>
-    <input matInput id="name" formControlName="name" placeholder="Entrez le nom complet" />
+    <input matInput id="name" formControlName="name" placeholder="Entrez le nom complet" required />
     <mat-icon matPrefix>person</mat-icon>
-    @if (form.controls.name.touched && form.controls.name.invalid) {
-    <mat-error>Le nom est requis.</mat-error>
-    }
   </mat-form-field>
 
   <mat-form-field appearance="outline" class="full-width">
     <mat-label>Email</mat-label>
-    <input matInput id="email" type="email" formControlName="email" placeholder="exemple@domaine.com" />
+    <input matInput id="email" type="email" formControlName="email" placeholder="exemple@domaine.com" required />
     <mat-icon matPrefix>email</mat-icon>
-    @if (form.controls.email.touched && form.controls.email.invalid) {
-    <mat-error>Adresse email invalide.</mat-error>
-    }
   </mat-form-field>
 
   <mat-form-field appearance="outline" class="full-width">
@@ -32,11 +26,15 @@
     <button mat-raised-button color="primary" type="submit" class="submit-btn"
       [disabled]="form.invalid || !canSubmit()">
       @if (isSubmitting()) {
-      <mat-icon class="spinning">sync</mat-icon>
-      <span>Ajout en cours...</span>
+      <ng-container>
+        <mat-icon class="spinning">sync</mat-icon>
+        <span>Ajout en cours...</span>
+      </ng-container>
       } @else {
-      <mat-icon>person_add</mat-icon>
-      <span>Ajouter l'étudiant</span>
+      <ng-container>
+        <mat-icon>person_add</mat-icon>
+        <span>Ajouter l'étudiant</span>
+      </ng-container>
       }
     </button>
   </div>

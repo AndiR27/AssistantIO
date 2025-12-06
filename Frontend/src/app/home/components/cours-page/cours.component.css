@@ -214,6 +214,9 @@
   margin-bottom: 0.25rem !important;
 }
 
+.add-card mat-card-content {
+  padding: 2rem !important;
+}
 
 .section-title {
   font-size: 1.25rem;
@@ -223,5 +226,4 @@
   font-size: 1.5rem;
   width: 1.5rem;
   height: 1.5rem;
-}
 }

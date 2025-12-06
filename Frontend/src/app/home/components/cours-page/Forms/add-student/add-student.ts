@@ -44,15 +44,13 @@ export class AddStudent {
 
 
   onSubmit(): void {
-    // log
     console.log('Debut de l\'ajout d\'un étudiant');
+
     // Vérification de la validité du formulaire avant de soumettre
     if (!this.form.valid) {
       this.form.markAllAsTouched();
       return;
     }
-
-
 
     this.isSubmitting.set(true);
     const courseId = Number(this.route.snapshot.paramMap.get('id'));
@@ -62,12 +60,15 @@ export class AddStudent {
       .addStudentToCourse(courseId, payload)
       .subscribe({
         next: student => {
-          //log
-
           this.addedStudent.set(student);
           this.added.emit();
           console.log('Emit Etudiant avec succès:', student);
-          this.form.reset({ studyType: StudyType.TEMPS_PLEIN })
+          this.form.reset({ studyType: StudyType.TEMPS_PLEIN });
+
+          // Clear success message after 3 seconds
+          setTimeout(() => {
+            this.addedStudent.set(null);
+          }, 3000);
         },
         error: err => {
           console.error('Error adding student:', err);
@@ -76,9 +77,7 @@ export class AddStudent {
         complete: () => {
           this.isSubmitting.set(false);
         }
-      },
-      )
-
+      });
   }
 
 

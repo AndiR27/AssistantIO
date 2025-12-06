@@ -29,7 +29,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 import java.util.List;
 import java.util.Optional;
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-12-04T16:08:10.970899+01:00[Europe/Zurich]", comments = "Generator version: 7.9.0")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-12-05T15:57:16.628563800+01:00[Europe/Zurich]", comments = "Generator version: 7.9.0")
 @Validated
 @Tag(name = "admin-course", description = "Gestion administrative des cours (CRUD complet)")
 public interface AdminCourseApi {

@@ -6,6 +6,7 @@ import heg.backendspring.entity.TP;
 import heg.backendspring.mapping.MapperSubmission;
 import heg.backendspring.models.SubmissionDto;
 import heg.backendspring.repository.RepositorySubmission;
+import heg.backendspring.utils.StudentNameUtils;
 import heg.backendspring.utils.ZipUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -187,16 +188,17 @@ public class ServiceSubmission {
      */
     private void manageStudentSubmission(Path etudiantDir, Path restructurationDir) throws IOException {
         //Nom du dossier : Nom Prenom_xxxxxxxx (ne pas prendre après le _)
-        String nomEtudiant = etudiantDir.getFileName().toString().split("_")[0];
-        //Corriger le nom avec un regex pour enlever les caractères spéciaux
-        nomEtudiant = nomEtudiant.replaceAll("[^\\p{L}]+", "");
+        String studentName = etudiantDir.getFileName().toString();
+
+        //Corriger le nom
+        String nameStudentFormatted = StudentNameUtils.toFolderNameFromZipDir(studentName);
 
         //Créer le dossier "Nom_Prenom" dans le dossier de restructuration
-        Path etudiantDirRestructured = restructurationDir.resolve(nomEtudiant);
-        createFolderIfPossible(etudiantDirRestructured);
+        Path studentDirRestructured = restructurationDir.resolve(nameStudentFormatted);
+        createFolderIfPossible(studentDirRestructured);
 
         //Gérer le contenu du dossier étudiant pour le restructurer
-        sendStudentContent(etudiantDir, etudiantDirRestructured);
+        sendStudentContent(etudiantDir, studentDirRestructured);
     }
 
     /**

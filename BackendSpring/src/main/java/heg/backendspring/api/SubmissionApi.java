@@ -26,7 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-12-04T16:08:10.970899+01:00[Europe/Zurich]", comments = "Generator version: 7.9.0")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-12-05T15:57:16.628563800+01:00[Europe/Zurich]", comments = "Generator version: 7.9.0")
 @Validated
 @Tag(name = "submission", description = "Gestion des soumissions de TP")
 public interface SubmissionApi {

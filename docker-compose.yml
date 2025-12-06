@@ -9,20 +9,41 @@ services:
     image: zackrey27/assistantio-backend
     container_name: assistantio_backend
     environment:
-      - QUARKUS_PROFILE=prod
+      # ==========================
+      # HTTP / Port
+      # ==========================
+      HTTP_PORT: "8088"
 
-      # ======== DATABASE ========
-      - QUARKUS_DATASOURCE_JDBC_URL=${QUARKUS_DATASOURCE_JDBC_URL}
-      - QUARKUS_DATASOURCE_USERNAME=${QUARKUS_DATASOURCE_USERNAME}
-      - QUARKUS_DATASOURCE_PASSWORD=${QUARKUS_DATASOURCE_PASSWORD}
+      # ==========================
+      # Base de données (EXTERNE, stack Postgres déjà sur le NAS)
+      # ==========================
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
 
-      # ======== Logging Level  ========
-      - LOG_LEVEL=${LOG_LEVEL}
+      # ==========================
+      # JPA / Hibernate / Flyway
+      # ==========================
+      SPRING_JPA_DDL_AUTO: update
+      SPRING_FLYWAY_ENABLED: "false"
 
-      # ======== ZIP STORAGE ========
-      # Always mapped to the volume, path referenced in application.properties
-      - ZIP_STORAGE_PATH=/opt/app/data/zips
+      # ==========================
+      # Logs
+      # ==========================
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      TOMCAT_ACCESS_LOG_ENABLED: "false"
 
+      # ==========================
+      # CORS (front Angular dans ce même stack)
+      # ==========================
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:4200}
+
+      # ==========================
+      # ZIP storage (volume NAS)
+      # ==========================
+      ZIP_STORAGE_PATH: /opt/app/data/zips
+
+    depends_on: []
     ports:
       - "${HTTP_PORT:-8088}:8088"
     restart: unless-stopped
@@ -42,11 +63,9 @@ services:
       - backend
     ports:
       - "4200:80"
+    restart: unless-stopped
     networks:
       - app-network
-
-volumes:
-  aio_data:
 
 networks:
   app-network:

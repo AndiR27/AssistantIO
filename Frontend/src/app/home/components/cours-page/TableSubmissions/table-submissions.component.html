@@ -1,10 +1,16 @@
 <div class="table-section">
     <div class="section-header">
-        <h2 class="section-title">
-            <mat-icon>table_chart</mat-icon>
-            <span>Étudiants & Travaux Pratiques</span>
-        </h2>
-        <p class="section-subtitle">Suivi des rendus par étudiant</p>
+        <div>
+            <h2 class="section-title">
+                <mat-icon>table_chart</mat-icon>
+                <span>Étudiants & Travaux Pratiques</span>
+            </h2>
+            <p class="section-subtitle">Suivi des rendus par étudiant</p>
+        </div>
+        <button mat-raised-button color="primary" (click)="exportToPDF()" class="export-pdf-btn">
+            <mat-icon>picture_as_pdf</mat-icon>
+            <span>Exporter en PDF</span>
+        </button>
     </div>
 
     <div class="table-wrapper mat-elevation-z1">

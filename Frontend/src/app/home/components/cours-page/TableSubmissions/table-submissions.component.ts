@@ -6,12 +6,13 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { StudentModel, TP_Model, TPStatusModel } from '../../../models/courseDetails.model';
+import { StudentModel, TP_Model, TPStatusModel, CourseDetailsModel } from '../../../models/courseDetails.model';
 import { CourseService } from '../../../services/course.service';
 import { TPStatusService } from '../../../services/tp-status.service';
 import { StudentSubmissionType } from '../../../models/tpStatus.model';
 import { EditStudentDialogComponent } from './dialogs/edit-student-dialog.component';
 import { EditSubmissionDialogComponent } from './dialogs/edit-submission-dialog.component';
+import { ExportPdfComponent } from './export-pdf.component';
 
 @Component({
     selector: 'app-table-submissions',
@@ -30,6 +31,7 @@ import { EditSubmissionDialogComponent } from './dialogs/edit-submission-dialog.
 })
 export class TableSubmissionsComponent implements OnInit {
     @Input() courseId?: number; // Optional to match parent signal type
+    @Input() course?: CourseDetailsModel; // Course details for PDF export
     @Input() students: StudentModel[] = [];
     @Input() tps: TP_Model[] = [];
     @Output() refresh = new EventEmitter<void>();
@@ -38,6 +40,7 @@ export class TableSubmissionsComponent implements OnInit {
     private tpStatusService = inject(TPStatusService);
     private dialog = inject(MatDialog);
     private snackBar = inject(MatSnackBar);
+    private exportPdfService = inject(ExportPdfComponent);
     isDownloading = false;
     processingTPs = new Set<number>(); // Track which TPs are being processed
     processingMapping = new Set<number>(); // Track which TPs are regenerating mapping
@@ -449,6 +452,32 @@ export class TableSubmissionsComponent implements OnInit {
                 return 'block';
             default:
                 return 'help';
+        }
+    }
+
+    // Export table data to PDF
+    exportToPDF() {
+        // Prompt user for threshold percentage
+        const thresholdInput = prompt('Entrez le seuil de réussite (%) pour le calcul:', '75');
+
+        if (thresholdInput === null) {
+            // User cancelled
+            return;
+        }
+
+        const threshold = parseFloat(thresholdInput);
+
+        if (isNaN(threshold) || threshold < 0 || threshold > 100) {
+            this.snackBar.open('Veuillez entrer un pourcentage valide (0-100)', 'Fermer', { duration: 3000 });
+            return;
+        }
+
+        try {
+            this.exportPdfService.generatePDF(this.students, this.tps, threshold, this.course);
+            this.snackBar.open('PDF généré avec succès', 'Fermer', { duration: 3000 });
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            this.snackBar.open('Erreur lors de la génération du PDF', 'Fermer', { duration: 5000 });
         }
     }
 }

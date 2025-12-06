@@ -92,7 +92,7 @@
   </div>
 
   <!-- ▶︎ Tableau des étudiants vs TPs -->
-  <app-table-submissions [courseId]="courseId()" [students]="students" [tps]="tps"
+  <app-table-submissions [courseId]="courseId()" [course]="course" [students]="students" [tps]="tps"
     (refresh)="loadTPInfos(); loadStudents()">
   </app-table-submissions>
 

@@ -380,7 +380,7 @@ export class TableSubmissionsComponent implements OnInit {
             case 'processing':
                 return 'En cours...';
             case 'needs-update':
-                return 'À restructurer';
+                return 'En attente';
             default:
                 return 'Inconnu';
         }
@@ -415,7 +415,7 @@ export class TableSubmissionsComponent implements OnInit {
             case StudentSubmissionType.DONE:
                 return 'Rendu';
             case StudentSubmissionType.DONE_LATE:
-                return 'Rendu en retard';
+                return 'Rendu \n en retard';
             case StudentSubmissionType.DONE_GOOD:
                 return 'Bon rendu';
             case StudentSubmissionType.DONE_BUT_NOTHING:

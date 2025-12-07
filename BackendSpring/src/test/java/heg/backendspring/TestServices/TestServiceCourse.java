@@ -142,6 +142,14 @@ public class TestServiceCourse {
     }
 
     @Test
+    @DisplayName("updateCourse - updates existing course")
+    void testUpdateCourse_existingCourse() {
+        CourseDto input = new CourseDto(null, "Java2", "63-21", SemesterType.PRINTEMPS, CourseType.JAVA, 2024, "Dupont",
+                null, null, null);
+
+    }
+
+    @Test
     @DisplayName("addStudent - existing student not in course")
     void testAddStudent_existingStudent_notInCourse() {
 

@@ -99,6 +99,8 @@ public class ServiceCourse {
         }
 
         Course course = courseOpt.get();
+        //Gérer le renommage du dossier si le code a changé
+        manageFoldersOnUpdate(course.getCode(), courseDto.code());
         // Mettre à jour l’entité via le mapper
         mapperCourse.updateEntity(courseDto, course);
 
@@ -108,6 +110,8 @@ public class ServiceCourse {
 
         return Optional.of(mapperCourse.toDto(updated));
     }
+
+
 
     /**
      * Supprimer un cours
@@ -444,6 +448,25 @@ public class ServiceCourse {
         } else {
             log.info("Folder {} already exists", nomDossier);
         }
+    }
+
+    /**
+     * Permet de gérer les dossiers lors de la mise à jour d'un cours
+     * @param oldCode
+     * @param newCode
+     */
+    private void manageFoldersOnUpdate(String oldCode, String newCode) {
+        if(!oldCode.equals(newCode)) {
+            Path oldPath = Paths.get(zipStoragePath, oldCode);
+            Path newPath = Paths.get(zipStoragePath, newCode);
+            try {
+                Files.move(oldPath, newPath);
+                log.info("Renamed folder from {} to {}", oldCode, newCode);
+            } catch (IOException e) {
+                log.error("Failed to rename folder from {} to {}\n--> {}", oldCode, newCode, e.getMessage());
+            }
+        }
+
     }
 
 

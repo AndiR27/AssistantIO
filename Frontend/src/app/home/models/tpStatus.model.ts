@@ -1,7 +1,4 @@
-/**
- * Enum for Student Submission Types
- * Must match backend enum exactly
- */
+// Type de rendu étudiant (les valeurs doivent correspondre au backend)
 export enum StudentSubmissionType {
     DONE = 'DONE',
     DONE_LATE = 'DONE_LATE',
@@ -12,9 +9,7 @@ export enum StudentSubmissionType {
     EXEMPT = 'EXEMPT'
 }
 
-/**
- * Display labels for UI (French)
- */
+// Libellés d'affichage pour l'interface utilisateur
 export const StudentSubmissionTypeLabels: Record<StudentSubmissionType, string> = {
     [StudentSubmissionType.DONE]: 'Rendu',
     [StudentSubmissionType.DONE_LATE]: 'Rendu en retard',
@@ -25,22 +20,18 @@ export const StudentSubmissionTypeLabels: Record<StudentSubmissionType, string> 
     [StudentSubmissionType.EXEMPT]: 'Exempté'
 };
 
-/**
- * Color codes for visual distinction in UI
- */
+// Codes couleurs pour la distinction visuelle dans l'interface
 export const StudentSubmissionTypeColors: Record<StudentSubmissionType, string> = {
-    [StudentSubmissionType.DONE]: '#4CAF50',              // Green
+    [StudentSubmissionType.DONE]: '#4CAF50',              // Vert
     [StudentSubmissionType.DONE_LATE]: '#FF9800',          // Orange
-    [StudentSubmissionType.DONE_GOOD]: '#2196F3',          // Blue
-    [StudentSubmissionType.DONE_BUT_NOTHING]: '#9E9E9E',   // Grey
-    [StudentSubmissionType.DONE_BUT_MEDIOCRE]: '#FFC107',  // Amber
-    [StudentSubmissionType.NOT_DONE_MISSING]: '#F44336',   // Red
-    [StudentSubmissionType.EXEMPT]: '#9C27B0'              // Purple
+    [StudentSubmissionType.DONE_GOOD]: '#2196F3',          // Bleu
+    [StudentSubmissionType.DONE_BUT_NOTHING]: '#9E9E9E',   // Gris
+    [StudentSubmissionType.DONE_BUT_MEDIOCRE]: '#FFC107',  // Ambre
+    [StudentSubmissionType.NOT_DONE_MISSING]: '#F44336',   // Rouge
+    [StudentSubmissionType.EXEMPT]: '#9C27B0'              // Violet
 };
 
-/**
- * TPStatus Model - Represents the status of a student for a specific TP
- */
+// Modèle de statut TP - Représente le statut d'un étudiant pour un TP spécifique
 export interface TPStatusModel {
     id?: number;
     studentId: number;
@@ -48,23 +39,17 @@ export interface TPStatusModel {
     studentSubmission: StudentSubmissionType;
 }
 
-/**
- * Helper function to get display label
- */
+// Récupère le libellé d'affichage d'un type de rendu
 export function getSubmissionTypeLabel(type: StudentSubmissionType): string {
     return StudentSubmissionTypeLabels[type];
 }
 
-/**
- * Helper function to get submission type color
- */
+// Récupère la couleur associée à un type de rendu
 export function getSubmissionTypeColor(type: StudentSubmissionType): string {
     return StudentSubmissionTypeColors[type];
 }
 
-/**
- * Helper function to get all submission types for dropdowns
- */
+// Récupère toutes les options de type de rendu pour les menus déroulants
 export function getSubmissionTypeOptions(): Array<{ value: StudentSubmissionType; label: string; color: string }> {
     return Object.values(StudentSubmissionType).map(type => ({
         value: type,

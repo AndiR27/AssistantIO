@@ -7,10 +7,20 @@
             </h2>
             <p class="section-subtitle">Suivi des rendus par étudiant</p>
         </div>
-        <button mat-raised-button color="primary" (click)="exportToPDF()" class="export-pdf-btn">
-            <mat-icon>picture_as_pdf</mat-icon>
-            <span>Exporter en PDF</span>
-        </button>
+        <div class="header-actions">
+            <div class="search-bar">
+                <mat-icon class="search-icon">search</mat-icon>
+                <input type="text" [(ngModel)]="searchTerm" placeholder="Rechercher un étudiant..."
+                    class="search-input">
+                <button *ngIf="searchTerm" type="button" class="clear-search-btn" (click)="searchTerm = ''">
+                    <mat-icon>close</mat-icon>
+                </button>
+            </div>
+            <button mat-raised-button color="primary" (click)="exportToPDF()" class="export-pdf-btn">
+                <mat-icon>picture_as_pdf</mat-icon>
+                <span>Exporter en PDF</span>
+            </button>
+        </div>
     </div>
 
     <div class="table-wrapper mat-elevation-z1">

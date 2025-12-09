@@ -8,29 +8,26 @@ import { SemesterType } from '../models/semesterType.model';
 import { CourseType } from '../models/courseType.model';
 
 /**
- * Service : pour gérer les opérations liées aux cours sur la page d'accueil.
- * Il utilise HttpClient pour faire des requêtes HTTP vers l'API backend.
- * * @Injectable : Décorateur qui indique que cette classe peut être injectée
- * dans d'autres classes via le système d'injection de dépendances d'Angular.
- * * @HttpClient : Service Angular pour faire des requêtes HTTP.
- * * @Observable : Type de données qui permet de gérer des flux de données asynchrones.
- * * @map : Opérateur RxJS pour transformer les données émises par un Observable.
+ * Service pour gérer les opérations liées aux cours sur la page d'accueil.
+ * Utilise ApiService pour effectuer les requêtes HTTP vers le backend.
  */
-
-@Injectable({
-  //providedIn : permet d'indiquer la portée du service
-  providedIn: 'root' // Le service est disponible dans toute l'application
-})
-
+@Injectable({ providedIn: 'root' })
 export class HomeService {
-  coursePreviews: CoursePreview[] = []; // Propriété pour stocker la liste des cours
-  private baseURL = '/admin/courses';
-  constructor(private api: ApiService) {
-    // Le constructeur initialise le service avec HttpClient pour faire des requêtes HTTP
-  }
 
-  //Get data from ApiService, and map it to CoursePreview[]
-  //methode : getCourseList
+  coursePreviews: CoursePreview[] = [];
+  private baseURL = '/admin/courses';
+
+  constructor(private api: ApiService) { }
+
+  // ========================================
+  // COURSE OPERATIONS
+  // ========================================
+
+  /**
+   * Récupère la liste de tous les cours.
+   * GET /admin/courses/all
+   * @returns Observable<CoursePreview[]>
+   */
   getCoursePreviews(): Observable<CoursePreview[]> {
     console.log('getCoursePreviews called');
     return this.api.getAllCourses().pipe(
@@ -58,29 +55,37 @@ export class HomeService {
     );
   }
 
-
-
-  // Add a course
+  /**
+   * Ajoute un nouveau cours.
+   * POST /admin/courses
+   * @param course - Les données du cours à ajouter
+   * @returns Observable<CoursePreview>
+   */
   addCourse(course: CoursePreview): Observable<CoursePreview> {
     console.log('addCourse called');
     return this.api.addCourse(course).pipe(
       map(dto => ({
-        id: 0, // Assuming the backend will return the new ID after creation
+        id: 0,
         name: dto.name,
         code: dto.code,
         teacher: dto.teacher,
         year_course: dto.year_course,
-        semester: dto.semester as SemesterType, // Cast to SemesterType
-        courseType: dto.courseType as CourseType // Cast to CourseType
+        semester: dto.semester as SemesterType,
+        courseType: dto.courseType as CourseType
       })),
       catchError(error => {
         console.error('Error adding course:', error);
-        return throwError(() => error); // Rethrow the error
+        return throwError(() => error);
       })
     );
   }
 
-  // Update a course
+  /**
+   * Met à jour un cours existant.
+   * PUT /admin/courses/{courseId}
+   * @param course - Les données du cours mises à jour
+   * @returns Observable<CoursePreview>
+   */
   updateCourse(course: CoursePreview): Observable<CoursePreview> {
     console.log('updateCourse called', course);
     return this.api.updateCourse(course).pipe(
@@ -100,7 +105,12 @@ export class HomeService {
     );
   }
 
-  // Delete a course
+  /**
+   * Supprime un cours.
+   * DELETE /admin/courses/{courseId}
+   * @param courseId - L'identifiant du cours à supprimer
+   * @returns Observable<void>
+   */
   deleteCourse(courseId: number): Observable<void> {
     console.log('deleteCourse called', courseId);
     return this.api.deleteCourse(courseId).pipe(

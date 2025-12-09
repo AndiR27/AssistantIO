@@ -9,6 +9,11 @@ import { TPStatusModel, StudentSubmissionType } from '../../home/models/tpStatus
 
 const API_URL = environment.apiUrl;
 
+/**
+ * Service API centralisé pour toutes les requêtes HTTP vers le backend.
+ * Gère les cours, étudiants, TPs et statuts de TP.
+ * Utilise HttpClient pour les communications HTTP.
+ */
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   private http = inject(HttpClient);
@@ -16,16 +21,24 @@ export class ApiService {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' })
   };
 
-  /** GET route for debugging */
+  /**
+   * Construit l'URL complète d'une route pour le débogage.
+   * @param route - Le chemin de la route
+   * @returns L'URL complète
+   */
   getRoute(route: string): string {
     return `${API_URL}${route}`;
   }
 
   // ========================================
-  // ADMIN-COURSE: Administrative course management (CRUD)
+  // ADMIN-COURS : Gestion administrative des cours (CRUD)
   // ========================================
 
-  /** GET all courses (admin); on error, alert + return [] */
+  /**
+   * Récupère tous les cours (admin).
+   * GET /admin/courses
+   * @returns Observable<CoursePreview[]>
+   */
   getAllCourses(): Observable<CoursePreview[]> {
     return this.http
       .get<CoursePreview[]>(`${API_URL}/admin/courses`, this.httpOptions)
@@ -38,7 +51,12 @@ export class ApiService {
       );
   }
 
-  /** GET course details by ID (admin); on error, alert + re-throw */
+  /**
+   * Récupère les détails d'un cours par son ID (admin).
+   * GET /admin/courses/{id}
+   * @param id - L'identifiant du cours
+   * @returns Observable<CourseDetailsModel>
+   */
   getCourseById(id: number): Observable<CourseDetailsModel> {
     return this.http
       .get<CourseDetailsModel>(
@@ -54,7 +72,12 @@ export class ApiService {
       );
   }
 
-  /** POST create a course (admin); on error, alert + re-throw */
+  /**
+   * Crée un nouveau cours (admin).
+   * POST /admin/courses
+   * @param course - Les données du cours à créer
+   * @returns Observable<CoursePreview>
+   */
   addCourse(course: CoursePreview): Observable<CoursePreview> {
     return this.http
       .post<CoursePreview>(
@@ -71,7 +94,12 @@ export class ApiService {
       );
   }
 
-  /** PUT update a course (admin); on error, alert + re-throw */
+  /**
+   * Met à jour un cours (admin).
+   * PUT /admin/courses
+   * @param course - Les données du cours mises à jour
+   * @returns Observable<CoursePreview>
+   */
   updateCourse(course: CoursePreview): Observable<CoursePreview> {
     return this.http
       .put<CoursePreview>(
@@ -88,7 +116,12 @@ export class ApiService {
       );
   }
 
-  /** DELETE a course (admin); on error, alert + re-throw */
+  /**
+   * Supprime un cours (admin).
+   * DELETE /admin/courses/{courseId}
+   * @param courseId - L'identifiant du cours à supprimer
+   * @returns Observable<void>
+   */
   deleteCourse(courseId: number): Observable<void> {
     return this.http
       .delete<void>(
@@ -105,10 +138,14 @@ export class ApiService {
   }
 
   // ========================================
-  // COURSE: Regular course operations
+  // COURS : Opérations standards sur les cours
   // ========================================
 
-  /** GET list of courses; on error, alert + return [] */
+  /**
+   * Récupère la liste des cours.
+   * GET /course
+   * @returns Observable<CoursePreview[]>
+   */
   getCourses(): Observable<CoursePreview[]> {
     return this.http
       .get<CoursePreview[]>(`${API_URL}/course`, this.httpOptions)
@@ -121,7 +158,12 @@ export class ApiService {
       );
   }
 
-  /** GET course details; on error, alert + re-throw */
+  /**
+   * Récupère les détails d'un cours.
+   * GET /course/{courseId}
+   * @param courseId - L'identifiant du cours
+   * @returns Observable<CourseDetailsModel>
+   */
   getCourseDetails(courseId: number): Observable<CourseDetailsModel> {
     return this.http
       .get<CourseDetailsModel>(
@@ -138,10 +180,15 @@ export class ApiService {
   }
 
   // ========================================
-  // COURSE - Student operations
+  // COURS - Opérations sur les étudiants
   // ========================================
 
-  /** GET all students of a course; on error, alert + return [] */
+  /**
+   * Récupère tous les étudiants d'un cours.
+   * GET /course/{courseId}/students
+   * @param courseId - L'identifiant du cours
+   * @returns Observable<StudentModel[]>
+   */
   getStudentsByCourseId(courseId: number): Observable<StudentModel[]> {
     return this.http
       .get<StudentModel[]>(
@@ -157,7 +204,13 @@ export class ApiService {
       );
   }
 
-  /** GET student details from a course; on error, alert + re-throw */
+  /**
+   * Récupère les détails d'un étudiant.
+   * GET /course/{courseId}/students/{studentId}
+   * @param courseId - L'identifiant du cours
+   * @param studentId - L'identifiant de l'étudiant
+   * @returns Observable<StudentModel>
+   */
   getStudentById(courseId: number, studentId: number): Observable<StudentModel> {
     return this.http
       .get<StudentModel>(
@@ -173,7 +226,13 @@ export class ApiService {
       );
   }
 
-  /** POST add one student to course; on error, alert + re-throw */
+  /**
+   * Ajoute un étudiant à un cours.
+   * POST /course/{courseId}/addStudent
+   * @param courseId - L'identifiant du cours
+   * @param student - Les données de l'étudiant
+   * @returns Observable<StudentModel>
+   */
   addStudentToCourse(
     courseId: number,
     student: StudentModel
@@ -193,7 +252,13 @@ export class ApiService {
       );
   }
 
-  /** POST add students from a file; on error, alert + re-throw */
+  /**
+   * Ajoute des étudiants depuis un fichier.
+   * POST /course/{courseId}/addStudentsFromFile
+   * @param courseId - L'identifiant du cours
+   * @param file - Le fichier contenant la liste d'étudiants
+   * @returns Observable<any>
+   */
   addStudentsFromFile(courseId: number, file: File): Observable<any> {
     const formData = new FormData();
     formData.append('file', file);
@@ -208,7 +273,13 @@ export class ApiService {
       );
   }
 
-  /** DELETE a student from a course; on error, alert + re-throw */
+  /**
+   * Supprime un étudiant d'un cours.
+   * DELETE /course/{courseId}/students/{studentId}
+   * @param courseId - L'identifiant du cours
+   * @param studentId - L'identifiant de l'étudiant
+   * @returns Observable<void>
+   */
   deleteStudent(courseId: number, studentId: number): Observable<void> {
     return this.http
       .delete<void>(
@@ -224,7 +295,14 @@ export class ApiService {
       );
   }
 
-  /** PUT update a student in a course; on error, alert + re-throw */
+  /**
+   * Met à jour un étudiant.
+   * PUT /course/{courseId}/students/{studentId}
+   * @param courseId - L'identifiant du cours
+   * @param studentId - L'identifiant de l'étudiant
+   * @param student - Les nouvelles données de l'étudiant
+   * @returns Observable<StudentModel>
+   */
   updateStudent(courseId: number, studentId: number, student: StudentModel): Observable<StudentModel> {
     return this.http
       .put<StudentModel>(
@@ -242,10 +320,15 @@ export class ApiService {
   }
 
   // ========================================
-  // COURSE - TP operations
+  // COURS - Opérations sur les TPs
   // ========================================
 
-  /** GET all TPs of a course; on error, alert + return [] */
+  /**
+   * Récupère tous les TPs d'un cours.
+   * GET /course/{courseId}/TPs
+   * @param courseId - L'identifiant du cours
+   * @returns Observable<TP_Model[]>
+   */
   getTPsByCourseId(courseId: number): Observable<TP_Model[]> {
     return this.http
       .get<TP_Model[]>(
@@ -261,7 +344,13 @@ export class ApiService {
       );
   }
 
-  /** GET details of a specific TP; on error, alert + re-throw */
+  /**
+   * Récupère les détails d'un TP spécifique.
+   * GET /course/{courseId}/TPs/{tpNumber}
+   * @param courseId - L'identifiant du cours
+   * @param tpNumber - Le numéro du TP
+   * @returns Observable<TP_Model>
+   */
   getTPDetails(courseId: number, tpNumber: number): Observable<TP_Model> {
     return this.http
       .get<TP_Model>(
@@ -277,7 +366,14 @@ export class ApiService {
       );
   }
 
-  /** POST create a TP by number; on error, alert + re-throw */
+  /**
+   * Crée un TP par numéro.
+   * POST /course/{courseId}/TPs/{tpNumber}
+   * @param courseId - L'identifiant du cours
+   * @param tpNumber - Le numéro du TP
+   * @param tpData - Données optionnelles du TP
+   * @returns Observable<TP_Model>
+   */
   createTP(courseId: number, tpNumber: number, tpData?: any): Observable<TP_Model> {
     return this.http
       .post<TP_Model>(
@@ -294,7 +390,14 @@ export class ApiService {
       );
   }
 
-  /** PUT update a TP; on error, alert + re-throw */
+  /**
+   * Met à jour un TP.
+   * PUT /course/{courseId}/TPs/{tpNumber}
+   * @param courseId - L'identifiant du cours
+   * @param tpNumber - Le numéro du TP
+   * @param tpData - Les nouvelles données du TP
+   * @returns Observable<TP_Model>
+   */
   updateTP(courseId: number, tpNumber: number, tpData: any): Observable<TP_Model> {
     return this.http
       .put<TP_Model>(
@@ -311,7 +414,13 @@ export class ApiService {
       );
   }
 
-  /** DELETE a TP; on error, alert + re-throw */
+  /**
+   * Supprime un TP.
+   * DELETE /course/{courseId}/TPs/{tpNumber}
+   * @param courseId - L'identifiant du cours
+   * @param tpNumber - Le numéro du TP
+   * @returns Observable<void>
+   */
   deleteTP(courseId: number, tpNumber: number): Observable<void> {
     return this.http
       .delete<void>(
@@ -327,16 +436,23 @@ export class ApiService {
       );
   }
 
-  /** POST add a TP to a course + add submission to it; on error, alert + re-throw */
+  /**
+   * Ajoute un TP à un cours avec son fichier de rendu.
+   * Crée le TP puis upload le fichier ZIP associé.
+   * POST /course/{courseId}/TPs/{tpNo}
+   * POST /course/{courseId}/addRendu/{tpNo}
+   * @param courseId - L'identifiant du cours
+   * @param tpNo - Le numéro du TP
+   * @param file - Le fichier de rendu (archive ZIP)
+   * @returns Observable<TP_Model>
+   */
   addTpToCourse(courseId: number, tpNo: number, file: File): Observable<TP_Model> {
-    // Création du TP
     return this.http.post<TP_Model>(`${API_URL}/course/${courseId}/TPs/${tpNo}`, {}).pipe(
       tap({
         next: resp => console.log('Réponse du backend à addTP:', resp),
         error: err => console.error('Erreur sur addTP:', err)
       }),
       switchMap((tp) => {
-        // Upload du rendu ZIP associé au TP
         const formData = new FormData();
         formData.append('file', file);
         return this.http.post<TP_Model>(`${API_URL}/course/${courseId}/addRendu/${tpNo}`, formData);
@@ -348,7 +464,14 @@ export class ApiService {
     );
   }
 
-  /** POST add a submission (rendu) for a TP; on error, alert + re-throw */
+  /**
+   * Ajoute un fichier de rendu à un TP existant.
+   * POST /course/{courseId}/addRendu/{tpNo}
+   * @param courseId - L'identifiant du cours
+   * @param tpNo - Le numéro du TP
+   * @param file - Le fichier de rendu (archive ZIP)
+   * @returns Observable<any>
+   */
   addRendu(courseId: number, tpNo: number, file: File): Observable<any> {
     const formData = new FormData();
     formData.append('file', file);
@@ -363,7 +486,13 @@ export class ApiService {
       );
   }
 
-  /** POST start the submission processing for a TP; on error, alert + re-throw */
+  /**
+   * Démarre le traitement de restructuration pour un TP.
+   * POST /course/{courseId}/startProcessSubmission/{tpNo}
+   * @param courseId - L'identifiant du cours
+   * @param tpNo - Le numéro du TP
+   * @returns Observable<any>
+   */
   startProcessSubmission(courseId: number, tpNo: number): Observable<any> {
     return this.http
       .post(
@@ -380,7 +509,13 @@ export class ApiService {
       );
   }
 
-  /** POST advanced TP management; on error, alert + re-throw */
+  /**
+   * Gère les statuts du TP pour tous les étudiants.
+   * POST /course/{courseId}/manageTP/{tpNo}
+   * @param courseId - L'identifiant du cours
+   * @param tpNo - Le numéro du TP
+   * @returns Observable<any>
+   */
   manageTP(courseId: number, tpNo: number): Observable<any> {
     return this.http
       .post(
@@ -397,9 +532,14 @@ export class ApiService {
       );
   }
 
-  /** POST start the submission process for a TP + manage TPstatus of it; on error, alert + re-throw */
+  /**
+   * Démarre le traitement de submission et gère les statuts (version 2).
+   * Enchaîne startProcessSubmission puis manageTP.
+   * @param courseId - L'identifiant du cours
+   * @param tpNo - Le numéro du TP
+   * @returns Observable<TP_Model>
+   */
   manageTPsubmissionv2(courseId: number, tpNo: number) {
-    // Démarrage du process de submission pour le TP
     return this.http
       .post<TP_Model>(
         `${API_URL}/course/${courseId}/startProcessSubmission/${tpNo}`,
@@ -412,7 +552,6 @@ export class ApiService {
           error: err => console.error('Erreur sur startProcessZip:', err)
         }),
         switchMap((tp) => {
-          // Gestion des TPstatus pour chaque étudiant
           return this.http.post<TP_Model>(`${API_URL}/course/${courseId}/manageTP/${tpNo}`, {});
         }),
         catchError((err: HttpErrorResponse) => {
@@ -422,7 +561,13 @@ export class ApiService {
       );
   }
 
-  /** POST start the submission process for a TP + manage TPstatus of it; on error, alert + re-throw */
+  /**
+   * Démarre le traitement de submission et gère les statuts.
+   * Enchaîne startProcessSubmission puis manageTP.
+   * @param courseId - L'identifiant du cours
+   * @param tpNo - Le numéro du TP
+   * @returns Observable<TP_Model>
+   */
   manageTPsubmission(courseId: number, tpNo: number): Observable<TP_Model> {
     const startUrl = `${API_URL}/course/${courseId}/startProcessSubmission/${tpNo}`;
     const manageUrl = `${API_URL}/course/${courseId}/manageTP/${tpNo}`;
@@ -436,19 +581,28 @@ export class ApiService {
     );
   }
 
-  /** GET download a TP structured file; on error, alert + re-throw */
+  /**
+   * Télécharge le fichier ZIP restructuré d'un TP.
+   * GET /course/{courseId}/downloadStructuredSubmission/{tpNo}
+   * @param courseId - L'identifiant du cours
+   * @param tpNo - Le numéro du TP
+   * @returns Observable<Blob>
+   */
   downloadTP(courseId: number, tpNo: number) {
     const downloadUrl = `${API_URL}/course/${courseId}/downloadStructuredSubmission/${tpNo}`;
     return this.http.get(downloadUrl, { responseType: 'blob' });
   }
 
   // ========================================
-  // TP STATUS operations
+  // STATUTS DE TP : Opérations CRUD
   // ========================================
 
   /**
-   * GET all TP statuses for a specific TP of a course
+   * Récupère tous les statuts de TP pour un TP spécifique.
    * GET /course/{courseId}/TPs/{tpNumber}/TPStatus
+   * @param courseId - L'identifiant du cours
+   * @param tpNumber - Le numéro du TP
+   * @returns Observable<TPStatusModel[]>
    */
   getAllTPStatusForTP(courseId: number, tpNumber: number): Observable<TPStatusModel[]> {
     return this.http
@@ -466,8 +620,11 @@ export class ApiService {
   }
 
   /**
-   * POST refresh TP statuses for a specific TP (updates or creates missing ones)
+   * Rafraîchit les statuts de TP (met à jour ou crée les manquants).
    * POST /course/{courseId}/TPs/{tpNumber}/TPStatusRefresh
+   * @param courseId - L'identifiant du cours
+   * @param tpNumber - Le numéro du TP
+   * @returns Observable<TPStatusModel[]>
    */
   refreshTPStatus(courseId: number, tpNumber: number): Observable<TPStatusModel[]> {
     return this.http
@@ -486,8 +643,10 @@ export class ApiService {
   }
 
   /**
-   * GET details of a specific TP status
+   * Récupère les détails d'un statut de TP.
    * GET /TPStatus/{statusId}
+   * @param statusId - L'identifiant du statut
+   * @returns Observable<TPStatusModel>
    */
   getTPStatusById(statusId: number): Observable<TPStatusModel> {
     return this.http
@@ -505,10 +664,11 @@ export class ApiService {
   }
 
   /**
-   * PUT update a TP status (change submission type)
+   * Met à jour un statut de TP (change le type de rendu).
    * PUT /TPStatus/{statusId}?submissionType={newType}
-   * @param statusId - The ID of the TPStatus to update
-   * @param newType - The new StudentSubmissionType
+   * @param statusId - L'identifiant du statut
+   * @param newType - Le nouveau type de rendu
+   * @returns Observable<TPStatusModel>
    */
   updateTPStatus(statusId: number, newType: StudentSubmissionType): Observable<TPStatusModel> {
     return this.http
@@ -527,8 +687,10 @@ export class ApiService {
   }
 
   /**
-   * DELETE a TP status
+   * Supprime un statut de TP.
    * DELETE /TPStatus/{statusId}
+   * @param statusId - L'identifiant du statut
+   * @returns Observable<void>
    */
   deleteTPStatus(statusId: number): Observable<void> {
     return this.http
@@ -546,10 +708,13 @@ export class ApiService {
   }
 
   // ========================================
-  // Error handling
+  // GESTION DES ERREURS
   // ========================================
 
-  /** Affiche une alert() et ne retourne rien */
+  /**
+   * Gère les erreurs HTTP en affichant une alerte.
+   * @param error - L'erreur HTTP reçue
+   */
   private handleError(error: HttpErrorResponse): void {
     const msg =
       error.error && typeof error.error === 'string'

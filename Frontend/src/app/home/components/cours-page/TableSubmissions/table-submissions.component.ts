@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, Output, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -19,6 +20,7 @@ import { ExportPdfComponent } from './export-pdf.component';
     standalone: true,
     imports: [
         CommonModule,
+        FormsModule,
         MatIconModule,
         MatButtonModule,
         MatTooltipModule,
@@ -44,6 +46,7 @@ export class TableSubmissionsComponent implements OnInit {
     isDownloading = false;
     processingTPs = new Set<number>(); // Track which TPs are being processed
     processingMapping = new Set<number>(); // Track which TPs are regenerating mapping
+    searchTerm = ''; // Search term for filtering students
 
 
     ngOnInit() {
@@ -52,9 +55,20 @@ export class TableSubmissionsComponent implements OnInit {
         console.log('TPs:', this.tps);
     }
 
-    // Getter that returns students sorted alphabetically by name
+    // Getter that returns students sorted alphabetically by name and filtered by search term
     get sortedStudents(): StudentModel[] {
-        return [...this.students].sort((a, b) => {
+        let filtered = [...this.students];
+
+        // Filter by search term if present
+        if (this.searchTerm.trim()) {
+            const searchLower = this.searchTerm.toLowerCase().trim();
+            filtered = filtered.filter(s =>
+                s.name?.toLowerCase().includes(searchLower)
+            );
+        }
+
+        // Sort alphabetically
+        return filtered.sort((a, b) => {
             const nameA = a.name?.toLowerCase() || '';
             const nameB = b.name?.toLowerCase() || '';
             return nameA.localeCompare(nameB);
@@ -415,7 +429,7 @@ export class TableSubmissionsComponent implements OnInit {
             case StudentSubmissionType.DONE:
                 return 'Rendu';
             case StudentSubmissionType.DONE_LATE:
-                return 'Rendu \n en retard';
+                return 'Rendu en retard';
             case StudentSubmissionType.DONE_GOOD:
                 return 'Bon rendu';
             case StudentSubmissionType.DONE_BUT_NOTHING:

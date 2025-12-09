@@ -5,9 +5,9 @@ import { tap, catchError } from 'rxjs/operators';
 import { TPStatusModel, StudentSubmissionType } from '../models/tpStatus.model';
 
 /**
- * Service for managing TPStatus operations.
- * Handles CRUD operations for student submission statuses in TPs.
- * Uses ApiService for HTTP requests.
+ * Service pour gérer les opérations sur les statuts des TPs.
+ * Gère les opérations CRUD pour les statuts de rendu des étudiants.
+ * Utilise ApiService pour les requêtes HTTP.
  */
 @Injectable({ providedIn: 'root' })
 export class TPStatusService {
@@ -15,12 +15,15 @@ export class TPStatusService {
     constructor(private api: ApiService) { }
 
     // ========================================
-    // TP STATUS OPERATIONS
+    // OPÉRATIONS SUR LES STATUTS DE TP
     // ========================================
 
     /**
-     * Get all TP statuses for a specific TP
+     * Récupère tous les statuts de rendu pour un TP spécifique.
      * GET /course/{courseId}/TPs/{tpNumber}/TPStatus
+     * @param courseId - L'identifiant du cours
+     * @param tpNumber - Le numéro du TP
+     * @returns Observable<TPStatusModel[]>
      */
     getAllTPStatusForTP(courseId: number, tpNumber: number): Observable<TPStatusModel[]> {
         return this.api.getAllTPStatusForTP(courseId, tpNumber).pipe(
@@ -33,8 +36,10 @@ export class TPStatusService {
     }
 
     /**
-     * Get details of a specific TP status
+     * Récupère les détails d'un statut de TP par son identifiant.
      * GET /TPStatus/{statusId}
+     * @param statusId - L'identifiant du statut
+     * @returns Observable<TPStatusModel>
      */
     getTPStatusById(statusId: number): Observable<TPStatusModel> {
         return this.api.getTPStatusById(statusId).pipe(
@@ -47,10 +52,11 @@ export class TPStatusService {
     }
 
     /**
-     * Update a TP status (change submission type)
+     * Met à jour un statut de TP (change le type de rendu).
      * PUT /TPStatus/{statusId}
-     * @param statusId - The ID of the TPStatus to update
-     * @param newType - The new StudentSubmissionType
+     * @param statusId - L'identifiant du statut à modifier
+     * @param newType - Le nouveau type de rendu (StudentSubmissionType)
+     * @returns Observable<TPStatusModel>
      */
     updateTPStatus(statusId: number, newType: StudentSubmissionType): Observable<TPStatusModel> {
         return this.api.updateTPStatus(statusId, newType).pipe(
@@ -63,8 +69,10 @@ export class TPStatusService {
     }
 
     /**
-     * Delete a TP status
+     * Supprime un statut de TP.
      * DELETE /TPStatus/{statusId}
+     * @param statusId - L'identifiant du statut à supprimer
+     * @returns Observable<void>
      */
     deleteTPStatus(statusId: number): Observable<void> {
         return this.api.deleteTPStatus(statusId).pipe(
@@ -77,20 +85,20 @@ export class TPStatusService {
     }
 
     // ========================================
-    // UTILITY METHODS
+    // MÉTHODES UTILITAIRES
     // ========================================
 
     /**
-     * Batch update multiple TP statuses
-     * Useful for bulk operations like marking multiple students as exempt
+     * Met à jour plusieurs statuts de TP en lot.
+     * Utile pour les opérations groupées comme marquer plusieurs étudiants comme exemptés.
+     * @param updates - Liste des mises à jour à effectuer
+     * @returns Observable<TPStatusModel[]>
      */
     batchUpdateStatuses(updates: Array<{ statusId: number; newType: StudentSubmissionType }>): Observable<TPStatusModel[]> {
         const updateObservables = updates.map(update =>
             this.updateTPStatus(update.statusId, update.newType)
         );
 
-        // Note: This returns an array of observables. In real usage, consider using forkJoin
-        // to execute them in parallel and wait for all to complete
         return new Observable(observer => {
             const results: TPStatusModel[] = [];
             let completed = 0;

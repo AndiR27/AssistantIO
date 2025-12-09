@@ -3,8 +3,7 @@ import { CourseType } from './courseType.model';
 import { StudyType } from './studyType.model';
 import { TPStatusModel } from './tpStatus.model';
 
-
-
+// Modèle détaillé d'un cours avec ses listes d'étudiants, TPs et évaluations
 export interface CourseDetailsModel {
   id?: number;
   name: string;
@@ -18,6 +17,7 @@ export interface CourseDetailsModel {
   evaluations: EvaluationModel[];
 }
 
+// Modèle d'un étudiant
 export interface StudentModel {
   id?: number;
   name: string;
@@ -25,20 +25,16 @@ export interface StudentModel {
   studyType: StudyType;
 }
 
+// Modèle d'une évaluation
 interface EvaluationModel {
-  // private Long id;
-  // private String name;
-  // private LocalDateTime date;
   id?: number;
   name: string;
   date: Date;
   submission: SubmissionModel;
 }
 
-
-
+// Modèle d'un TP (Travail Pratique)
 export interface TP_Model {
-
   id?: number;
   no: number;
   course: CourseDetailsModel
@@ -46,6 +42,7 @@ export interface TP_Model {
   statusStudents: TPStatusModel[];
 }
 
+// Modèle d'une soumission de fichier
 interface SubmissionModel {
   id?: number;
   fileName: string;
@@ -53,5 +50,5 @@ interface SubmissionModel {
   pathFileStructured: string;
 }
 
-// Re-export TPStatusModel for convenience
+// Ré-export de TPStatusModel pour faciliter les imports
 export type { TPStatusModel };

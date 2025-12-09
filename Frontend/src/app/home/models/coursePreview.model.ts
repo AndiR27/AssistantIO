@@ -1,8 +1,8 @@
 import { CourseType } from './courseType.model';
-import {SemesterType} from './semesterType.model';
+import { SemesterType } from './semesterType.model';
 
+// Modèle pour l'aperçu d'un cours (utilisé dans la liste des cours)
 export interface CoursePreview {
-
   id?: number;
   name: string;
   code: string;
@@ -11,5 +11,3 @@ export interface CoursePreview {
   teacher: string;
   courseType: CourseType;
 }
-
-// For creation, drop `id`

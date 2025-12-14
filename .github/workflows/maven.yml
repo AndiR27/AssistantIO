@@ -132,3 +132,19 @@ jobs:
           fi
           git tag "$tag"
           git push origin "refs/tags/$tag"
+    outputs:
+      next_tag: ${{ steps.version.outputs.next_tag }}
+  release:
+    needs: tag_version
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    permissions:
+      contents: write
+
+    steps:
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.tag_version.outputs.next_tag }}
+          name: AssistantIO — ${{ needs.tag_version.outputs.next_tag }}
+          generate_release_notes: true

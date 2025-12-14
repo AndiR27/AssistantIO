@@ -1,6 +1,7 @@
 # AssistantIO — Fullstack Application (Spring Boot + Angular)
 
 <p align="center">
+   <img src="https://img.shields.io/github/v/tag/AndiR27/AssistantIO?label=version&style=for-the-badge" />
   <img src="https://img.shields.io/badge/Spring%20Boot-3.3+-6DB33F?style=for-the-badge&logo=springboot&logoColor=white"/>
   <img src="https://img.shields.io/badge/Angular-17+-DD0031?style=for-the-badge&logo=angular&logoColor=white"/>
   <img src="https://img.shields.io/badge/PostgreSQL-15+-4169E1?style=for-the-badge&logo=postgresql&logoColor=white"/>

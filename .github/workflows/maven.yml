@@ -52,3 +52,83 @@ jobs:
       - name: Build Spring Boot backend with Maven
         run: mvn -B clean package
         working-directory: BackendSpring
+
+  # =====================================
+  # TAGGING AUTOMATIQUE SUR MAIN (fix/minor/major via message de commit)
+  # =====================================
+  tag_version:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Checkout repository (full history for tags)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine bump type from commit message (major/minor/fix)
+        id: bump
+        run: |
+          msg="$(git log -1 --pretty=%B)"
+          echo "Last commit message:"
+          echo "-------------------"
+          echo "$msg"
+          echo "-------------------"
+  
+          # priorité: major > minor > fix
+          if echo "$msg" | grep -Eiq '(^|[^a-z])major([^a-z]|$)'; then
+            bump="major"
+          elif echo "$msg" | grep -Eiq '(^|[^a-z])minor([^a-z]|$)'; then
+            bump="minor"
+          elif echo "$msg" | grep -Eiq '(^|[^a-z])fix([^a-z]|$)'; then
+            bump="fix"
+          else
+            bump="fix" # fallback safe
+          fi
+  
+          echo "bump=$bump" >> "$GITHUB_OUTPUT"
+          echo "Selected bump type: $bump"
+
+      - name: Determine next semantic version tag
+        id: version
+        run: |
+          latest_tag=$(git tag --list "v*" --sort=-v:refname | head -n 1)
+  
+          if [ -z "$latest_tag" ]; then
+            echo "No existing tags → starting at v0.1.0"
+            major=0
+            minor=1
+            patch=0
+          else
+            echo "Latest tag: $latest_tag"
+            version=${latest_tag#v}
+            IFS='.' read -r major minor patch <<< "$version"
+          fi
+  
+          bump="${{ steps.bump.outputs.bump }}"
+  
+          if [ "$bump" = "major" ]; then
+            major=$((major + 1))
+            minor=0
+            patch=0
+          elif [ "$bump" = "minor" ]; then
+            minor=$((minor + 1))
+            patch=0
+          else
+            patch=$((patch + 1))
+          fi
+  
+          next_tag="v${major}.${minor}.${patch}"
+          echo "Next tag will be: $next_tag"
+          echo "next_tag=$next_tag" >> "$GITHUB_OUTPUT"
+
+      - name: Create and push tag (skip if already exists)
+        run: |
+          tag="${{ steps.version.outputs.next_tag }}"
+          if git rev-parse "$tag" >/dev/null 2>&1; then
+            echo "Tag $tag already exists. Skipping."
+            exit 0
+          fi
+          git tag "$tag"
+          git push origin "refs/tags/$tag"

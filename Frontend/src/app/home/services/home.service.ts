@@ -31,7 +31,7 @@ export class HomeService {
   getCoursePreviews(): Observable<CoursePreview[]> {
     console.log('getCoursePreviews called');
     return this.api.getAllCourses().pipe(
-      tap(res => console.log('API ', this.api.getRoute(this.baseURL + "/all"), ' raw response:', res)),
+      tap(res => console.log('API ', this.api.getRoute(this.baseURL), ' raw response:', res)),
       map((res: any) => {
         const arr: any[] = Array.isArray(res)
           ? res

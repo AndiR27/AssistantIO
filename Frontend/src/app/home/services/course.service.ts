@@ -251,7 +251,7 @@ export class CourseService {
 
   /**
    * Télécharge le fichier ZIP restructuré d'un TP.
-   * GET /course/{courseId}/downloadRestructuredZip/{tpNo}
+   * GET /course/{courseId}/downloadStructuredSubmission/{tpNo}
    * @param courseId - L'identifiant du cours
    * @param tpNo - Le numéro du TP
    * @returns Observable<Blob>

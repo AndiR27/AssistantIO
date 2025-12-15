@@ -1,6 +1,12 @@
 <!-- src/app/home/components/cours-form.component.html -->
 <form [formGroup]="form" (ngSubmit)="submit()" class="course-form">
 
+  <!-- Section Header -->
+  <div class="form-header">
+    <mat-icon class="form-header-icon">add_box</mat-icon>
+    <h2 class="form-header-title">Ajouter un nouveau cours</h2>
+  </div>
+
   <div class="form-grid">
     <!-- Nom du cours -->
     <mat-form-field appearance="outline" class="full-width">

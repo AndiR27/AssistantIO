@@ -1,18 +1,38 @@
 <!-- HEADER COMMUN -->
 <header class="site-header">
   <div class="header-inner">
-    <!-- Logo with icon -->
-    <div class="header-logo">
-      <mat-icon class="logo-icon">school</mat-icon>
-      <span class="logo-text">{{ title }}</span>
-    </div>
-
-    <!-- Navigation -->
+    <!-- Navigation (left) -->
     <nav class="header-nav">
       <a href="/home" class="nav-link">
         <mat-icon>home</mat-icon>
         <span>Accueil</span>
       </a>
     </nav>
+
+    <!-- Logo (center) -->
+    <div class="header-logo">
+      <mat-icon class="logo-icon">school</mat-icon>
+      <span class="logo-text">{{ title }}</span>
+    </div>
+
+    <!-- User section (right, stacked) -->
+    <div class="user-section">
+      <ng-container *ngIf="isAuthenticated; else loginBtn">
+        <div class="user-info">
+          <mat-icon>person</mat-icon>
+          <span class="user-name">{{ userName }}</span>
+        </div>
+        <button class="logout-btn" (click)="logout()">
+          <mat-icon>logout</mat-icon>
+          <span>Déconnexion</span>
+        </button>
+      </ng-container>
+      <ng-template #loginBtn>
+        <button class="login-btn" (click)="login()">
+          <mat-icon>login</mat-icon>
+          <span>Connexion</span>
+        </button>
+      </ng-template>
+    </div>
   </div>
 </header>

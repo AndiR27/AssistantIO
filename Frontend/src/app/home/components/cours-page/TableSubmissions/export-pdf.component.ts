@@ -21,7 +21,9 @@ export class ExportPdfComponent {
      * @param course Détails du cours (optionnel) pour le titre et le nom du fichier
      */
     generatePDF(students: StudentModel[], tps: TP_Model[], threshold: number, course?: CourseDetailsModel): void {
-        const doc = new jsPDF();
+        // Use landscape orientation if more than 8 TPs to fit all columns
+        const orientation = tps.length > 8 ? 'landscape' : 'portrait';
+        const doc = new jsPDF({ orientation });
 
         this.addPdfHeader(doc, threshold, course);
         this.addLegend(doc);
@@ -175,12 +177,12 @@ export class ExportPdfComponent {
             startY: 48,
             theme: 'grid',
             styles: {
-                fontSize: 11,
-                cellPadding: 3,
+                fontSize: 10,
+                cellPadding: 2,
                 lineWidth: 0.3,
                 lineColor: [100, 100, 100],
                 cellWidth: 'auto',
-                minCellWidth: 15,
+                minCellWidth: 12,
             },
             headStyles: {
                 fillColor: [63, 81, 181],

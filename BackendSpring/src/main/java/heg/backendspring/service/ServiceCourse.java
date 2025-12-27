@@ -73,6 +73,16 @@ public class ServiceCourse {
     }
 
     /**
+     * Trouver tous les cours par une liste d'id
+     */
+    public List<CourseDto> findAllById(List<Long> ids) {
+        return repositoryCourse.findAllById(ids)
+                .stream()
+                .map(mapperCourse::toDto)
+                .toList();
+    }
+
+    /**
      * Ajouter un cours
      */
     @Transactional
@@ -468,6 +478,7 @@ public class ServiceCourse {
         }
 
     }
+
 
 
 }

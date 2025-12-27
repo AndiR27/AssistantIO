@@ -2,11 +2,15 @@ package heg.backendspring.rest;
 
 import heg.backendspring.api.AdminCourseApi;
 import heg.backendspring.models.CourseDto;
+import heg.backendspring.security.SecurityUtils;
+import heg.backendspring.security.course_access.ServiceCourseAccess;
 import heg.backendspring.service.ServiceCourse;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.NativeWebRequest;
 
@@ -16,9 +20,13 @@ import java.util.Optional;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
+
 public class ControllerAdmin implements AdminCourseApi {
 
     private final ServiceCourse serviceCourse;
+    private final ServiceCourseAccess serviceCourseAccess;
+    private final SecurityUtils securityUtils;
+
 
 
     @Override
@@ -45,8 +53,17 @@ public class ControllerAdmin implements AdminCourseApi {
 
     @Override
     public ResponseEntity<List<CourseDto>> adminGetCourses() {
-        log.info("Getting all courses");
-        return ResponseEntity.ok(serviceCourse.findAllCourses());
+        List<CourseDto> courses;
+
+        if (securityUtils.isGlobalAdmin()) {
+            courses = serviceCourse.findAllCourses();
+        } else {
+            List<Long> ids = serviceCourseAccess.getAccessibleCourseIds(
+                    securityUtils.getCurrentUserId()
+            );
+            courses = ids.isEmpty() ? List.of() : serviceCourse.findAllById(ids);
+        }
+        return ResponseEntity.ok(courses);
     }
 
     @Override

@@ -127,6 +127,12 @@
             <artifactId>jakarta.annotation-api</artifactId>
         </dependency>
 
+        <!-- Dependances pour AOP -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+
 
     </dependencies>
 

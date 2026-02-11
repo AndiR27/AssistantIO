@@ -26,6 +26,8 @@ tags:
     description: Gestion des soumissions de TP
   - name: tp-status
     description: Gestion des statuts des étudiants pour un TP
+  - name: evaluation
+    description: Gestion des évaluations des cours
 
 
 
@@ -43,6 +45,9 @@ x-tagGroups:
   - name: TP Status
     tags:
       - tp-status
+  - name: Evaluation
+    tags:
+      - evaluation
 
 
 # ==============================
@@ -537,66 +542,66 @@ paths:
           description: TP ou cours introuvable.
         '500':
           description: Erreur interne.
-  # ========================================
-  #   EVALUATIONS D’UN COURS
-  #  /course/{courseId}/evaluations:
-  #    get:
-  #      tags: [evaluation]
-  #      summary: Liste des évaluations d’un cours.
-  #      description: Retourne les évaluations associées à un cours.
-  #      operationId: getEvaluationsByCourse
-  #      parameters:
-  #        - name: courseId
-  #          in: path
-  #          required: true
-  #          description: Identifiant du cours.
-  #          schema:
-  #            type: integer
-  #            format: int64
-  #      responses:
-  #        '200':
-  #          description: Liste d’évaluations retournée.
-  #          content:
-  #            application/json:
-  #              schema:
-  #                type: array
-  #                items:
-  #                  $ref: '#/components/schemas/EvaluationDto'
-  #        '404':
-  #          description: Cours introuvable.
-  #        '500':
-  #          description: Erreur interne.
-  #    post:
-  #      tags: [evaluation]
-  #      summary: Création d’une évaluation.
-  #      description: Crée une nouvelle évaluation pour un cours.
-  #      operationId: createEvaluation
-  #      parameters:
-  #        - name: courseId
-  #          in: path
-  #          required: true
-  #          description: Identifiant du cours.
-  #          schema:
-  #            type: integer
-  #            format: int64
-  #      requestBody:
-  #        description: Données de l’évaluation.
-  #        required: true
-  #        content:
-  #          application/json:
-  #            schema:
-  #              $ref: '#/components/schemas/EvaluationDto'
-  #      responses:
-  #        '201':
-  #          description: Évaluation créée.
-  #          content:
-  #            application/json:
-  #              schema:
-  #                $ref: '#/components/schemas/EvaluationDto'
-  #        '404':
-  #          description: Cours introuvable.
-  #        '500':
-  #          description: Erreur interne.
+  #========================================
+  #EVALUATIONS D’UN COURS
+  /course/{courseId}/evaluations:
+    get:
+      tags: [ course ]
+      summary: Liste des évaluations d’un cours.
+      description: Retourne les évaluations associées à un cours.
+      operationId: getEvaluationsByCourse
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Liste d’évaluations retournée.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EvaluationDto'
+        '404':
+          description: Cours introuvable.
+        '500':
+          description: Erreur interne.
+    post:
+      tags: [ course ]
+      summary: Création d’une évaluation.
+      description: Crée une nouvelle évaluation pour un cours.
+      operationId: createEvaluationInCourse
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Données de l’évaluation.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvaluationDto'
+      responses:
+        '201':
+          description: Évaluation créée.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluationDto'
+        '404':
+          description: Cours introuvable.
+        '500':
+          description: Erreur interne.
   #
   #  /course/{courseId}/evaluations/{evalId}:
   #    put:
@@ -964,6 +969,195 @@ paths:
         '500':
           description: Erreur interne.
 
+  # ========================================
+  #   RESSOURCE EVALUATION
+  # ========================================
+  /evaluations/{evaluationId}:
+    get:
+      tags: [ evaluation ]
+      summary: Détail d’une évaluation.
+      description: Retourne une évaluation spécifique.
+      operationId: getEvaluationById
+      parameters:
+        - name: evaluationId
+          in: path
+          required: true
+          description: Identifiant de l’évaluation.
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Évaluation trouvée.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluationDto'
+        '404':
+          description: Évaluation introuvable.
+
+    put:
+      tags: [ evaluation ]
+      summary: Mise à jour d’une évaluation.
+      description: Met à jour une évaluation existante.
+      operationId: updateEvaluation
+      parameters:
+        - name: evaluationId
+          in: path
+          required: true
+          description: Identifiant de l’évaluation.
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Données mises à jour de l’évaluation.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvaluationDto'
+      responses:
+        '200':
+          description: Évaluation mise à jour.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluationDto'
+        '400':
+          description: Données invalides.
+        '404':
+          description: Évaluation introuvable.
+
+    delete:
+      tags: [ evaluation ]
+      summary: Suppression d’une évaluation.
+      description: Supprime une évaluation existante.
+      operationId: deleteEvaluation
+      parameters:
+        - name: evaluationId
+          in: path
+          required: true
+          description: Identifiant de l’évaluation.
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Évaluation supprimée.
+        '404':
+          description: Évaluation introuvable.
+
+  /evaluations:
+    post:
+      tags: [ evaluation ]
+      summary: Création d’une évaluation.
+      description: Crée une nouvelle évaluation.
+      operationId: createEvaluation
+      requestBody:
+        description: Données de l’évaluation.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvaluationDto'
+      responses:
+        '201':
+          description: Évaluation créée.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluationDto'
+        '400':
+          description: Données invalides.
+
+  /evaluations/{evaluationId}/submission:
+    post:
+      tags: [ evaluation ]
+      summary: Ajouter un rendu ZIP à une évaluation.
+      description: Ajoute un fichier ZIP (rendu Cyberlearn) à une évaluation.
+      operationId: uploadSubmissionZipForEvaluation
+      parameters:
+        - name: evaluationId
+          in: path
+          required: true
+          description: Identifiant de l’évaluation.
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Fichier ZIP du rendu.
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [ file ]
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Submission ajoutée à l’évaluation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluationDto'
+        '400':
+          description: Fichier invalide ou erreur lors de la copie.
+        '404':
+          description: Évaluation introuvable.
+
+  /evaluations/{evaluationId}/submission/process:
+    post:
+      tags: [ evaluation ]
+      summary: Lancer le traitement du rendu ZIP d’une évaluation.
+      description: Déclenche le traitement du fichier ZIP associé à l’évaluation.
+      operationId: startEvaluationSubmissionZipProcess
+      parameters:
+        - name: evaluationId
+          in: path
+          required: true
+          description: Identifiant de l’évaluation.
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Traitement lancé.
+        '404':
+          description: Évaluation introuvable.
+        '500':
+          description: Erreur lors du traitement.
+
+  /evaluations/{evaluationId}/submission/restructurated:
+    get:
+      tags: [ evaluation ]
+      summary: Télécharger le ZIP restructuré d’une évaluation.
+      description: Récupère le fichier ZIP restructuré généré après traitement.
+      operationId: downloadRestructuredSubmissionZipForEvaluation
+      parameters:
+        - name: evaluationId
+          in: path
+          required: true
+          description: Identifiant de l’évaluation.
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Fichier ZIP restructuré.
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+        '204':
+          description: Aucun fichier restructuré disponible.
+        '404':
+          description: Évaluation introuvable.
+
+
 # ==============================
 #   SCHEMAS (DTO)
 # ==============================
@@ -1209,3 +1403,12 @@ components:
         studentId: 300
         tpId: 10
         studentSubmission: true
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []

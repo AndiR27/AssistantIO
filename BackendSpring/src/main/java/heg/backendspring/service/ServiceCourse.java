@@ -2,12 +2,14 @@ package heg.backendspring.service;
 
 
 import heg.backendspring.entity.Course;
+import heg.backendspring.entity.Evaluation;
 import heg.backendspring.entity.Student;
 import heg.backendspring.entity.TP;
 import heg.backendspring.enums.StudyType;
 import heg.backendspring.exception.CourseErrorCode;
 import heg.backendspring.exception.CourseException;
 import heg.backendspring.mapping.MapperCourse;
+import heg.backendspring.mapping.MapperEvaluation;
 import heg.backendspring.mapping.MapperStudent;
 import heg.backendspring.mapping.MapperTP;
 import heg.backendspring.models.*;
@@ -48,6 +50,8 @@ public class ServiceCourse {
     private final MapperTP mapperTP;
     private final ServiceSubmission serviceSubmission;
     private final ServiceTP serviceTP;
+    private final ServiceEvaluation serviceEvaluation;
+    private final MapperEvaluation mapperEvaluation;
 
 
     //==============================
@@ -327,6 +331,33 @@ public class ServiceCourse {
     }
 
     //TODO : Méthodes pour gérer les évaluations, exams...
+    /**
+     * Méthode permettant de récupérer les évaluations d'un cours
+     */
+    public List<EvaluationDto> getAllEvaluationsFromCourse(Long idCourse){
+        return serviceEvaluation.getAllEvaluationsFromCourse(idCourse);
+    }
+
+    /**
+     * Méthode permettant d'ajouter une évaluation à un cours (en la créant)
+     * @param idCourse
+     * @param evaluationDto
+     * @return
+     */
+    @Transactional
+    public EvaluationDto addEvaluationToCourse(Long idCourse, EvaluationDto evaluationDto){
+        Optional<Course> courseOpt = repositoryCourse.findById(idCourse);
+        if(courseOpt.isEmpty()){
+            throw new EntityNotFoundException("Course not found with id: " + idCourse);
+        }
+        //Evaluation eval = mapperEvaluation.toEntity(serviceEvaluation.createEvaluation(evaluationDto));
+        Evaluation eval = mapperEvaluation.toEntity(evaluationDto);
+        courseOpt.get().getEvaluations().add(eval);
+        eval.setCourse(courseOpt.get());
+        repositoryCourse.save(courseOpt.get());
+        log.info("Added evaluation {} to course {}", evaluationDto.name(), idCourse);
+        return mapperEvaluation.toDto(eval);
+    }
 
     /**
      * Méthode permettant d'ajouter un rendu zip pour un TP d'un cours
@@ -358,8 +389,7 @@ public class ServiceCourse {
                         "TP number " + idTp + " not found for course id: " + idCours
                 ));
         log.info("Starting zip process for course id={} tp no={}", idCours, idTp);
-        serviceSubmission.processZipSubmission(course, tp);
-
+        serviceSubmission.processZipSubmissionForTP(course, tp);
     }
 
     /**

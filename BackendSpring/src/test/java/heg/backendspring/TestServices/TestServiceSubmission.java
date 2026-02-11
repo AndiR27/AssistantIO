@@ -143,7 +143,7 @@ class TestServiceSubmission {
 
     @Test
     @DisplayName("startZipProcess - ZIP is processed + paths are correct")
-    void testProcessZipSubmission_setPathsAndSave() throws Exception {
+    void testProcessZipSubmission_ForTP_setPathsAndSave() throws Exception {
 
         Course course = new Course();
         course.setId(10L);
@@ -158,7 +158,7 @@ class TestServiceSubmission {
         submission.setPathStorage(testZipInput.toString());
         tp.setSubmission(submission);
 
-        serviceSubmission.processZipSubmission(course, tp);
+        serviceSubmission.processZipSubmissionForTP(course, tp);
 
         assertNotNull(tp.getSubmission());
         assertNotNull(tp.getSubmission().getPathFileStructured());
@@ -169,7 +169,7 @@ class TestServiceSubmission {
 
     @Test
     @DisplayName("processZipSubmission - aucune submission sur le TP => ne fait rien")
-    void testProcessZipSubmission_withoutSubmission_doesNothing() throws IOException {
+    void testProcessZipSubmission_withoutSubmission_ForTP_doesNothing() throws IOException {
 
         Course course = new Course();
         course.setId(10L);
@@ -183,7 +183,7 @@ class TestServiceSubmission {
         tp.setSubmission(null);
 
         // Appel de la méthode
-        serviceSubmission.processZipSubmission(course, tp);
+        serviceSubmission.processZipSubmissionForTP(course, tp);
 
         // Aucun changement sur le TP
         assertNull(tp.getSubmission());
@@ -194,7 +194,7 @@ class TestServiceSubmission {
 
     @Test
     @DisplayName("processZipSubmission - courseType null => restructuration quand même")
-    void testProcessZipSubmission_withNullCourseType_stillWorks() throws IOException {
+    void testProcessZipSubmission_ForTP_withNullCourseType_stillWorks() throws IOException {
 
         Course course = new Course();
         course.setId(30L);
@@ -213,7 +213,7 @@ class TestServiceSubmission {
         submission.setPathStorage(testZipInput.toString());
         tp.setSubmission(submission);
 
-        serviceSubmission.processZipSubmission(course, tp);
+        serviceSubmission.processZipSubmissionForTP(course, tp);
 
         Submission updated = tp.getSubmission();
         assertNotNull(updated);
@@ -250,7 +250,7 @@ class TestServiceSubmission {
         tp.setSubmission(submission);
 
         // Traitement du ZIP
-        serviceSubmission.processZipSubmission(course, tp);
+        serviceSubmission.processZipSubmissionForTP(course, tp);
 
         assertNotNull(tp.getSubmission());
         assertNotNull(tp.getSubmission().getPathFileStructured());
@@ -290,7 +290,7 @@ class TestServiceSubmission {
 
     @Test
     @DisplayName("processZipSubmission - ne plante pas si un rendu est en 7zip dans test_zip.zip")
-    void testProcessZipSubmission_contains7zipFile() throws IOException {
+    void testProcessZipSubmission_contains7ZipFileForTP() throws IOException {
 
         // ----- Arrange -----
         // testZipInput est déjà initialisé dans @BeforeEach
@@ -323,7 +323,7 @@ class TestServiceSubmission {
         tp.setSubmission(submission);
 
         // ----- Act -----
-        serviceSubmission.processZipSubmission(course, tp);
+        serviceSubmission.processZipSubmissionForTP(course, tp);
 
         // ----- Assert -----
         Submission updated = tp.getSubmission();

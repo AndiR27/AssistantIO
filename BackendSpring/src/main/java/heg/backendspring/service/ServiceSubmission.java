@@ -1,6 +1,7 @@
 package heg.backendspring.service;
 
 import heg.backendspring.entity.Course;
+import heg.backendspring.entity.Evaluation;
 import heg.backendspring.entity.Submission;
 import heg.backendspring.entity.TP;
 import heg.backendspring.mapping.MapperSubmission;
@@ -49,6 +50,44 @@ public class ServiceSubmission {
     }
 
     /**
+     * Lancer une restructuration du rendu d'un TP
+     */
+    @Transactional
+    public void processZipSubmissionForTP(Course c, TP tp) throws IOException {
+        Submission submission = tp.getSubmission();
+        if (submission == null) {
+            log.error("Aucune soumission trouvée pour le TP id {} du cours {}", tp.getId(), c.getName());
+            return;
+        }
+        //gérer le type de cours
+        if (c.getCourseType() != null) {
+            typeCours = String.valueOf(c.getCourseType());
+        }
+
+        log.info("Starting restructuring for TP {} of course {} with submission id {}", tp.getNo(), c.getName(), submission.getId());
+        processZipSubmission(submission, "TP" + tp.getNo() + "_RenduRestructuration.zip");
+    }
+
+    /**
+     * Lancer une restructuration du rendu d'un TP
+     */
+    @Transactional
+    public void processZipSubmissionForEvaluation(Course c, Evaluation evaluation) throws IOException {
+        Submission submission = evaluation.getSubmission();
+        if (submission == null) {
+            log.error("Aucune soumission trouvée pour le l'evaluation id {} du cours {}", evaluation.getId(), c.getName());
+            return;
+        }
+        //gérer le type de cours
+        if (c.getCourseType() != null) {
+            typeCours = String.valueOf(c.getCourseType());
+        }
+
+        log.info("Starting restructuring for Evaluation {} of course {} with submission id {}", evaluation.getName(), c.getName(), submission.getId());
+        processZipSubmission(submission, evaluation.getName() + "_RenduRestructuration.zip");
+    }
+
+    /**
      * Methode permettant de restructurer le rendu d'un fichier zip
      * <p>
      * Logique de restructuration : Chaque dossier dans le zip est un étudiant (le
@@ -72,18 +111,7 @@ public class ServiceSubmission {
      * Une entité TP a les infos de stockage du zip d'origine
      */
     @Transactional
-    public void processZipSubmission(Course c, TP tp) throws IOException {
-        Submission submission = tp.getSubmission();
-        if (submission == null) {
-            log.error("Aucune soumission trouvée pour le TP id {} du cours {}", tp.getId(), c.getName());
-            return;
-        }
-        //gérer le type de cours
-        if (c.getCourseType() != null) {
-            typeCours = String.valueOf(c.getCourseType());
-        }
-
-        log.info("Starting restructuring for TP {} of course {} with submission id {}", tp.getNo(), c.getName(), submission.getId());
+    public void processZipSubmission(Submission submission, String nomZipRestructure) throws IOException {
 
         // chemin vers le zip d'origine
         Path originalZip = Paths.get(submission.getPathStorage());
@@ -106,7 +134,6 @@ public class ServiceSubmission {
         browseStudentFolders(tpmExtractDir, restructurationDir);
 
         //Créez un zip global pour le dossier de restructuration
-        String nomZipRestructure = "TP" + tp.getNo() + "_RenduRestructuration.zip";
         Path zipRestructure = tpRoot.resolve(nomZipRestructure);
         ZipUtils.zipDirectory(restructurationDir, zipRestructure);
 

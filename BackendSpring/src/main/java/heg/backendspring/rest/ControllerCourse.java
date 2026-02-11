@@ -129,6 +129,8 @@ public class ControllerCourse implements CourseApi, SubmissionApi {
         return ResponseEntity.status(201).body(serviceCourse.addTPtoCourse(courseId, tpNumber));
     }
 
+
+
     @Override
     public ResponseEntity<Void> deleteTP(Long courseId, Integer tpNumber) {
         serviceCourse.deleteTPFromCourseByNo(courseId, tpNumber);
@@ -165,5 +167,17 @@ public class ControllerCourse implements CourseApi, SubmissionApi {
 
     }
 
+    //==============================
+    //    COURSE EVALUATION METHODS
+    //==============================
+    @Override
+    public ResponseEntity<List<EvaluationDto>> getEvaluationsByCourse(Long courseId) {
+        return ResponseEntity.ok().body(serviceCourse.getAllEvaluationsFromCourse(courseId));
+    }
+
+    @Override
+    public ResponseEntity<EvaluationDto> createEvaluationInCourse(Long courseId, EvaluationDto evaluationDto) {
+        return ResponseEntity.status(201).body(serviceCourse.addEvaluationToCourse(courseId, evaluationDto));
+    }
 
 }

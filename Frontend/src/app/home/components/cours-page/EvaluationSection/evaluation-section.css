@@ -1,0 +1,756 @@
+/* ============================================
+   EVALUATION SECTION - Bold Editorial Design
+   Aesthetic: Magazine-inspired, geometric accents
+============================================ */
+
+/* CSS Custom Properties */
+:host {
+  --eval-primary: #6366f1;
+  --eval-primary-dark: #4f46e5;
+  --eval-accent: #f59e0b;
+  --eval-success: #10b981;
+  --eval-surface: #ffffff;
+  --eval-surface-alt: #f8fafc;
+  --eval-text: #0f172a;
+  --eval-text-muted: #64748b;
+  --eval-border: #e2e8f0;
+  --eval-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --eval-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --eval-radius: 16px;
+  --eval-radius-sm: 8px;
+}
+
+/* Section Container */
+.evaluation-section {
+  background: var(--eval-surface);
+  border-radius: var(--eval-radius);
+  padding: 2rem;
+  box-shadow: var(--eval-shadow);
+  border: 1px solid var(--eval-border);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle background pattern */
+.evaluation-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ============================================
+   SECTION HEADER
+============================================ */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-icon {
+  width: 52px;
+  height: 52px;
+  background: linear-gradient(135deg, var(--eval-primary) 0%, var(--eval-primary-dark) 100%);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+}
+
+.header-icon mat-icon {
+  color: white;
+  font-size: 26px;
+  width: 26px;
+  height: 26px;
+}
+
+.header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.section-title {
+  font-family: 'DM Sans', 'Poppins', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--eval-text);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.section-subtitle {
+  font-size: 0.9rem;
+  color: var(--eval-text-muted);
+  margin: 0;
+}
+
+.header-badge {
+  background: var(--eval-surface-alt);
+  border: 2px solid var(--eval-primary);
+  border-radius: 50px;
+  padding: 0.5rem 1rem;
+}
+
+.header-badge .count {
+  font-weight: 700;
+  color: var(--eval-primary);
+  font-size: 1rem;
+}
+
+/* ============================================
+   EVALUATIONS ROW (Horizontal Scroll)
+============================================ */
+.evaluations-row {
+  display: flex;
+  gap: 1.25rem;
+  overflow-x: auto;
+  padding: 0.5rem 0.25rem 1rem 0.25rem;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--eval-primary) transparent;
+}
+
+.evaluations-row::-webkit-scrollbar {
+  height: 6px;
+}
+
+.evaluations-row::-webkit-scrollbar-track {
+  background: var(--eval-surface-alt);
+  border-radius: 3px;
+}
+
+.evaluations-row::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, var(--eval-primary), var(--eval-primary-dark));
+  border-radius: 3px;
+}
+
+/* ============================================
+   EVALUATION CARD
+============================================ */
+.evaluation-card {
+  flex-shrink: 0;
+  width: 220px;
+  background: var(--eval-surface);
+  border-radius: var(--eval-radius);
+  border: 1px solid var(--eval-border);
+  box-shadow: var(--eval-shadow);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.evaluation-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--eval-shadow-lg);
+  border-color: var(--eval-primary);
+}
+
+/* ============================================
+   DRAG & DROP
+============================================ */
+
+/* Drag handle */
+.drag-handle {
+  position: absolute;
+  top: 12px;
+  left: 8px;
+  cursor: grab;
+  opacity: 0;
+  transition: opacity 0.2s;
+  z-index: 2;
+  color: var(--eval-text-muted);
+}
+
+.drag-handle mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.evaluation-card:hover .drag-handle {
+  opacity: 0.6;
+}
+
+.drag-handle:hover {
+  opacity: 1 !important;
+  color: var(--eval-primary);
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+/* Placeholder shown in the drop zone */
+.drag-placeholder {
+  width: 220px;
+  min-height: 180px;
+  border-radius: var(--eval-radius);
+  border: 2px dashed var(--eval-primary);
+  background: rgba(99, 102, 241, 0.06);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+}
+
+/* Card while being dragged */
+.cdk-drag-preview {
+  border-radius: var(--eval-radius);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+  opacity: 0.92;
+  transform: scale(1.03);
+}
+
+/* Animate other items moving out of the way */
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-accent {
+  height: 5px;
+  background: linear-gradient(90deg, var(--eval-primary) 0%, var(--eval-accent) 100%);
+}
+
+.card-accent.adding {
+  background: linear-gradient(90deg, var(--eval-success) 0%, #34d399 100%);
+}
+
+.card-content {
+  padding: 1.25rem;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.eval-number {
+  font-family: 'DM Sans', monospace;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--eval-text-muted);
+  background: var(--eval-surface-alt);
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+}
+
+.eval-type-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--eval-primary);
+  background: rgba(99, 102, 241, 0.1);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.eval-name {
+  font-family: 'DM Sans', 'Poppins', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--eval-text);
+  margin: 0 0 1rem 0;
+  line-height: 1.3;
+}
+
+.eval-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--eval-text-muted);
+}
+
+.detail-item mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: var(--eval-text-muted);
+}
+
+.detail-item.coeff mat-icon {
+  color: var(--eval-accent);
+}
+
+.card-actions {
+  position: absolute;
+  top: 1rem;
+  right: 0.75rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.evaluation-card:hover .card-actions {
+  opacity: 1;
+}
+
+.edit-btn {
+  background: var(--eval-surface) !important;
+  box-shadow: var(--eval-shadow);
+}
+
+.edit-btn mat-icon {
+  font-size: 18px;
+  color: var(--eval-text-muted);
+}
+
+/* ============================================
+   EDIT MODE ON CARD
+============================================ */
+.evaluation-card.editing {
+  width: 260px;
+  border-color: var(--eval-primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15), var(--eval-shadow-lg);
+  transform: translateY(-2px);
+  animation: expandCard 0.3s ease-out;
+}
+
+@keyframes expandCard {
+  from {
+    width: 220px;
+    opacity: 0.8;
+  }
+
+  to {
+    width: 260px;
+    opacity: 1;
+  }
+}
+
+.evaluation-card.editing .card-accent {
+  background: linear-gradient(90deg, var(--eval-primary) 0%, #818cf8 100%);
+  height: 5px;
+}
+
+.card-content.edit-mode {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.edit-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--eval-primary);
+  background: rgba(99, 102, 241, 0.1);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.edit-badge mat-icon {
+  font-size: 12px;
+  width: 12px;
+  height: 12px;
+}
+
+.edit-field {
+  width: 100%;
+  font-size: 0.85rem;
+}
+
+.edit-field .mat-mdc-form-field-infix {
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+  min-height: unset !important;
+}
+
+.edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.cancel-edit-btn {
+  color: var(--eval-text-muted) !important;
+}
+
+.cancel-edit-btn:hover {
+  background: rgba(0, 0, 0, 0.04) !important;
+}
+
+.save-edit-btn {
+  background: linear-gradient(135deg, var(--eval-primary) 0%, var(--eval-primary-dark) 100%) !important;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35) !important;
+}
+
+.save-edit-btn[disabled] {
+  opacity: 0.5 !important;
+  box-shadow: none !important;
+}
+
+.save-edit-btn mat-icon {
+  font-size: 18px;
+}
+
+/* ============================================
+   ADD CARD BUTTON
+============================================ */
+.add-card {
+  flex-shrink: 0;
+  width: 140px;
+  min-height: 180px;
+  background: linear-gradient(135deg, var(--eval-surface-alt) 0%, #f1f5f9 100%);
+  border-radius: var(--eval-radius);
+  border: 2px dashed var(--eval-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.add-card:hover {
+  border-color: var(--eval-primary);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(99, 102, 241, 0.1) 100%);
+  transform: scale(1.02);
+}
+
+.add-card:hover .add-icon-container {
+  background: var(--eval-primary);
+  transform: rotate(90deg);
+}
+
+.add-card:hover .add-icon {
+  color: white;
+}
+
+.add-card:hover .add-label {
+  color: var(--eval-primary);
+}
+
+.add-icon-container {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--eval-surface);
+  border: 2px solid var(--eval-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--eval-shadow);
+}
+
+.add-icon {
+  font-size: 32px !important;
+  width: 32px !important;
+  height: 32px !important;
+  color: var(--eval-text-muted);
+  transition: color 0.3s;
+}
+
+.add-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--eval-text-muted);
+  transition: color 0.3s;
+}
+
+/* ============================================
+   ADD FORM CARD
+============================================ */
+.add-card-form {
+  flex-shrink: 0;
+  width: 280px;
+  background: var(--eval-surface);
+  border-radius: var(--eval-radius);
+  border: 1px solid var(--eval-success);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1), var(--eval-shadow-lg);
+  position: relative;
+  overflow: hidden;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.form-content {
+  padding: 1.25rem;
+}
+
+.form-title {
+  font-family: 'DM Sans', 'Poppins', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--eval-text);
+  margin: 0 0 1rem 0;
+}
+
+.form-field {
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.form-field.half {
+  width: 48%;
+}
+
+.form-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.cancel-btn {
+  color: var(--eval-text-muted) !important;
+}
+
+.save-btn {
+  background: linear-gradient(135deg, var(--eval-success) 0%, #059669 100%) !important;
+  color: white !important;
+  border-radius: var(--eval-radius-sm) !important;
+}
+
+.save-btn mat-icon {
+  font-size: 18px;
+  margin-right: 4px;
+}
+
+/* ============================================
+   EMPTY STATE HINT
+============================================ */
+.empty-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  color: var(--eval-text-muted);
+  font-size: 0.9rem;
+  font-style: italic;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.empty-hint mat-icon {
+  font-size: 20px;
+  color: var(--eval-accent);
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ============================================
+   SUBMISSION ZONE (below card content)
+============================================ */
+.submission-zone {
+  padding: 0 1rem 0.75rem;
+}
+
+.submission-divider {
+  height: 1px;
+  background: var(--eval-border);
+  margin-bottom: 0.6rem;
+}
+
+.submission-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+/* Upload trigger (no file yet) */
+.upload-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.5rem;
+  border-radius: var(--eval-radius-sm);
+  border: 1.5px dashed var(--eval-border);
+  cursor: pointer;
+  color: var(--eval-text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s;
+  background: transparent;
+}
+
+.upload-trigger:hover {
+  border-color: var(--eval-primary);
+  color: var(--eval-primary);
+  background: rgba(99, 102, 241, 0.04);
+}
+
+.upload-trigger.uploading {
+  border-color: var(--eval-accent);
+  color: var(--eval-accent);
+  cursor: wait;
+}
+
+.upload-trigger mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+/* File info (has submission) */
+.submission-content.has-file {
+  gap: 0.5rem;
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.file-icon {
+  font-size: 15px !important;
+  width: 15px !important;
+  height: 15px !important;
+  color: var(--eval-success);
+  flex-shrink: 0;
+}
+
+.file-name {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--eval-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+}
+
+/* Action buttons row */
+.submission-actions {
+  display: flex;
+  gap: 0.35rem;
+  justify-content: center;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--eval-border);
+  background: var(--eval-surface);
+  cursor: pointer;
+  color: var(--eval-text-muted);
+  transition: all 0.2s;
+  padding: 0;
+}
+
+.action-btn mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.action-btn:hover {
+  border-color: var(--eval-primary);
+  color: var(--eval-primary);
+  background: rgba(99, 102, 241, 0.06);
+}
+
+.action-btn:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+/* Process button accent */
+.process-btn:hover {
+  border-color: var(--eval-accent);
+  color: var(--eval-accent);
+  background: rgba(245, 158, 11, 0.08);
+}
+
+/* Download button accent */
+.download-btn:hover {
+  border-color: var(--eval-success);
+  color: var(--eval-success);
+  background: rgba(16, 185, 129, 0.08);
+}
+
+/* Card with submission gets a subtle indicator */
+.evaluation-card.has-submission .card-accent {
+  background: linear-gradient(90deg, var(--eval-primary) 0%, var(--eval-success) 100%);
+}
+
+/* ============================================
+   RESPONSIVE
+============================================ */
+@media (max-width: 768px) {
+  .evaluation-section {
+    padding: 1.25rem;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .evaluation-card {
+    width: 200px;
+  }
+
+  .add-card {
+    width: 120px;
+    min-height: 160px;
+  }
+}

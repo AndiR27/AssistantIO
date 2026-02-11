@@ -9,9 +9,11 @@ import heg.backendspring.enums.StudyType;
 import heg.backendspring.mapping.MapperCourse;
 import heg.backendspring.mapping.MapperStudent;
 import heg.backendspring.models.CourseDto;
+import heg.backendspring.models.EvaluationDto;
 import heg.backendspring.models.StudentDto;
 import heg.backendspring.models.TPDto;
 import heg.backendspring.repository.RepositoryCourse;
+import heg.backendspring.repository.RepositoryEvaluation;
 import heg.backendspring.repository.RepositoryStudent;
 import heg.backendspring.service.ServiceCourse;
 import heg.backendspring.service.ServiceStudent;
@@ -27,9 +29,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.time.LocalDate;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -49,6 +50,9 @@ public class TestServiceCourse {
     @MockitoBean
     private RepositoryStudent repositoryStudent;
     @MockitoBean
+    private RepositoryEvaluation repositoryEvaluation;
+
+    @MockitoBean
     private ServiceSubmission serviceSubmission;
     @MockitoBean
     private ServiceTP serviceTP;
@@ -57,6 +61,7 @@ public class TestServiceCourse {
     private MapperCourse mapperCourse;
     @Autowired
     private MapperStudent mapperStudent;
+
 
 
     @Test
@@ -499,7 +504,7 @@ public class TestServiceCourse {
 
         verify(repositoryCourse).findById(courseId);
         verify(repositoryCourse).findTPByCourseIdAndNo(courseId, tpNo);
-        verify(serviceSubmission).processZipSubmission(course, tp);
+        verify(serviceSubmission).processZipSubmissionForTP(course, tp);
         verifyNoMoreInteractions(serviceSubmission);
     }
 
@@ -575,5 +580,35 @@ public class TestServiceCourse {
         );
     }
 
+    @Test
+    @DisplayName("addEvaluationToCourse - evaluation is created and added to course")
+    void testAddEvaluationToCourse() {
+        Long courseId = 1L;
+        Course course = new Course();
+        course.setId(courseId);
+        course.setEvaluations(new HashSet<>());
+
+        when(repositoryCourse.findById(courseId)).thenReturn(Optional.of(course));
+        EvaluationDto eval = new EvaluationDto(null, "CC1", LocalDate.now(), 1, courseId, null);
+
+        when(repositoryCourse.save(any(Course.class))).thenAnswer(inv -> {
+            Course c = inv.getArgument(0, Course.class);
+            c.getEvaluations().forEach(e -> {
+                if (e.getId() == null) e.setId(100L);
+            });
+            return c;
+        });
+        EvaluationDto result = serviceCourse.addEvaluationToCourse(courseId, eval);
+        assertNotNull(result);
+        assertEquals(100L, result.id());
+        assertEquals(1, course.getEvaluations().size());
+        assertTrue(course.getEvaluations().stream().anyMatch(e -> e.getId() == 100L && e.getName().equals("CC1")));
+
+        verify(repositoryCourse).findById(courseId);
+        verify(repositoryCourse).save(any(Course.class));
+        //---
+
+    }
 
 }
+

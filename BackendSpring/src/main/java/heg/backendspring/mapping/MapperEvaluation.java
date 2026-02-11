@@ -19,4 +19,5 @@ public interface MapperEvaluation {
     @Mapping(target = "course", ignore = true)
     void updateEntityFromDto(EvaluationDto dto, @MappingTarget Evaluation evaluation);
 
+
 }

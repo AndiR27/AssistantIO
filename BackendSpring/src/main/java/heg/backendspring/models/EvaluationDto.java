@@ -7,6 +7,7 @@ public record EvaluationDto(
         String name,
         LocalDate date,
         int coefficient,
-        Long courseId
+        Long courseId,
+        SubmissionDto submission
 ) {
 }

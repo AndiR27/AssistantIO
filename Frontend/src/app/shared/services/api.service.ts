@@ -4,7 +4,7 @@ import { Observable, throwError, of, switchMap, tap } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { CoursePreview } from '../../home/models/coursePreview.model';
-import { CourseDetailsModel, StudentModel, TP_Model } from '../../home/models/courseDetails.model';
+import { CourseDetailsModel, StudentModel, TP_Model, EvaluationModel } from '../../home/models/courseDetails.model';
 import { TPStatusModel, StudentSubmissionType } from '../../home/models/tpStatus.model';
 
 const API_URL = environment.apiUrl;
@@ -591,6 +591,189 @@ export class ApiService {
   downloadTP(courseId: number, tpNo: number) {
     const downloadUrl = `${API_URL}/course/${courseId}/downloadStructuredSubmission/${tpNo}`;
     return this.http.get(downloadUrl, { responseType: 'blob' });
+  }
+
+  // ========================================
+  // ÉVALUATIONS : Opérations CRUD
+  // ========================================
+
+  /**
+   * Récupère toutes les évaluations d'un cours.
+   * GET /course/{courseId}/evaluations
+   * @param courseId - L'identifiant du cours
+   * @returns Observable<EvaluationModel[]>
+   */
+  getEvaluationsByCourseId(courseId: number): Observable<EvaluationModel[]> {
+    return this.http
+      .get<EvaluationModel[]>(
+        `${API_URL}/course/${courseId}/evaluations`,
+        this.httpOptions
+      )
+      .pipe(
+        retry(1),
+        catchError((err: HttpErrorResponse) => {
+          this.handleError(err);
+          return of([] as EvaluationModel[]);
+        })
+      );
+  }
+
+  /**
+   * Récupère le détail d'une évaluation.
+   * GET /evaluations/{evaluationId}
+   * @param evaluationId - L'identifiant de l'évaluation
+   * @returns Observable<EvaluationModel>
+   */
+  getEvaluationById(evaluationId: number): Observable<EvaluationModel> {
+    return this.http
+      .get<EvaluationModel>(
+        `${API_URL}/evaluations/${evaluationId}`,
+        this.httpOptions
+      )
+      .pipe(
+        retry(1),
+        catchError((err: HttpErrorResponse) => {
+          this.handleError(err);
+          return throwError(() => err);
+        })
+      );
+  }
+
+  /**
+   * Crée une nouvelle évaluation pour un cours.
+   * POST /course/{courseId}/evaluations
+   * @param courseId - L'identifiant du cours
+   * @param evaluation - Les données de l'évaluation à créer
+   * @returns Observable<EvaluationModel>
+   */
+  createEvaluation(courseId: number, evaluation: Omit<EvaluationModel, 'id'>): Observable<EvaluationModel> {
+    return this.http
+      .post<EvaluationModel>(
+        `${API_URL}/course/${courseId}/evaluations`,
+        JSON.stringify(evaluation),
+        this.httpOptions
+      )
+      .pipe(
+        retry(1),
+        catchError((err: HttpErrorResponse) => {
+          this.handleError(err);
+          return throwError(() => err);
+        })
+      );
+  }
+
+  /**
+   * Met à jour une évaluation.
+   * PUT /evaluations/{evaluationId}
+   * @param evaluationId - L'identifiant de l'évaluation
+   * @param evaluation - Les nouvelles données de l'évaluation
+   * @returns Observable<EvaluationModel>
+   */
+  updateEvaluation(evaluationId: number, evaluation: Partial<EvaluationModel>): Observable<EvaluationModel> {
+    return this.http
+      .put<EvaluationModel>(
+        `${API_URL}/evaluations/${evaluationId}`,
+        JSON.stringify(evaluation),
+        this.httpOptions
+      )
+      .pipe(
+        retry(1),
+        catchError((err: HttpErrorResponse) => {
+          this.handleError(err);
+          return throwError(() => err);
+        })
+      );
+  }
+
+  /**
+   * Supprime une évaluation.
+   * DELETE /evaluations/{evaluationId}
+   * @param evaluationId - L'identifiant de l'évaluation
+   * @returns Observable<void>
+   */
+  deleteEvaluation(evaluationId: number): Observable<void> {
+    return this.http
+      .delete<void>(
+        `${API_URL}/evaluations/${evaluationId}`,
+        this.httpOptions
+      )
+      .pipe(
+        retry(1),
+        catchError((err: HttpErrorResponse) => {
+          this.handleError(err);
+          return throwError(() => err);
+        })
+      );
+  }
+
+  // ========================================
+  // ÉVALUATIONS : Soumissions (ZIP)
+  // ========================================
+
+  /**
+   * Ajoute un rendu ZIP à une évaluation.
+   * POST /evaluations/{evaluationId}/submission
+   * @param evaluationId - L'identifiant de l'évaluation
+   * @param file - Le fichier ZIP à uploader
+   * @returns Observable<EvaluationModel>
+   */
+  uploadEvaluationSubmission(evaluationId: number, file: File): Observable<EvaluationModel> {
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+
+    return this.http
+      .post<EvaluationModel>(
+        `${API_URL}/evaluations/${evaluationId}/submission`,
+        formData
+      )
+      .pipe(
+        retry(1),
+        catchError((err: HttpErrorResponse) => {
+          this.handleError(err);
+          return throwError(() => err);
+        })
+      );
+  }
+
+  /**
+   * Lance le traitement du rendu ZIP d'une évaluation.
+   * POST /evaluations/{evaluationId}/submission/process
+   * @param evaluationId - L'identifiant de l'évaluation
+   * @returns Observable<any>
+   */
+  processEvaluationSubmission(evaluationId: number): Observable<any> {
+    return this.http
+      .post(
+        `${API_URL}/evaluations/${evaluationId}/submission/process`,
+        {},
+        { responseType: 'text' as const }
+      )
+      .pipe(
+        catchError((err: HttpErrorResponse) => {
+          this.handleError(err);
+          return throwError(() => err);
+        })
+      );
+  }
+
+  /**
+   * Télécharge le ZIP restructuré d'une évaluation.
+   * GET /evaluations/{evaluationId}/submission/restructurated
+   * @param evaluationId - L'identifiant de l'évaluation
+   * @returns Observable<Blob>
+   */
+  downloadEvaluationRestructured(evaluationId: number): Observable<Blob> {
+    return this.http
+      .get(
+        `${API_URL}/evaluations/${evaluationId}/submission/restructurated`,
+        { responseType: 'blob' }
+      )
+      .pipe(
+        catchError((err: HttpErrorResponse) => {
+          this.handleError(err);
+          return throwError(() => err);
+        })
+      );
   }
 
   // ========================================

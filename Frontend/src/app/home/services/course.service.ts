@@ -4,7 +4,7 @@ import { catchError, Observable, switchMap, tap, throwError } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { SemesterType } from '../models/semesterType.model';
 import { CourseType } from '../models/courseType.model';
-import { CourseDetailsModel, StudentModel, TP_Model, TPStatusModel } from '../models/courseDetails.model';
+import { CourseDetailsModel, StudentModel, TP_Model, TPStatusModel, EvaluationModel } from '../models/courseDetails.model';
 
 /**
  * Service pour gérer les opérations détaillées des cours.
@@ -312,6 +312,161 @@ export class CourseService {
       tap(res => console.log(`✅ Refreshed TPStatus list (Course: ${courseId}, TP: ${tpNo}):`, res)),
       catchError(err => {
         console.error('Error in refreshTPStatusList():', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  // ========================================
+  // OPÉRATIONS SUR LES ÉVALUATIONS
+  // ========================================
+
+  /**
+   * Récupère toutes les évaluations d'un cours.
+   * GET /course/{courseId}/evaluations
+   * @param courseId - L'identifiant du cours
+   * @returns Observable<EvaluationModel[]>
+   */
+  getEvaluationsByCourseId(courseId: number): Observable<EvaluationModel[]> {
+    return this.api.getEvaluationsByCourseId(courseId).pipe(
+      tap(res => console.log('API getEvaluationsByCourseId response:', res)),
+      map((res: any) => {
+        const evaluations = Array.isArray(res) ? res : [];
+        return evaluations.map((evaluation: any) => ({
+          id: evaluation.id,
+          name: evaluation.name,
+          date: evaluation.date,
+          coefficient: evaluation.coefficient,
+          courseId: evaluation.courseId
+        } as EvaluationModel));
+      }),
+      catchError(err => {
+        console.error('Error in getEvaluationsByCourseId():', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  /**
+   * Crée une nouvelle évaluation pour un cours.
+   * POST /course/{courseId}/evaluations
+   * @param courseId - L'identifiant du cours
+   * @param evaluation - Les données de l'évaluation à créer
+   * @returns Observable<EvaluationModel>
+   */
+  createEvaluation(courseId: number, evaluation: Omit<EvaluationModel, 'id'>): Observable<EvaluationModel> {
+    return this.api.createEvaluation(courseId, evaluation).pipe(
+      tap(res => console.log('API createEvaluation response:', res)),
+      map((res: any) => ({
+        id: res.id,
+        name: res.name,
+        date: res.date,
+        coefficient: res.coefficient,
+        courseId: res.courseId
+      } as EvaluationModel)),
+      catchError(err => {
+        console.error('Error in createEvaluation():', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  /**
+   * Met à jour une évaluation.
+   * PUT /evaluations/{evaluationId}
+   * @param evaluationId - L'identifiant de l'évaluation
+   * @param evaluation - Les nouvelles données
+   * @returns Observable<EvaluationModel>
+   */
+  updateEvaluation(evaluationId: number, evaluation: Partial<EvaluationModel>): Observable<EvaluationModel> {
+    return this.api.updateEvaluation(evaluationId, evaluation).pipe(
+      tap(res => console.log('API updateEvaluation response:', res)),
+      map((res: any) => ({
+        id: res.id,
+        name: res.name,
+        date: res.date,
+        coefficient: res.coefficient,
+        courseId: res.courseId
+      } as EvaluationModel)),
+      catchError(err => {
+        console.error('Error in updateEvaluation():', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  /**
+   * Supprime une évaluation.
+   * DELETE /evaluations/{evaluationId}
+   * @param evaluationId - L'identifiant de l'évaluation
+   * @returns Observable<void>
+   */
+  deleteEvaluation(evaluationId: number): Observable<void> {
+    return this.api.deleteEvaluation(evaluationId).pipe(
+      tap(() => console.log(`Evaluation ${evaluationId} deleted`)),
+      catchError(err => {
+        console.error('Error in deleteEvaluation():', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  // ========================================
+  // SOUMISSIONS D'ÉVALUATIONS
+  // ========================================
+
+  /**
+   * Ajoute un rendu ZIP à une évaluation.
+   * POST /evaluations/{evaluationId}/submission
+   * @param evaluationId - L'identifiant de l'évaluation
+   * @param file - Le fichier ZIP à uploader
+   * @returns Observable<EvaluationModel>
+   */
+  uploadEvaluationSubmission(evaluationId: number, file: File): Observable<EvaluationModel> {
+    return this.api.uploadEvaluationSubmission(evaluationId, file).pipe(
+      tap(res => console.log('API uploadEvaluationSubmission response:', res)),
+      map((res: any) => ({
+        id: res.id,
+        name: res.name,
+        date: res.date,
+        coefficient: res.coefficient,
+        courseId: res.courseId,
+        submission: res.submission
+      } as EvaluationModel)),
+      catchError(err => {
+        console.error('Error in uploadEvaluationSubmission():', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  /**
+   * Lance le traitement du rendu ZIP d'une évaluation.
+   * POST /evaluations/{evaluationId}/submission/process
+   * @param evaluationId - L'identifiant de l'évaluation
+   * @returns Observable<any>
+   */
+  processEvaluationSubmission(evaluationId: number): Observable<any> {
+    return this.api.processEvaluationSubmission(evaluationId).pipe(
+      tap(res => console.log('API processEvaluationSubmission response:', res)),
+      catchError(err => {
+        console.error('Error in processEvaluationSubmission():', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  /**
+   * Télécharge le ZIP restructuré d'une évaluation.
+   * GET /evaluations/{evaluationId}/submission/restructurated
+   * @param evaluationId - L'identifiant de l'évaluation
+   * @returns Observable<Blob>
+   */
+  downloadEvaluationRestructured(evaluationId: number): Observable<Blob> {
+    return this.api.downloadEvaluationRestructured(evaluationId).pipe(
+      tap(() => console.log(`Downloading restructured ZIP for evaluation ${evaluationId}`)),
+      catchError(err => {
+        console.error('Error in downloadEvaluationRestructured():', err);
         return throwError(() => err);
       })
     );

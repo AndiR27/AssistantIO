@@ -25,12 +25,14 @@ export interface StudentModel {
   studyType: StudyType;
 }
 
-// Modèle d'une évaluation
-interface EvaluationModel {
+// Modèle d'une évaluation (CC ou Examen)
+export interface EvaluationModel {
   id?: number;
   name: string;
-  date: Date;
-  submission: SubmissionModel;
+  date: string;
+  coefficient: number;
+  courseId: number;
+  submission?: SubmissionModel;
 }
 
 // Modèle d'un TP (Travail Pratique)
@@ -43,7 +45,7 @@ export interface TP_Model {
 }
 
 // Modèle d'une soumission de fichier
-interface SubmissionModel {
+export interface SubmissionModel {
   id?: number;
   fileName: string;
   pathStorage: string;

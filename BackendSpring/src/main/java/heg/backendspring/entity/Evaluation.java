@@ -32,8 +32,13 @@ public class Evaluation {
 
     private int coefficient;
 
-    //Un évaluation est associée à un cours
+    //Une évaluation est associée à un cours
     @ManyToOne
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
+
+    //Une évaluation a une soumission
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "submission_id")
+    private Submission submission;
 }

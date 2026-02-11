@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { CourseDetailsModel, StudentModel, TP_Model } from '../../models/courseDetails.model';
+import { CourseDetailsModel, StudentModel, TP_Model, EvaluationModel } from '../../models/courseDetails.model';
 import { FooterComponent } from '../../../shared/components/footer/footer.component';
 import { HeaderComponent } from '../../../shared/components/header/header.component';
 import { FormsModule } from '@angular/forms';
@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
 import { UploadFileTxt } from './Forms/upload-file-txt/upload-file-txt';
 import { MATERIAL_MODULES } from '../../../shared/imports/material-imports';
 import { TableSubmissionsComponent } from './TableSubmissions/table-submissions.component';
+import { EvaluationSectionComponent } from './EvaluationSection/evaluation-section';
 
 @Component({
   selector: 'app-cours',
@@ -27,7 +28,8 @@ import { TableSubmissionsComponent } from './TableSubmissions/table-submissions.
     RouterLink,
     UploadFileTxt,
     AddTP,
-    TableSubmissionsComponent
+    TableSubmissionsComponent,
+    EvaluationSectionComponent
   ]
 })
 export class CoursComponent implements OnInit {
@@ -44,6 +46,7 @@ export class CoursComponent implements OnInit {
   course!: CourseDetailsModel;
   students: StudentModel[] = [];
   tps: TP_Model[] = [];
+  evaluations: EvaluationModel[] = [];
 
   isEditing: boolean = false
 
@@ -56,6 +59,8 @@ export class CoursComponent implements OnInit {
     this.loadStudents();
     // Charge les TPs dès l'init
     this.loadTPInfos();
+    // Charge les évaluations dès l'init
+    this.loadEvaluations();
   }
 
   loadStudents(): void {
@@ -85,6 +90,19 @@ export class CoursComponent implements OnInit {
       tps => {
         console.log('TPs payload:', JSON.parse(JSON.stringify(tps)));
         this.tps = tps;
+      }
+    );
+  }
+
+  loadEvaluations(): void {
+    if (this.courseId() === undefined) {
+      console.error('Course ID is not defined');
+      return;
+    }
+    console.log('Chargement des évaluations pour le cours ID:', this.courseId());
+    this.courseService.getEvaluationsByCourseId(this.courseId() as number).subscribe(
+      evaluations => {
+        this.evaluations = evaluations;
       }
     );
   }

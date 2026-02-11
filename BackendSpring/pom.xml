@@ -202,7 +202,10 @@
                             <inputSpec>${project.basedir}/src/main/resources/openapi/openapi.yaml</inputSpec>
 
                             <!-- Où générer les fichiers -->
-                            <output>${project.basedir}</output>
+                            <output>${project.build.directory}/generated-sources/openapi</output>
+                            <generateApis>true</generateApis>
+                            <generateModels>false</generateModels>
+
                             <modelPackage>heg.backendspring.models</modelPackage>
                             <apiPackage>heg.backendspring.api</apiPackage>
 
@@ -213,7 +216,6 @@
                                 <interfaceOnly>true</interfaceOnly>
                                 <useSpringBoot3>true</useSpringBoot3>
                                 <useTags>true</useTags>
-                                <usextags>true</usextags>
                                 <dateLibrary>java8</dateLibrary>
                                 <serializableModel>true</serializableModel>
 
@@ -250,7 +252,7 @@
                             <generateApiDocumentation>false</generateApiDocumentation>
 
                             <!-- Empêcher ou non l'écrasement de fichiers déjà modifiés -->
-                            <skipOverwrite>true</skipOverwrite>
+                            <skipOverwrite>false</skipOverwrite>
                         </configuration>
                     </execution>
                 </executions>

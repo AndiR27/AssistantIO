@@ -1,0 +1,197 @@
+<!-- ▶︎ Évaluations Section -->
+<div class="evaluation-section">
+  <!-- Section Header -->
+  <div class="section-header">
+    <div class="header-content">
+      <div class="header-icon">
+        <mat-icon>assessment</mat-icon>
+      </div>
+      <div class="header-text">
+        <h2 class="section-title">Évaluations</h2>
+        <p class="section-subtitle">Contrôles continus et examens du cours</p>
+      </div>
+    </div>
+    <div class="header-badge" *ngIf="evaluations.length > 0">
+      <span class="count">{{ evaluations.length }}</span>
+    </div>
+  </div>
+
+  <!-- Evaluations Row Container (Drop Zone) -->
+  <div class="evaluations-row" cdkDropList cdkDropListOrientation="horizontal" [cdkDropListData]="evaluations"
+    (cdkDropListDropped)="onDrop($event)">
+
+    <!-- Existing Evaluation Cards (Draggable) -->
+    <div class="evaluation-card" *ngFor="let eval of evaluations; let i = index" [class.editing]="isEditing(eval)"
+      [class.has-submission]="eval.submission" cdkDrag [cdkDragDisabled]="isEditing(eval)">
+
+      <!-- Drag preview placeholder -->
+      <div class="drag-placeholder" *cdkDragPlaceholder></div>
+
+      <div class="card-accent"></div>
+
+      <!-- Drag handle (visible in view mode) -->
+      <div class="drag-handle" cdkDragHandle *ngIf="!isEditing(eval)">
+        <mat-icon>drag_indicator</mat-icon>
+      </div>
+
+      <!-- ===== VIEW MODE ===== -->
+      <ng-container *ngIf="!isEditing(eval)">
+        <div class="card-content">
+          <div class="card-header">
+            <span class="eval-number">{{ i + 1 }}</span>
+            <span class="eval-type-badge">CC</span>
+          </div>
+          <h3 class="eval-name">{{ eval.name }}</h3>
+          <div class="eval-details">
+            <div class="detail-item">
+              <mat-icon>calendar_today</mat-icon>
+              <span>{{ eval.date | date:'dd MMM yyyy' }}</span>
+            </div>
+            <div class="detail-item coeff">
+              <mat-icon>balance</mat-icon>
+              <span>Coef. {{ eval.coefficient }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="card-actions">
+          <button mat-icon-button class="edit-btn" matTooltip="Modifier"
+            (click)="startEdit(eval); $event.stopPropagation()">
+            <mat-icon>edit</mat-icon>
+          </button>
+        </div>
+
+        <!-- ===== SUBMISSION ZONE ===== -->
+        <div class="submission-zone">
+          <div class="submission-divider"></div>
+
+          <!-- No submission yet -->
+          <div class="submission-content" *ngIf="!eval.submission">
+            <label class="upload-trigger" [class.uploading]="isUploading(eval)">
+              <input type="file" accept=".zip" hidden (change)="onFileSelected($event, eval)"
+                [disabled]="isUploading(eval)">
+              <mat-icon *ngIf="!isUploading(eval)">cloud_upload</mat-icon>
+              <mat-spinner *ngIf="isUploading(eval)" diameter="18"></mat-spinner>
+              <span>{{ isUploading(eval) ? 'Envoi...' : 'Ajouter ZIP' }}</span>
+            </label>
+          </div>
+
+          <!-- Has submission -->
+          <div class="submission-content has-file" *ngIf="eval.submission">
+            <div class="file-info">
+              <mat-icon class="file-icon">inventory_2</mat-icon>
+              <span class="file-name" [matTooltip]="eval.submission.fileName">
+                {{ eval.submission.fileName }}
+              </span>
+            </div>
+
+            <div class="submission-actions">
+              <!-- Re-upload -->
+              <label class="action-btn" matTooltip="Remplacer le ZIP" [class.uploading]="isUploading(eval)">
+                <input type="file" accept=".zip" hidden (change)="onFileSelected($event, eval)"
+                  [disabled]="isUploading(eval)">
+                <mat-icon *ngIf="!isUploading(eval)">upload_file</mat-icon>
+                <mat-spinner *ngIf="isUploading(eval)" diameter="16"></mat-spinner>
+              </label>
+
+              <!-- Process -->
+              <button class="action-btn process-btn" matTooltip="Lancer le traitement" (click)="processSubmission(eval)"
+                [disabled]="isProcessing(eval)">
+                <mat-icon *ngIf="!isProcessing(eval)">play_arrow</mat-icon>
+                <mat-spinner *ngIf="isProcessing(eval)" diameter="16"></mat-spinner>
+              </button>
+
+              <!-- Download -->
+              <button class="action-btn download-btn" matTooltip="Télécharger ZIP restructuré"
+                (click)="downloadRestructured(eval)" [disabled]="isDownloading(eval)">
+                <mat-icon *ngIf="!isDownloading(eval)">download</mat-icon>
+                <mat-spinner *ngIf="isDownloading(eval)" diameter="16"></mat-spinner>
+              </button>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- ===== EDIT MODE ===== -->
+      <ng-container *ngIf="isEditing(eval)">
+        <div class="card-content edit-mode">
+          <div class="card-header">
+            <span class="eval-number">{{ i + 1 }}</span>
+            <span class="edit-badge">
+              <mat-icon>edit</mat-icon>
+              Édition
+            </span>
+          </div>
+
+          <mat-form-field appearance="outline" class="edit-field">
+            <mat-label>Nom</mat-label>
+            <input matInput [(ngModel)]="editData.name">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="edit-field">
+            <mat-label>Date</mat-label>
+            <input matInput type="date" [(ngModel)]="editData.date">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="edit-field">
+            <mat-label>Coefficient</mat-label>
+            <input matInput type="number" [(ngModel)]="editData.coefficient" min="1" max="10">
+          </mat-form-field>
+
+          <div class="edit-actions">
+            <button mat-icon-button class="cancel-edit-btn" matTooltip="Annuler" (click)="cancelEdit()">
+              <mat-icon>close</mat-icon>
+            </button>
+            <button mat-mini-fab class="save-edit-btn" matTooltip="Sauvegarder" (click)="saveEdit(eval)"
+              [disabled]="!editData.name || !editData.date">
+              <mat-icon>check</mat-icon>
+            </button>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+
+    <!-- Add New Card (Inline Form) -->
+    <div class="add-card-form" *ngIf="isAddingNew">
+      <div class="card-accent adding"></div>
+      <div class="form-content">
+        <h4 class="form-title">Nouvelle évaluation</h4>
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Nom</mat-label>
+          <input matInput [(ngModel)]="newEvaluation.name" placeholder="Ex: CC1, Examen final...">
+        </mat-form-field>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field half">
+            <mat-label>Date</mat-label>
+            <input matInput type="date" [(ngModel)]="newEvaluation.date">
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="form-field half">
+            <mat-label>Coefficient</mat-label>
+            <input matInput type="number" [(ngModel)]="newEvaluation.coefficient" min="1" max="10">
+          </mat-form-field>
+        </div>
+        <div class="form-actions">
+          <button mat-button class="cancel-btn" (click)="cancelAdd()">Annuler</button>
+          <button mat-flat-button class="save-btn" (click)="saveNewEvaluation()"
+            [disabled]="!newEvaluation.name || !newEvaluation.date">
+            <mat-icon>check</mat-icon>
+            Créer
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Button Card -->
+    <div class="add-card" (click)="openAddForm()" *ngIf="!isAddingNew">
+      <div class="add-icon-container">
+        <mat-icon class="add-icon">add</mat-icon>
+      </div>
+      <span class="add-label">Ajouter</span>
+    </div>
+  </div>
+
+  <!-- Empty State Message -->
+  <div class="empty-hint" *ngIf="evaluations.length === 0 && !isAddingNew">
+    <mat-icon>lightbulb</mat-icon>
+    <span>Cliquez sur le bouton + pour ajouter votre première évaluation</span>
+  </div>
+</div>

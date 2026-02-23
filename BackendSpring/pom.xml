@@ -233,6 +233,7 @@
                                 <typeMapping>SubmissionDto=heg.backendspring.models.SubmissionDto</typeMapping>
                                 <typeMapping>TPDto=heg.backendspring.models.TPDto</typeMapping>
                                 <typeMapping>TPStatusDto=heg.backendspring.models.TPStatusDto</typeMapping>
+                                <typeMapping>CourseAccessDto=heg.backendspring.models.CourseAccessDto</typeMapping>
                             </typeMappings>
 
                             <importMappings>
@@ -243,6 +244,7 @@
                                 <importMapping>SubmissionDto=heg.backendspring.models.SubmissionDto</importMapping>
                                 <importMapping>TPDto=heg.backendspring.models.TPDto</importMapping>
                                 <importMapping>TPStatusDto=heg.backendspring.models.TPStatusDto</importMapping>
+                                <importMapping>CourseAccessDto=heg.backendspring.models.CourseAccessDto</importMapping>
                             </importMappings>
 
                             <!-- Générer directement dans src/main/java -->

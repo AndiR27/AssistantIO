@@ -1,0 +1,271 @@
+/* ── HEADER ──────────────────────────────────────────────── */
+.dialog-header {
+  display: flex !important;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem 1.5rem 0.75rem !important;
+  border-bottom: 1px solid #f1f5f9;
+  margin: 0 !important;
+}
+
+.header-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.625rem;
+  background: #ecfeff;
+  color: #0891b2;
+  flex-shrink: 0;
+}
+
+.header-icon mat-icon {
+  font-size: 1.125rem !important;
+  width: 1.125rem !important;
+  height: 1.125rem !important;
+}
+
+.header-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.header-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #0f172a;
+  line-height: 1.3;
+}
+
+.header-course {
+  font-size: 0.8rem;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header-close {
+  color: #94a3b8;
+  flex-shrink: 0;
+  width: 2rem !important;
+  height: 2rem !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+
+  &:hover {
+    color: #475569;
+    background: #f1f5f9 !important;
+  }
+}
+
+/* ── CONTENT ─────────────────────────────────────────────── */
+.dialog-content {
+  min-width: 540px;
+  max-height: 65vh;
+  padding: 1.25rem 1.5rem 1.5rem !important;
+}
+
+/* ── SECTION LABEL ───────────────────────────────────────── */
+.section-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #94a3b8;
+  margin: 0 0 0.75rem;
+}
+
+/* ── LOADING / EMPTY ─────────────────────────────────────── */
+.spinner-row {
+  display: flex;
+  justify-content: center;
+  padding: 1.25rem 0;
+}
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #94a3b8;
+  font-size: 0.875rem;
+  padding: 0.75rem 0 1rem;
+
+  mat-icon {
+    font-size: 1.1rem !important;
+    width: 1.1rem !important;
+    height: 1.1rem !important;
+  }
+}
+
+/* ── SHARES LIST ─────────────────────────────────────────── */
+.shares-list {
+  list-style: none;
+  margin: 0 0 0.25rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.share-item {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem 0.625rem 0.5rem 0.75rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.625rem;
+  transition: border-color 0.15s, opacity 0.2s;
+  animation: slide-in 0.15s ease-out;
+
+  &:hover {
+    border-color: #cbd5e1;
+  }
+
+  &.is-revoking {
+    opacity: 0.5;
+  }
+}
+
+/* Avatar circle */
+.avatar {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #ffffff;
+  flex-shrink: 0;
+  letter-spacing: 0;
+}
+
+.user-email {
+  flex: 1;
+  font-size: 0.8375rem;
+  font-family: 'Courier New', monospace;
+  color: #334155;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Permission badge */
+.perm-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+  flex-shrink: 0;
+}
+
+.perm-read {
+  background: #ecfeff;
+  color: #0e7490;
+}
+
+.perm-write {
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.perm-owner {
+  background: #fef9c3;
+  color: #a16207;
+}
+
+/* Placeholder to keep row height when revoke button is hidden */
+.revoke-btn-placeholder {
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+}
+
+/* Revoke button */
+.revoke-btn {
+  color: #cbd5e1;
+  flex-shrink: 0;
+  width: 2rem !important;
+  height: 2rem !important;
+  line-height: 2rem !important;
+
+  mat-icon {
+    font-size: 1rem !important;
+    width: 1rem !important;
+    height: 1rem !important;
+  }
+
+  &:hover:not([disabled]) {
+    color: #ef4444 !important;
+    background: #fef2f2 !important;
+  }
+}
+
+/* ── DIVIDER ─────────────────────────────────────────────── */
+.divider {
+  border: none;
+  border-top: 1px solid #f1f5f9;
+  margin: 1rem 0 1.25rem;
+}
+
+/* ── ADD FORM ────────────────────────────────────────────── */
+.add-form {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.email-field {
+  flex: 3;
+  min-width: 240px;
+}
+
+.perm-field {
+  flex: 1;
+  min-width: 120px;
+}
+
+.share-btn {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  background-color: #0891b2 !important;
+  color: #ffffff !important;
+  border-radius: 0.5rem !important;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition: background-color 0.15s;
+
+  &:hover:not([disabled]) {
+    background-color: #0e7490 !important;
+  }
+
+  &[disabled] {
+    opacity: 0.45;
+  }
+
+  mat-icon {
+    font-size: 1.1rem !important;
+    width: 1.1rem !important;
+    height: 1.1rem !important;
+  }
+}
+
+.btn-spinner {
+  display: inline-flex;
+}

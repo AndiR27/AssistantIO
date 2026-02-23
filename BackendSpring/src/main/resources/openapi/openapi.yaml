@@ -28,6 +28,9 @@ tags:
     description: Gestion des statuts des étudiants pour un TP
   - name: evaluation
     description: Gestion des évaluations des cours
+  - name: course-access
+    description: Opérations d’accès aux cours pour le partage
+
 
 
 
@@ -48,6 +51,9 @@ x-tagGroups:
   - name: Evaluation
     tags:
       - evaluation
+  - name: Course Access
+    tags:
+      - course-access
 
 
 # ==============================
@@ -169,6 +175,362 @@ paths:
           description: Cours introuvable.
         '500':
           description: Erreur interne.
+  # ========================================
+  #   COURSE ACCESS (RBAC / SHARING)
+  # ========================================
+  /course-access/grant:
+    post:
+      tags: [ course-access ]
+      summary: Accorder ou mettre à jour un accès à un cours.
+      description: |
+        Donne (ou met à jour) une permission à un utilisateur sur un cours.
+        Si une entrée existe déjà pour (userId, courseId), la permission est mise à jour.
+      operationId: grantCourseAccess
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          description: Identifiant utilisateur (Keycloak userId).
+          schema:
+            type: string
+          example: "2f1c3a9d-1234-4567-8901-abcdef123456"
+        - name: courseId
+          in: query
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+          example: 10
+        - name: permission
+          in: query
+          required: true
+          description: Permission à accorder.
+          schema:
+            type: string
+            enum: [ READ, WRITE, OWNER ]
+          example: READ
+      responses:
+        '200':
+          description: Accès accordé / mis à jour.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseAccessDto'
+        '400':
+          description: Données invalides.
+        '500':
+          description: Erreur interne.
+
+  /course-access/revoke:
+    delete:
+      tags: [ course-access ]
+      summary: Révoquer l’accès d’un utilisateur à un cours.
+      description: Supprime l’accès (toutes permissions) d’un utilisateur pour un cours.
+      operationId: revokeCourseAccess
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          description: Identifiant utilisateur (Keycloak userId).
+          schema:
+            type: string
+          example: "2f1c3a9d-1234-4567-8901-abcdef123456"
+        - name: courseId
+          in: query
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+          example: 10
+      responses:
+        '204':
+          description: Accès révoqué.
+        '400':
+          description: Paramètres invalides.
+        '500':
+          description: Erreur interne.
+
+  /course-access/share/{courseId}:
+    post:
+      tags: [ course-access ]
+      summary: Partager un cours avec un utilisateur (READ par défaut).
+      description: Partage un cours avec un utilisateur cible. Par défaut, la permission accordée est READ.
+      operationId: shareCourseDefaultPermission
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+          example: 10
+        - name: targetUserId
+          in: query
+          required: true
+          description: Identifiant utilisateur cible (Keycloak userId).
+          schema:
+            type: string
+          example: "2f1c3a9d-1234-4567-8901-abcdef123456"
+      responses:
+        '200':
+          description: Cours partagé.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseAccessDto'
+        '400':
+          description: Données invalides.
+        '404':
+          description: Cours introuvable.
+        '500':
+          description: Erreur interne.
+
+  /course-access/share/{courseId}/with-permission:
+    post:
+      tags: [ course-access ]
+      summary: Partager un cours avec une permission spécifique.
+      description: Partage un cours avec un utilisateur cible avec une permission donnée.
+      operationId: shareCourseWithPermission
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+          example: 10
+        - name: targetUserId
+          in: query
+          required: true
+          description: Identifiant utilisateur cible (Keycloak userId).
+          schema:
+            type: string
+          example: "2f1c3a9d-1234-4567-8901-abcdef123456"
+        - name: permission
+          in: query
+          required: true
+          description: Permission à accorder.
+          schema:
+            type: string
+            enum: [ READ, WRITE, OWNER ]
+          example: READ
+      responses:
+        '200':
+          description: Cours partagé.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseAccessDto'
+        '400':
+          description: Données invalides.
+        '404':
+          description: Cours introuvable.
+        '500':
+          description: Erreur interne.
+
+  /course-access/unshare/{courseId}:
+    post:
+      tags: [ course-access ]
+      summary: Retirer le partage d’un cours pour un utilisateur.
+      description: Retire l’accès d’un utilisateur cible à un cours (équivalent revoke).
+      operationId: unshareCourse
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+          example: 10
+        - name: targetUserId
+          in: query
+          required: true
+          description: Identifiant utilisateur cible (Keycloak userId).
+          schema:
+            type: string
+          example: "2f1c3a9d-1234-4567-8901-abcdef123456"
+      responses:
+        '204':
+          description: Partage retiré.
+        '400':
+          description: Données invalides.
+        '404':
+          description: Cours introuvable.
+        '500':
+          description: Erreur interne.
+
+  /course-access/has-permission:
+    get:
+      tags: [ course-access ]
+      summary: Vérifier si un utilisateur a une permission minimale sur un cours.
+      description: Retourne true/false si l’utilisateur possède au moins le niveau de permission requis.
+      operationId: hasCoursePermission
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema: { type: string }
+          example: "2f1c3a9d-1234-4567-8901-abcdef123456"
+        - name: courseId
+          in: query
+          required: true
+          schema: { type: integer, format: int64 }
+          example: 10
+        - name: required
+          in: query
+          required: true
+          description: Permission minimale requise.
+          schema:
+            type: string
+            enum: [ READ, WRITE, OWNER ]
+          example: READ
+      responses:
+        '200':
+          description: Résultat du check.
+          content:
+            application/json:
+              schema:
+                type: boolean
+                example: true
+        '400':
+          description: Paramètres invalides.
+        '500':
+          description: Erreur interne.
+
+  /course-access/permission:
+    get:
+      tags: [ course-access ]
+      summary: Récupérer la permission d’un utilisateur sur un cours.
+      description: Retourne le niveau de permission actuel (ou 204 si aucune entrée).
+      operationId: getCoursePermission
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema: { type: string }
+        - name: courseId
+          in: query
+          required: true
+          schema: { type: integer, format: int64 }
+      responses:
+        '200':
+          description: Permission trouvée.
+          content:
+            application/json:
+              schema:
+                type: string
+                enum: [ READ, WRITE, OWNER ]
+                example: READ
+        '204':
+          description: Aucun accès défini.
+        '400':
+          description: Paramètres invalides.
+        '500':
+          description: Erreur interne.
+
+  /course-access/my-accesses:
+    get:
+      tags: [ course-access ]
+      summary: Mes accès cours (utilisateur courant).
+      description: Retourne tous les CourseAccess de l'utilisateur authentifié (email extrait du JWT).
+      operationId: getMyAccesses
+      responses:
+        '200':
+          description: Liste des accès cours de l'utilisateur courant.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CourseAccessDto'
+        '500':
+          description: Erreur interne.
+
+  /course-access/accessible-courses:
+    get:
+      tags: [ course-access ]
+      summary: Liste des IDs de cours accessibles par un utilisateur.
+      description: Retourne la liste des courseId auxquels l’utilisateur a accès.
+      operationId: getAccessibleCourseIds
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema: { type: string }
+          example: "2f1c3a9d-1234-4567-8901-abcdef123456"
+      responses:
+        '200':
+          description: Liste des cours accessibles.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: integer
+                  format: int64
+              example: [ 10, 11, 12 ]
+        '400':
+          description: Paramètres invalides.
+        '500':
+          description: Erreur interne.
+
+  /course-access/course/{courseId}/shares:
+    get:
+      tags: [ course-access ]
+      summary: Liste des partages (utilisateurs) d’un cours.
+      description: Retourne tous les CourseAccess associés à un cours.
+      operationId: getCourseShares
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+          example: 10
+      responses:
+        '200':
+          description: Liste des partages du cours.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CourseAccessDto'
+        '404':
+          description: Cours introuvable.
+        '500':
+          description: Erreur interne.
+
+  /course-access/course/{courseId}:
+    delete:
+      tags: [ course-access ]
+      summary: Supprimer tous les accès d’un cours.
+      description: Supprime toutes les entrées d’accès pour un cours (utile lors de la suppression du cours).
+      operationId: deleteAllAccessForCourse
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+          example: 10
+      responses:
+        '204':
+          description: Accès supprimés.
+        '404':
+          description: Cours introuvable.
+        '500':
+          description: Erreur interne.
+
 
   # ========================================
   #   COURSES (LECTURE)
@@ -1403,6 +1765,39 @@ components:
         studentId: 300
         tpId: 10
         studentSubmission: true
+
+    CourseAccessDto:
+      type: object
+      description: Représentation d'un accès cours-utilisateur.
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        userId:
+          type: string
+          example: "2f1c3a9d-1234-4567-8901-abcdef123456"
+        courseId:
+          type: integer
+          format: int64
+          example: 10
+        permission:
+          type: string
+          description: Niveau de permission.
+          enum: [READ, WRITE, OWNER]
+          example: "READ"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [userId, courseId, permission]
+      example:
+        id: 1
+        userId: "2f1c3a9d-1234-4567-8901-abcdef123456"
+        courseId: 10
+        permission: "READ"
 
   securitySchemes:
     bearerAuth:

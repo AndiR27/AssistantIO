@@ -1,5 +1,5 @@
-import { Component, EventEmitter, inject, Output } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, EventEmitter, inject, Output, ViewChild } from '@angular/core';
+import { FormBuilder, FormGroup, FormGroupDirective, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HomeService } from '../../services/home.service';
@@ -33,6 +33,7 @@ import { MatIcon } from '@angular/material/icon';
 })
 
 export class CoursFormComponent {
+  @ViewChild(FormGroupDirective) private formDirective!: FormGroupDirective;
   // FormGroup pour gérer le formulaire réactif
   private fb = inject(FormBuilder);
   private homeService = inject(HomeService);
@@ -61,7 +62,7 @@ export class CoursFormComponent {
     const payload = this.form.value as Omit<CoursePreview, 'id'>;
     this.homeService.addCourse(payload).subscribe(() => {
       // Reset aux valeurs par défaut
-      this.form.reset({
+      this.formDirective.resetForm({
         name: '',
         code: '',
         semester: this.semesterOptions[0],

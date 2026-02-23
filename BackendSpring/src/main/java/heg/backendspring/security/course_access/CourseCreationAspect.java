@@ -26,20 +26,21 @@ public class CourseCreationAspect {
     )
     public void afterCourseCreated(Object course) {
         try {
-            String userId = getCurrentUserId();
+            String userEmail = getCurrentUserEmail();
             Long courseId = getCourseId(course);
-            if (userId != null && courseId != null) {
-                serviceCourseAccess.grantAccess(userId, courseId, CoursePermission.OWNER);
-                log.info("Granted OWNER access to user {} for new course {}", userId, courseId);
+            if (userEmail != null && courseId != null) {
+                serviceCourseAccess.grantAccess(userEmail, courseId, CoursePermission.OWNER);
+                log.info("Granted OWNER access to {} for new course {}", userEmail, courseId);
             }
         } catch (Exception e) {
             log.error("Failed to grant access after course creation: {}", e.getMessage());
         }
     }
-    private String getCurrentUserId() {
+    private String getCurrentUserEmail() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.getPrincipal() instanceof Jwt jwt) {
-            return jwt.getSubject();
+            String email = jwt.getClaimAsString("email");
+            return (email != null && !email.isBlank()) ? email : jwt.getSubject();
         }
         return null;
     }

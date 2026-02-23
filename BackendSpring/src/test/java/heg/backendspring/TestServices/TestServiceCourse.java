@@ -15,10 +15,12 @@ import heg.backendspring.models.TPDto;
 import heg.backendspring.repository.RepositoryCourse;
 import heg.backendspring.repository.RepositoryEvaluation;
 import heg.backendspring.repository.RepositoryStudent;
+import heg.backendspring.security.course_access.CourseSecurityCheck;
 import heg.backendspring.service.ServiceCourse;
 import heg.backendspring.service.ServiceStudent;
 import heg.backendspring.service.ServiceSubmission;
 import heg.backendspring.service.ServiceTP;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -33,7 +35,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
@@ -57,10 +59,19 @@ public class TestServiceCourse {
     @MockitoBean
     private ServiceTP serviceTP;
 
+    // Bypass @PreAuthorize — these tests cover service logic, not security
+    @MockitoBean
+    private CourseSecurityCheck courseSecurityCheck;
+
     @Autowired
     private MapperCourse mapperCourse;
     @Autowired
     private MapperStudent mapperStudent;
+
+    @BeforeEach
+    void allowAllAccess() {
+        when(courseSecurityCheck.hasAccess(anyLong(), anyString())).thenReturn(true);
+    }
 
 
 

@@ -46,3 +46,4 @@ public class CurrentUserService {
         return authentication.getName();
     }
 }
+

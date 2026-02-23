@@ -55,6 +55,11 @@ export class TableSubmissionsComponent implements OnInit {
         console.log('TPs:', this.tps);
     }
 
+    get sortedTPs(): TP_Model[] {
+      console.log('Sorting TPs by number');
+        return [...this.tps].sort((a, b) => a.no - b.no);
+    }
+
     // Getter that returns students sorted alphabetically by name and filtered by search term
     get sortedStudents(): StudentModel[] {
         let filtered = [...this.students];
@@ -75,7 +80,7 @@ export class TableSubmissionsComponent implements OnInit {
         });
     }
 
-    // Retourne true si le TP et le rendu sont créés et correctement formattés
+    //Retourne true si le TP et le rendu sont créés et correctement formattés
     shouldShowDownload(tp: TP_Model): boolean {
         if (!tp.submission) {
             return false;

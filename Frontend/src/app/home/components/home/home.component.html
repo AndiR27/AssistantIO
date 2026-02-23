@@ -15,6 +15,12 @@
       <!-- ACTION BUTTONS (visible on hover) -->
       @if (editingCourseId !== course.id) {
       <div class="course-actions">
+        @if (canShare(course.id)) {
+          <button mat-icon-button class="action-btn share-btn" (click)="onShareCourse(course, $event)"
+            matTooltip="Partager">
+            <mat-icon>share</mat-icon>
+          </button>
+        }
         <button mat-icon-button class="action-btn edit-btn" (click)="onEditCourse(course, $event)"
           matTooltip="Modifier">
           <mat-icon>edit</mat-icon>

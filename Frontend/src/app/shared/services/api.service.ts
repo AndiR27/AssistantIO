@@ -1,11 +1,13 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError, of, switchMap, tap } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { retry, catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { CoursePreview } from '../../home/models/coursePreview.model';
 import { CourseDetailsModel, StudentModel, TP_Model, EvaluationModel } from '../../home/models/courseDetails.model';
 import { TPStatusModel, StudentSubmissionType } from '../../home/models/tpStatus.model';
+import { CourseAccessModel, CoursePermission } from '../../home/models/courseAccess.model';
 
 const API_URL = environment.apiUrl;
 
@@ -17,6 +19,7 @@ const API_URL = environment.apiUrl;
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   private http = inject(HttpClient);
+  private snackBar = inject(MatSnackBar);
   private httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' })
   };
@@ -448,19 +451,20 @@ export class ApiService {
    */
   addTpToCourse(courseId: number, tpNo: number, file: File): Observable<TP_Model> {
     return this.http.post<TP_Model>(`${API_URL}/course/${courseId}/TPs/${tpNo}`, {}).pipe(
-      tap({
-        next: resp => console.log('Réponse du backend à addTP:', resp),
-        error: err => console.error('Erreur sur addTP:', err)
-      }),
-      switchMap((tp) => {
+      switchMap(() => {
         const formData = new FormData();
         formData.append('file', file);
-        return this.http.post<TP_Model>(`${API_URL}/course/${courseId}/addRendu/${tpNo}`, formData);
+        return this.http.post<TP_Model>(`${API_URL}/course/${courseId}/addRendu/${tpNo}`, formData).pipe(
+          catchError((uploadError) => {
+            // Upload failed: roll back the TP that was just created
+            return this.http.delete<void>(`${API_URL}/course/${courseId}/TPs/${tpNo}`, this.httpOptions).pipe(
+              switchMap(() => throwError(() => uploadError)),
+              catchError(() => throwError(() => uploadError))
+            );
+          })
+        );
       }),
-      catchError((error) => {
-        alert('Erreur lors de la création du TP ou de l\'upload du rendu.');
-        return throwError(() => error);
-      })
+      catchError((error) => throwError(() => error))
     );
   }
 
@@ -891,6 +895,79 @@ export class ApiService {
   }
 
   // ========================================
+  // COURSE-ACCESS : Partage des cours
+  // ========================================
+
+  /**
+   * Récupère tous les accès cours de l'utilisateur courant.
+   * GET /course-access/my-accesses
+   */
+  getMyAccesses(): Observable<CourseAccessModel[]> {
+    return this.http
+      .get<CourseAccessModel[]>(`${API_URL}/course-access/my-accesses`, this.httpOptions)
+      .pipe(
+        catchError((err: HttpErrorResponse) => {
+          console.error('getMyAccesses failed:', err.status);
+          return of([] as CourseAccessModel[]);
+        })
+      );
+  }
+
+  /**
+   * Récupère tous les partages d'un cours.
+   * GET /course-access/course/{courseId}/shares
+   */
+  getCourseShares(courseId: number): Observable<CourseAccessModel[]> {
+    return this.http
+      .get<CourseAccessModel[]>(`${API_URL}/course-access/course/${courseId}/shares`, this.httpOptions)
+      .pipe(
+        retry(1),
+        catchError((err: HttpErrorResponse) => {
+          this.handleError(err);
+          return of([] as CourseAccessModel[]);
+        })
+      );
+  }
+
+  /**
+   * Partage un cours avec un utilisateur.
+   * POST /course-access/share/{courseId}/with-permission
+   */
+  shareCourse(courseId: number, targetUserId: string, permission: CoursePermission): Observable<CourseAccessModel> {
+    return this.http
+      .post<CourseAccessModel>(
+        `${API_URL}/course-access/share/${courseId}/with-permission?targetUserId=${encodeURIComponent(targetUserId)}&permission=${permission}`,
+        {},
+        this.httpOptions
+      )
+      .pipe(
+        catchError((err: HttpErrorResponse) => {
+          this.handleError(err);
+          return throwError(() => err);
+        })
+      );
+  }
+
+  /**
+   * Retire le partage d'un cours pour un utilisateur.
+   * POST /course-access/unshare/{courseId}
+   */
+  unshareCourse(courseId: number, targetUserId: string): Observable<void> {
+    return this.http
+      .post<void>(
+        `${API_URL}/course-access/unshare/${courseId}?targetUserId=${encodeURIComponent(targetUserId)}`,
+        {},
+        this.httpOptions
+      )
+      .pipe(
+        catchError((err: HttpErrorResponse) => {
+          this.handleError(err);
+          return throwError(() => err);
+        })
+      );
+  }
+
+  // ========================================
   // GESTION DES ERREURS
   // ========================================
 
@@ -899,10 +976,18 @@ export class ApiService {
    * @param error - L'erreur HTTP reçue
    */
   private handleError(error: HttpErrorResponse): void {
+    if (error.status === 403) {
+      this.snackBar.open(
+        'Accès refusé — vous n\'avez pas les droits pour effectuer cette action.',
+        'Fermer',
+        { duration: 5000, panelClass: 'snack-denied' }
+      );
+      return;
+    }
     const msg =
       error.error && typeof error.error === 'string'
-        ? `API a retourné une erreur : ${error.error}`
-        : `Erreur serveur (code = ${error.status})\nMessage : ${error.message}`;
-    window.alert(msg);
+        ? `Erreur : ${error.error}`
+        : `Erreur ${error.status} — ${error.message}`;
+    this.snackBar.open(msg, 'Fermer', { duration: 5000, panelClass: 'snack-error' });
   }
 }

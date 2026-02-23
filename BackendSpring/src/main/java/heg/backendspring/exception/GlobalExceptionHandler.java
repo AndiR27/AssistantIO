@@ -7,6 +7,7 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -51,19 +52,27 @@ public class GlobalExceptionHandler {
             return baseProblem(status, title, detail, instance);
         }
 
-//        // 2) Équivalent de WebApplicationException côté Jakarta/JAX-RS
-//        if (ex instanceof WebApplicationException wae) {
-//            int code = (wae.getResponse() != null) ? wae.getResponse().getStatus() : 500;
-//            HttpStatus status = HttpStatus.resolve(code);
-//            if (status == null) {
-//                status = HttpStatus.INTERNAL_SERVER_ERROR;
-//            }
-//            String title = defaultTitleFor(status);
-//            String detail = firstNonBlank(wae.getMessage(), title);
-//
-//            ProblemDetail problem = baseProblem(status, title, detail, instance);
-//            return new ProblemWithStatus(status, problem);
-//        }
+        // 2) Accès interdit (403) — thrown by @PreAuthorize / CourseSecurityCheck
+        if (ex instanceof AccessDeniedException) {
+            return baseProblem(
+                    HttpStatus.FORBIDDEN,
+                    "Accès interdit",
+                    firstNonBlank(ex.getMessage(), "Vous n'avez pas les droits nécessaires."),
+                    instance
+            );
+        }
+
+        // 3a) Non authentifié (401) — JWT absent du contexte de sécurité
+        if (ex instanceof IllegalStateException
+                && ex.getMessage() != null
+                && ex.getMessage().contains("No JWT in security context")) {
+            return baseProblem(
+                    HttpStatus.UNAUTHORIZED,
+                    "Non authentifié",
+                    "Vous devez être authentifié pour accéder à cette ressource.",
+                    instance
+            );
+        }
 
         // 3) Requête invalide (400) : BadRequest, IllegalArgumentException, validation, JSON mal formé, etc.
         if (ex instanceof BadRequestException

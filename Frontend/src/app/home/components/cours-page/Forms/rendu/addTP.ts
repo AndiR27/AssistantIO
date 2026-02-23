@@ -21,6 +21,9 @@ export class AddTP {
   private courseService = inject(CourseService);
   private fb = inject(FormBuilder);
 
+  private readonly MAX_FILE_SIZE_MB = 200;
+  private readonly MAX_FILE_SIZE_BYTES = this.MAX_FILE_SIZE_MB * 1024 * 1024;
+
   file?: File;
   isUploading = false;
   errorMsg: string | null = null;
@@ -34,7 +37,16 @@ export class AddTP {
   onFileChange(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
-      this.file = input.files[0];
+      const selected = input.files[0];
+      if (selected.size > this.MAX_FILE_SIZE_BYTES) {
+        this.errorMsg = `Le fichier dépasse la taille maximale autorisée (${this.MAX_FILE_SIZE_MB} Mo).`;
+        this.file = undefined;
+        this.form.patchValue({ file: null });
+        input.value = '';
+        return;
+      }
+      this.errorMsg = null;
+      this.file = selected;
       this.form.patchValue({ file: this.file });
     }
   }
@@ -54,6 +66,7 @@ export class AddTP {
       next: () => {
         this.isUploading = false;
         this.form.reset();
+        this.form.markAsUntouched();
         this.file = undefined;
         if (this.fileInput) this.fileInput.nativeElement.value = '';
         this.uploaded.emit();

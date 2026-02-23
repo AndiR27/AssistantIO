@@ -45,7 +45,7 @@ export interface TP_Model {
 }
 
 // Modèle d'une soumission de fichier
-export interface SubmissionModel {
+interface SubmissionModel {
   id?: number;
   fileName: string;
   pathStorage: string;

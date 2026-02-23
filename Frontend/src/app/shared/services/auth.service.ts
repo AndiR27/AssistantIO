@@ -116,6 +116,23 @@ export class AuthService {
     }
 
     /**
+     * Vérifie si l'utilisateur a le rôle ADMIN ou ASSISTANT (via realm_access.roles du JWT)
+     */
+    isGlobalAdmin(): boolean {
+        const token = this.oauthService.getAccessToken();
+        if (!token) return false;
+        try {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const payload = JSON.parse(atob(base64));
+            const roles: string[] = payload?.realm_access?.roles ?? [];
+            return roles.includes('ADMIN') || roles.includes('ASSISTANT');
+        } catch {
+            return false;
+        }
+    }
+
+    /**
      * Retourne le nom d'affichage de l'utilisateur
      */
     getUserName(): string {
@@ -124,4 +141,5 @@ export class AuthService {
             || (claims?.['name'] as string)
             || 'Utilisateur';
     }
+
 }

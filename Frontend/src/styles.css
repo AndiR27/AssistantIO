@@ -184,3 +184,22 @@ input[type='file'] {
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+/* ── SNACKBAR STYLES ─────────────────────────────────────── */
+.snack-denied .mdc-snackbar__surface {
+  background-color: #fef2f2 !important;
+  color: #991b1b !important;
+  border-left: 4px solid #ef4444;
+}
+.snack-denied .mdc-snackbar__label {
+  color: #991b1b !important;
+  font-weight: 500;
+}
+.snack-denied .mat-mdc-button {
+  color: #b91c1c !important;
+}
+
+.snack-error .mdc-snackbar__surface {
+  background-color: #1e293b !important;
+  color: #f1f5f9 !important;
+}

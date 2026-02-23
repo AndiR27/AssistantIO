@@ -11,21 +11,21 @@ import java.util.Optional;
 
 @Repository
 public interface RepositoryCourseAccess extends JpaRepository<CourseAccess, Long> {
-    Optional<CourseAccess> findByUserIdAndCourseId(String userId, Long courseId);
+    Optional<CourseAccess> findByUserEmailAndCourseId(String userEmail, Long courseId);
 
-    List<CourseAccess> findByUserId(String userId);
+    List<CourseAccess> findByUserEmail(String userEmail);
 
     List<CourseAccess> findByCourseId(Long courseId);
 
-    boolean existsByUserIdAndCourseId(String userId, Long courseId);
+    boolean existsByUserEmailAndCourseId(String userEmail, Long courseId);
 
     @Modifying
-    @Query("DELETE FROM CourseAccess ca WHERE ca.userId = :userId AND ca.courseId = :courseId")
-    void deleteByUserIdAndCourseId(@Param("userId") String userId, @Param("courseId") Long courseId);
+    @Query("DELETE FROM CourseAccess ca WHERE ca.userEmail = :userEmail AND ca.courseId = :courseId")
+    void deleteByUserEmailAndCourseId(@Param("userEmail") String userEmail, @Param("courseId") Long courseId);
 
     @Modifying
     void deleteByCourseId(Long courseId);
 
-    @Query("SELECT ca.courseId FROM CourseAccess ca WHERE ca.userId = :userId")
-    List<Long> findCourseIdsByUserId(@Param("userId") String userId);
+    @Query("SELECT ca.courseId FROM CourseAccess ca WHERE ca.userEmail = :userEmail")
+    List<Long> findCourseIdsByUserEmail(@Param("userEmail") String userEmail);
 }

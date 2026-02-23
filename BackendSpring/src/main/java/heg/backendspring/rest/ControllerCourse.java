@@ -50,7 +50,6 @@ public class ControllerCourse implements CourseApi, SubmissionApi {
         return ResponseEntity.ok(serviceCourse.findAllCourses());
     }
 
-
     @Override
     public ResponseEntity<TPDto> manageTP(Long courseId, Integer tpNo) {
         return ResponseEntity.ok(serviceCourse.manageSubmissionsTP(courseId, tpNo));

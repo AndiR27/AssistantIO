@@ -23,6 +23,12 @@ public class SecurityUtils {
         return getCurrentJwt().getSubject();
     }
 
+    public String getCurrentUserEmail() {
+        Jwt jwt = getCurrentJwt();
+        String email = jwt.getClaimAsString("email");
+        return (email != null && !email.isBlank()) ? email : jwt.getSubject();
+    }
+
     public boolean isGlobalAdmin() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) {

@@ -56,6 +56,10 @@ public class SecurityConfig {
                                 "/swagger-ui.html"
                         ).permitAll()
 
+                        // --- Liste des cours + mes accès : tout utilisateur authentifié
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/admin/courses", "/admin/courses/**").authenticated()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/course-access/my-accesses").authenticated()
+
                         // --- Tout le reste : seulement ADMIN ou ASSISTANT
                         .anyRequest().hasAnyRole("ADMIN", "ASSISTANT")
                 )
@@ -67,35 +71,4 @@ public class SecurityConfig {
         return http.build();
 
     }
-
-//    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//        // Désactivation CSRF pour API REST
-//        http.csrf(csrf -> csrf.disable());
-//
-//        // Activation CORS
-//        http.cors(Customizer.withDefaults());
-//
-//        // Tout est permis (pas encore de vraie sécurité, juste pour dev)
-//        http.authorizeHttpRequests(auth -> auth
-//                .anyRequest().permitAll()
-//        );
-//
-//        return http.build();
-//    }
-
-//    @Bean
-//    public CorsConfigurationSource corsConfigurationSource() {
-//        CorsConfiguration config = new CorsConfiguration();
-//
-//        config.setAllowedOrigins(Arrays.asList(allowedOrigins));
-//        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-//        config.setAllowedHeaders(Arrays.asList("accept", "authorization", "content-type", "x-requested-with"));
-//        config.setAllowCredentials(true);
-//
-//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//        source.registerCorsConfiguration("/**", config);
-//        return source;
-//    }
-
 }

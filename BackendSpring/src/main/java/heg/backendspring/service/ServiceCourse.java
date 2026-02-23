@@ -20,6 +20,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -61,6 +62,7 @@ public class ServiceCourse {
     /**
      * Trouver un cours par son id
      */
+    @PreAuthorize("@courseSecurity.hasAccess(#courseId, 'READ')")
     public Optional<CourseDto> findCourseById(Long courseId) {
         return repositoryCourse.findById(courseId)
                 .map(mapperCourse::toDto);
@@ -105,6 +107,7 @@ public class ServiceCourse {
     /**
      * Mettre à jour un cours
      */
+    @PreAuthorize("@courseSecurity.hasAccess(#courseDto.id(), 'OWNER')")
     @Transactional
     public Optional<CourseDto> updateCourse(CourseDto courseDto) {
         Optional<Course> courseOpt = repositoryCourse.findById(courseDto.id());
@@ -130,6 +133,7 @@ public class ServiceCourse {
     /**
      * Supprimer un cours
      */
+    @PreAuthorize("@courseSecurity.hasAccess(#courseId, 'OWNER')")
     @Transactional
     public void deleteCourse(Long courseId) {
         Course course = repositoryCourse.findById(courseId)
@@ -150,6 +154,7 @@ public class ServiceCourse {
      * 3 cas possibles : l'étudiant n'existe pas (on le crée), l'étudiant existe déjà dans le cours (on ne fait rien),
      * ou l'étudiant existe, mais pas dans le cours (on l'ajoute au cours
      */
+    @PreAuthorize("@courseSecurity.hasAccess(#idCourse, 'WRITE')")
     @Transactional
     public StudentDto addStudent(Long idCourse, StudentDto studentDto) {
         Course course = repositoryCourse.findById(idCourse)
@@ -178,6 +183,7 @@ public class ServiceCourse {
     /**
      * Methode permettant de récupérer un étudiant d'un cours par son id
      */
+    @PreAuthorize("@courseSecurity.hasAccess(#courseId, 'READ')")
     public Optional<StudentDto> getStudentFromCourse(Long courseId, Long studentId) {
         return repositoryCourse.findStudentByCourseIdAndStudentId(courseId, studentId)
                 .map(mapperStudent::tDto);
@@ -199,6 +205,7 @@ public class ServiceCourse {
      * Methode permettant d'ajouter une liste d'étudiants à un cours
      * à partir d'un fichier TXT
      */
+    @PreAuthorize("@courseSecurity.hasAccess(#idCourse, 'WRITE')")
     @Transactional
     public List<StudentDto> addAllStudentsFromFile(Long idCourse, String[] data) {
         log.debug("Starting to add studends for course id={} with file (number of values : {})", idCourse, data.length);
@@ -223,6 +230,7 @@ public class ServiceCourse {
     /**
      * Methode permettant de récupérer tous les étudiants d'un cours
      */
+    @PreAuthorize("@courseSecurity.hasAccess(#idCourse, 'READ')")
     public List<StudentDto> getAllStudentsFromCourse(Long idCourse) {
         Set<Student> students = repositoryCourse.findStudentsByCourseId(idCourse);
         return students.stream().map(mapperStudent::tDto).toList();
@@ -231,6 +239,7 @@ public class ServiceCourse {
     /**
      * Methode permettant de supprimer un étudiant d'un cours (désinscription)
      */
+    @PreAuthorize("@courseSecurity.hasAccess(#idCourse, 'WRITE')")
     @Transactional
     public void removeStudentFromCourse(Long idCourse, Long idStudent) {
         Optional<Course> optCourse = repositoryCourse.findById(idCourse);
@@ -257,6 +266,7 @@ public class ServiceCourse {
      *
      * @param no : numéro du TP (pas l'id)
      */
+    @PreAuthorize("@courseSecurity.hasAccess(#idCourse, 'WRITE')")
     public TPDto addTPtoCourse(Long idCourse, int no) {
         Course course = repositoryCourse.findById(idCourse).get();
         //throw exception si le TP existe déjà
@@ -280,6 +290,7 @@ public class ServiceCourse {
     /**
      * Methode permettant de récupérer tous les TPs d'un cours
      */
+    @PreAuthorize("@courseSecurity.hasAccess(#idCourse, 'READ')")
     public List<TPDto> getAllTPsFromCourse(Long idCourse) {
         return repositoryCourse.findAllTPsByCourseId(idCourse).stream().map(mapperTP::toDto).toList();
     }
@@ -287,6 +298,7 @@ public class ServiceCourse {
     /**
      * Methode permettant de récupérer un TP d'un cours par son numéro
      */
+    @PreAuthorize("@courseSecurity.hasAccess(#idCourse, 'READ')")
     public Optional<TPDto> findTPFromCourseByNo(Long idCourse, int no) {
         Optional<TP> tpOpt = repositoryCourse.findTPByCourseIdAndNo(idCourse, no);
         return tpOpt.map(mapperTP::toDto);
@@ -295,6 +307,7 @@ public class ServiceCourse {
     /**
      * Methode permettant de supprimer un TP d'un cours par son numéro (et donc de la base)
      */
+    @PreAuthorize("@courseSecurity.hasAccess(#idCourse, 'WRITE')")
     @Transactional
     public void deleteTPFromCourseByNo(Long idCourse, int no) {
         Optional<TP> tpOpt = repositoryCourse.findTPByCourseIdAndNo(idCourse, no);
@@ -312,6 +325,7 @@ public class ServiceCourse {
     /**
      * Methode permettant de mettre à jour un TP d'un cours par son numéro
      */
+    @PreAuthorize("@courseSecurity.hasAccess(#courseId, 'WRITE')")
     @Transactional
     public Optional<TPDto> updateTPfromCourseByNo(Long courseId, Integer tpNumber, TPDto tpDto) {
         Optional<TP> tpOpt = repositoryCourse.findTPByCourseIdAndNo(courseId, tpNumber);
@@ -334,6 +348,7 @@ public class ServiceCourse {
     /**
      * Méthode permettant de récupérer les évaluations d'un cours
      */
+    @PreAuthorize("@courseSecurity.hasAccess(#idCourse, 'READ')")
     public List<EvaluationDto> getAllEvaluationsFromCourse(Long idCourse){
         return serviceEvaluation.getAllEvaluationsFromCourse(idCourse);
     }
@@ -344,6 +359,7 @@ public class ServiceCourse {
      * @param evaluationDto
      * @return
      */
+    @PreAuthorize("@courseSecurity.hasAccess(#idCourse, 'WRITE')")
     @Transactional
     public EvaluationDto addEvaluationToCourse(Long idCourse, EvaluationDto evaluationDto){
         Optional<Course> courseOpt = repositoryCourse.findById(idCourse);
@@ -362,6 +378,7 @@ public class ServiceCourse {
     /**
      * Méthode permettant d'ajouter un rendu zip pour un TP d'un cours
      */
+    @PreAuthorize("@courseSecurity.hasAccess(#idCourse, 'WRITE')")
     @Transactional
     public SubmissionDto addSubmissionToTP(Long idCourse, int tpNo, InputStream zipFile) {
         Optional<Course> courseOpt = repositoryCourse.findById(idCourse);
@@ -379,6 +396,7 @@ public class ServiceCourse {
     /**
      * Méthode permettant de lancer le traitement du rendu pour un TP
      */
+    @PreAuthorize("@courseSecurity.hasAccess(#idCours, 'WRITE')")
     @Transactional
     public void startZipProcess(Long idCours, int idTp) throws IOException {
         Course course = repositoryCourse.findById(idCours)
@@ -401,6 +419,7 @@ public class ServiceCourse {
      * 3. Vérifier dans la liste des rendus et mettre à jour le statut du TP_Status
      * 4. Persister la liste des TP_Status
      */
+    @PreAuthorize("@courseSecurity.hasAccess(#idCourse, 'READ')")
     @Transactional
     public TPDto manageSubmissionsTP(Long idCourse, int tp_no) {
         log.info("Gestion des rendus pour le TP numéro : {} du cours id : {}", tp_no, idCourse);
@@ -421,6 +440,7 @@ public class ServiceCourse {
     /**
      * Méthode permettant de récupérer un fichier zip restructuré des rendus d'un TP
      */
+    @PreAuthorize("@courseSecurity.hasAccess(#idCourse, 'READ')")
     public File getTPSubmissionRestructurated(Long idCourse, int tp_no) {
         Optional<TPDto> tpDtoOpt = findTPFromCourseByNo(idCourse, tp_no);
         if (tpDtoOpt.isPresent()) {
@@ -434,6 +454,7 @@ public class ServiceCourse {
     /**
      * Méthode permettant de récupérer tous les TPStatus d'un TP d'un cours
      */
+    @PreAuthorize("@courseSecurity.hasAccess(#idCourse, 'READ')")
     public List<TPStatusDto> getAllTPStatusFromTP(Long idCourse, int tp_no) {
         Optional<Course> courseOpt = repositoryCourse.findById(idCourse);
         if (courseOpt.isEmpty()) {
@@ -451,6 +472,7 @@ public class ServiceCourse {
     /**
      * Méthode permettant de lancer la mise à jour des statuts des rendus d'un TP d'un cours
      */
+    @PreAuthorize("@courseSecurity.hasAccess(#courseId, 'WRITE')")
     @Transactional
     public List<TPStatusDto> refreshTPStatusesFromTP(Long courseId, Integer tpNumber) {
         Optional<Course> courseOpt = repositoryCourse.findById(courseId);

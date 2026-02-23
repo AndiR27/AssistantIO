@@ -1,0 +1,100 @@
+<div class="dialog-header" mat-dialog-title>
+  <div class="header-icon">
+    <mat-icon>people</mat-icon>
+  </div>
+  <div class="header-text">
+    <span class="header-title">Partager</span>
+    <span class="header-course">{{ data.courseName }}</span>
+  </div>
+  <button mat-icon-button class="header-close" (click)="close()" matTooltip="Fermer">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<mat-dialog-content class="dialog-content">
+
+  <!-- ACCÈS ACTUELS -->
+  <p class="section-label">Accès actuels</p>
+
+  @if (isLoading) {
+    <div class="spinner-row">
+      <mat-spinner diameter="24"></mat-spinner>
+    </div>
+  } @else if (shares.length === 0) {
+    <div class="empty-state">
+      <mat-icon>group_off</mat-icon>
+      <span>Ce cours n'est partagé avec personne.</span>
+    </div>
+  } @else {
+    <ul class="shares-list">
+      @for (share of shares; track share.userId) {
+        <li class="share-item" [class.is-revoking]="isRevoking(share)">
+          <div class="avatar" [style.background-color]="avatarColor(share.userId)">
+            {{ initials(share.userId) }}
+          </div>
+          <span class="user-email">{{ share.userId }}</span>
+          <span class="perm-badge" [class]="permissionClass(share.permission)">
+            {{ permissionLabels[share.permission] }}
+          </span>
+          @if (!isOwnEntry(share)) {
+            <button
+              mat-icon-button
+              class="revoke-btn"
+              matTooltip="Retirer l'accès"
+              [disabled]="isRevoking(share)"
+              (click)="revoke(share)">
+              @if (isRevoking(share)) {
+                <mat-spinner diameter="16"></mat-spinner>
+              } @else {
+                <mat-icon>person_remove</mat-icon>
+              }
+            </button>
+          } @else {
+            <div class="revoke-btn-placeholder"></div>
+          }
+        </li>
+      }
+    </ul>
+  }
+
+  <div class="divider"></div>
+
+  <!-- INVITER PAR EMAIL -->
+  <p class="section-label">Inviter par email</p>
+
+  <div class="add-form">
+    <mat-form-field appearance="outline" class="email-field">
+      <mat-label>Adresse email</mat-label>
+      <mat-icon matPrefix>alternate_email</mat-icon>
+      <input
+        matInput
+        type="email"
+        [(ngModel)]="newEmail"
+        placeholder="marie@exemple.fr"
+        (keyup.enter)="share()" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="perm-field">
+      <mat-label>Accès</mat-label>
+      <mat-select [(ngModel)]="newPermission">
+        @for (p of permissions; track p) {
+          <mat-option [value]="p">{{ permissionLabels[p] }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <button
+      mat-flat-button
+      class="share-btn"
+      [disabled]="!isValidEmail() || isSharing"
+      (click)="share()">
+      @if (isSharing) {
+        <mat-spinner diameter="18" class="btn-spinner"></mat-spinner>
+      } @else {
+        <mat-icon>send</mat-icon>
+      }
+      Inviter
+    </button>
+  </div>
+
+</mat-dialog-content>

@@ -59,7 +59,7 @@ public class ControllerAdmin implements AdminCourseApi {
             courses = serviceCourse.findAllCourses();
         } else {
             List<Long> ids = serviceCourseAccess.getAccessibleCourseIds(
-                    securityUtils.getCurrentUserId()
+                    securityUtils.getCurrentUserEmail()
             );
             courses = ids.isEmpty() ? List.of() : serviceCourse.findAllById(ids);
         }

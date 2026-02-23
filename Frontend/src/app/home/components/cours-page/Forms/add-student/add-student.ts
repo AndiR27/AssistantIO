@@ -1,5 +1,5 @@
-import { Component, computed, EventEmitter, inject, Input, Output, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, computed, EventEmitter, inject, Input, Output, signal, ViewChild } from '@angular/core';
+import { FormBuilder, FormGroupDirective, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CourseService } from '../../../../services/course.service';
 import { StudyType } from '../../../../models/studyType.model';
 import { StudentModel } from '../../../../models/courseDetails.model';
@@ -20,7 +20,7 @@ import { MATERIAL_MODULES } from '../../../../../shared/imports/material-imports
   styleUrl: './add-student.css'
 })
 export class AddStudent {
-  //Form pour ajouter un étudiant à un cours
+  @ViewChild(FormGroupDirective) private formDirective!: FormGroupDirective;
   @Input() courseId!: number;
   @Output() added = new EventEmitter<void>();
   private fb = inject(FormBuilder);
@@ -63,7 +63,7 @@ export class AddStudent {
           this.addedStudent.set(student);
           this.added.emit();
           console.log('Emit Etudiant avec succès:', student);
-          this.form.reset({ studyType: StudyType.TEMPS_PLEIN });
+          this.formDirective.resetForm({ studyType: StudyType.TEMPS_PLEIN });
 
           // Clear success message after 3 seconds
           setTimeout(() => {

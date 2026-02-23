@@ -10,8 +10,11 @@ import { FooterComponent } from '../../../shared/components/footer/footer.compon
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { DeleteConfirmationDialogComponent } from '../delete-confirmation-dialog/delete-confirmation-dialog.component';
+import { ShareCourseDialogComponent } from '../share-course-dialog/share-course-dialog.component';
 import { MATERIAL_MODULES } from '../../../shared/imports/material-imports';
 import { FormsModule } from '@angular/forms';
+import { ApiService } from '../../../shared/services/api.service';
+import { CoursePermission } from '../../models/courseAccess.model';
 
 
 @Component({
@@ -30,11 +33,15 @@ import { FormsModule } from '@angular/forms';
  */
 export class HomeComponent {
   // Propriété pour stocker le titre de la page d'accueil
-  homeService = inject(HomeService); // Injection du service HomeService
-  dialog = inject(MatDialog); // Injection du service MatDialog
+  homeService = inject(HomeService);
+  dialog = inject(MatDialog);
+  private api = inject(ApiService);
   title = 'Page d\'accueil';
   // Propriété pour stocker une liste de course
   courseList: CoursePreview[] = [];
+
+  // Set of courseIds where the current user is OWNER
+  private ownedCourseIds = new Set<number>();
 
   // Edit mode properties
   editingCourseId: number | null = null;
@@ -44,8 +51,8 @@ export class HomeComponent {
   // Constructeur pour initialiser le composant
   constructor() {
     console.log('HomeComponent initialized');
-    // Récupération des cours dès l'initialisation du composant
     this.getCourses();
+    this.loadMyAccesses();
   }
 
   //Récupérer la liste des cours avec ngOnInit : cela permet de charger les données dès que le composant est initialisé.
@@ -63,6 +70,21 @@ export class HomeComponent {
 
   refreshCourses() {
     this.getCourses();
+  }
+
+  private loadMyAccesses(): void {
+    this.api.getMyAccesses().subscribe(accesses => {
+      this.ownedCourseIds = new Set(
+        accesses
+          .filter(a => a.permission === 'OWNER')
+          .map(a => a.courseId)
+      );
+    });
+  }
+
+  canShare(courseId: number | undefined): boolean {
+    if (!courseId) return false;
+    return this.ownedCourseIds.has(courseId);
   }
 
 
@@ -102,6 +124,22 @@ export class HomeComponent {
     event.stopPropagation();
     this.editingCourseId = null;
     this.editingCourse = null;
+  }
+
+  onShareCourse(course: CoursePreview, event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (event.target instanceof HTMLElement) {
+      event.target.blur();
+    }
+
+    this.dialog.open(ShareCourseDialogComponent, {
+      width: '620px',
+      data: { courseId: course.id, courseName: course.name },
+      restoreFocus: true,
+      autoFocus: 'first-tabbable'
+    });
   }
 
   onDeleteCourse(course: CoursePreview, event: Event) {

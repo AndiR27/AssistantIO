@@ -11,10 +11,10 @@ import java.time.LocalDateTime;
 @Table(name = "course_access",
         uniqueConstraints = @UniqueConstraint(
                 name = "uk_course_access_user_course",
-                columnNames = {"user_id", "course_id"}
+                columnNames = {"user_email", "course_id"}
         ),
         indexes = {
-                @Index(name = "idx_course_access_user", columnList = "user_id"),
+                @Index(name = "idx_course_access_user", columnList = "user_email"),
                 @Index(name = "idx_course_access_course", columnList = "course_id")
         })
 @Getter
@@ -27,9 +27,8 @@ public class CourseAccess {
     @EqualsAndHashCode.Include
     private Long id;
 
-    //keycloak stub user id
-    @Column(name = "user_id", nullable = false, length = 255)
-    private String userId;
+    @Column(name = "user_email", nullable = false, length = 255)
+    private String userEmail;
 
     @Column(name = "course_id", nullable = false)
     private Long courseId;
@@ -48,9 +47,9 @@ public class CourseAccess {
         this.createdAt = LocalDateTime.now();
     }
 
-    public CourseAccess(String userId, Long courseId, CoursePermission permission) {
+    public CourseAccess(String userEmail, Long courseId, CoursePermission permission) {
         this();
-        this.userId = userId;
+        this.userEmail = userEmail;
         this.courseId = courseId;
         this.permission = permission;
     }

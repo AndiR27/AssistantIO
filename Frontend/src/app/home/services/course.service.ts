@@ -44,6 +44,7 @@ export class CourseService {
           year_course: dto.year_course,
           semester: dto.semester as SemesterType,
           courseType: dto.courseType as CourseType,
+          cyberlearn_link: dto.cyberlearn_link || '',
           studentList: dto.studentList || [],
           tpsList: dto.tpsList || [],
           evaluations: dto.evaluations || []
@@ -205,6 +206,16 @@ export class CourseService {
    * @param file - Le fichier de rendu (archive ZIP)
    * @returns Observable<TP_Model>
    */
+  createTP(courseId: number, tpNo: number): Observable<TP_Model> {
+    return this.api.createTP(courseId, tpNo).pipe(
+      tap(res => console.log('API createTP response:', res)),
+      catchError(err => {
+        console.error('Error in createTP():', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
   addTpToCourse(courseId: number, tpNo: number, file: File): Observable<TP_Model> {
     return this.api.addTpToCourse(courseId, tpNo, file).pipe(
       tap(res => console.log('API addTpToCourse response:', res)),

@@ -1,49 +1,37 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()" class="tp-form">
 
-  <mat-form-field appearance="outline" class="full-width">
+  <mat-form-field appearance="outline">
     <mat-label>Numéro du TP</mat-label>
-    <input matInput type="number" id="noTp" formControlName="noTp" min="1" placeholder="Ex: 1, 2, 3..." />
-    <mat-icon matPrefix>assignment</mat-icon>
+    <input matInput type="number" formControlName="noTp" min="1" placeholder="Ex: 1, 2, 3..." />
+    <mat-icon matPrefix>tag</mat-icon>
     @if (form.controls.noTp.touched && form.controls.noTp.invalid) {
-    <mat-error>Le numéro du TP est requis.</mat-error>
+    <mat-error>Requis</mat-error>
     }
   </mat-form-field>
 
-  <div class="file-upload-section">
-    <input type="file" id="zipFile" #fileInputRef (change)="onFileChange($event)" accept=".zip" hidden />
+  <div class="file-section">
+    <input type="file" #fileInputRef (change)="onFileChange($event)" accept=".zip" hidden />
 
-    <button mat-raised-button type="button" color="accent" class="choose-file-btn" (click)="fileInputRef.click()">
+    <button mat-stroked-button type="button" class="choose-file-btn" (click)="fileInputRef.click()">
       <mat-icon>attach_file</mat-icon>
-      <span>{{ file ? 'Changer de fichier' : 'Choisir un fichier .zip' }}</span>
+      <span>{{ file ? file.name : 'Choisir un fichier .zip' }}</span>
     </button>
 
     @if (file) {
-    <div class="file-info">
-      <mat-chip class="file-chip">
-        <mat-icon matChipAvatar>folder_zip</mat-icon>
-        {{ file.name }}
-      </mat-chip>
-      <span class="file-size">{{ (file.size / 1024).toFixed(2) }} KB</span>
-    </div>
+    <span class="file-size">{{ (file.size / 1024 / 1024).toFixed(1) }} Mo</span>
     }
   </div>
 
-  <div class="form-actions">
-    <button mat-raised-button color="primary" class="submit-btn" type="submit"
-      [disabled]="form.invalid || !file || isUploading">
-      @if (isUploading) {
-      <ng-container>
-        <mat-icon class="spinning">sync</mat-icon>
-        <span>Ajout en cours...</span>
-      </ng-container>
-      } @else {
-      <ng-container>
-        <mat-icon>add_circle</mat-icon>
-        <span>Ajouter le TP</span>
-      </ng-container>
-      }
-    </button>
-  </div>
+  <button mat-raised-button color="primary" class="submit-btn" type="submit"
+    [disabled]="form.invalid || !file || isUploading">
+    @if (isUploading) {
+      <mat-icon class="spinning">sync</mat-icon>
+      <span>Envoi...</span>
+    } @else {
+      <mat-icon>add_circle</mat-icon>
+      <span>Ajouter</span>
+    }
+  </button>
 
   @if (successMsg) {
   <div class="success-message">

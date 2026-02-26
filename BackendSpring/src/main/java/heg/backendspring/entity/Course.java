@@ -44,6 +44,10 @@ public class Course {
 
     private String teacher;
 
+    //Lien du cours vers le Cyberlearn
+    @Column(name = "cyberlearn_link", length = 2000)
+    private String cyberlearnLink;
+
     //Un cours a plusieurs Student
     @ManyToMany(mappedBy = "studentCourses")
     private Set<Student> students = new HashSet<>();

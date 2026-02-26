@@ -1,16 +1,55 @@
 <app-header></app-header>
 <div class="container">
 
-  <!-- SECTION POUR AJOUTER UN COURS -->
-  <section class="add-section">
-    <app-cours-form (courseAdded)="refreshCourses()"></app-cours-form>
+  <!-- WELCOME HERO -->
+  <section class="welcome-hero">
+    <div class="hero-content">
+      <div class="hero-icon-badge">
+        <mat-icon>school</mat-icon>
+      </div>
+      <div class="hero-text">
+        <h1 class="hero-title">Bienvenue, {{ userName }}</h1>
+        <p class="hero-subtitle">Gerez vos cours, evaluations et travaux pratiques</p>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-pill">
+        <mat-icon>library_books</mat-icon>
+        <span>{{ courseList.length }} cours</span>
+      </div>
+    </div>
   </section>
-  <!-- TITRE PRINCIPAL -->
-  <h1 class="title-large">Liste des Cours</h1>
-  <!-- SECTION D'AFFICHAGE DES COURS -->
+
+  <!-- COLLAPSIBLE ADD FORM -->
+  <section class="add-section">
+    <div class="add-toggle" (click)="toggleForm()">
+      <div class="add-toggle-left">
+        <mat-icon>{{ isFormExpanded ? 'remove_circle_outline' : 'add_circle_outline' }}</mat-icon>
+        <span>{{ isFormExpanded ? 'Masquer le formulaire' : 'Ajouter un nouveau cours' }}</span>
+      </div>
+      <mat-icon class="toggle-chevron" [class.expanded]="isFormExpanded">expand_more</mat-icon>
+    </div>
+    @if (isFormExpanded) {
+      <div class="form-reveal">
+        <app-cours-form (courseAdded)="refreshCourses()"></app-cours-form>
+      </div>
+    }
+  </section>
+
+  <!-- SECTION HEADER -->
+  <div class="section-header">
+    <mat-icon class="section-icon">library_books</mat-icon>
+    <div>
+      <h2 class="section-title">Mes cours</h2>
+      <p class="section-subtitle">{{ courseList.length }} cours disponible{{ courseList.length > 1 ? 's' : '' }}</p>
+    </div>
+  </div>
+
+  <!-- COURSE GRID -->
   <section class="courses-grid" id="courses-list">
-    @for (course of courseList; track course.id) {
-    <article class="course-card" [class.editing]="editingCourseId === course.id">
+    @for (course of courseList; track course.id; let i = $index) {
+    <article class="course-card" [class.editing]="editingCourseId === course.id"
+             [style.animation-delay]="(i * 0.06) + 's'">
 
       <!-- ACTION BUTTONS (visible on hover) -->
       @if (editingCourseId !== course.id) {
@@ -90,7 +129,7 @@
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="half-width">
-            <mat-label>Année</mat-label>
+            <mat-label>Annee</mat-label>
             <input matInput type="number" [(ngModel)]="editingCourse.year_course" />
           </mat-form-field>
         </div>
@@ -114,12 +153,13 @@
       }
     </article>
     } @empty {
-    <p>Aucun cours trouvé.</p>
+    <div class="empty-state">
+      <mat-icon class="empty-icon">school</mat-icon>
+      <h3>Aucun cours pour le moment</h3>
+      <p>Commencez par ajouter votre premier cours avec le formulaire ci-dessus.</p>
+    </div>
     }
   </section>
-
-
-
 
 </div>
 <app-footer></app-footer>

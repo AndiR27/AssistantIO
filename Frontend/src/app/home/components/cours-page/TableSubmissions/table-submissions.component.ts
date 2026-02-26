@@ -44,6 +44,7 @@ export class TableSubmissionsComponent implements OnInit {
     private snackBar = inject(MatSnackBar);
     private exportPdfService = inject(ExportPdfComponent);
     isDownloading = false;
+    isAddingTP = false;
     processingTPs = new Set<number>(); // Track which TPs are being processed
     processingMapping = new Set<number>(); // Track which TPs are regenerating mapping
     searchTerm = ''; // Search term for filtering students
@@ -77,6 +78,55 @@ export class TableSubmissionsComponent implements OnInit {
             const nameA = a.name?.toLowerCase() || '';
             const nameB = b.name?.toLowerCase() || '';
             return nameA.localeCompare(nameB);
+        });
+    }
+
+    private readonly MAX_FILE_SIZE_MB = 200;
+    private readonly MAX_FILE_SIZE_BYTES = this.MAX_FILE_SIZE_MB * 1024 * 1024;
+
+    get nextTpNo(): number {
+        if (this.tps.length === 0) return 1;
+        return Math.max(...this.tps.map(tp => tp.no)) + 1;
+    }
+
+    // Number of blank placeholder columns to fill the table when few TPs exist
+    get placeholderCols(): number[] {
+        const minCols = 5;
+        const needed = minCols - this.tps.length;
+        return needed > 0 ? Array(needed).fill(0) : [];
+    }
+
+    onAddTPFileSelected(event: Event): void {
+        const input = event.target as HTMLInputElement;
+        if (!input.files?.length || !this.courseId) return;
+
+        const file = input.files[0];
+        input.value = ''; // reset so same file can be re-selected
+
+        if (file.size > this.MAX_FILE_SIZE_BYTES) {
+            this.snackBar.open(`Fichier trop volumineux (max ${this.MAX_FILE_SIZE_MB} Mo)`, 'Fermer', { duration: 5000 });
+            return;
+        }
+
+        if (!file.name.endsWith('.zip')) {
+            this.snackBar.open('Veuillez sélectionner un fichier .zip', 'Fermer', { duration: 5000 });
+            return;
+        }
+
+        this.isAddingTP = true;
+        const tpNo = this.nextTpNo;
+
+        this.courseService.addTpToCourse(this.courseId, tpNo, file).subscribe({
+            next: () => {
+                this.isAddingTP = false;
+                this.refresh.emit();
+                this.snackBar.open(`TP ${tpNo} ajouté avec succès`, 'OK', { duration: 3000 });
+            },
+            error: (err) => {
+                this.isAddingTP = false;
+                console.error('Error adding TP:', err);
+                this.snackBar.open('Erreur lors de l\'ajout du TP', 'Fermer', { duration: 5000 });
+            }
         });
     }
 

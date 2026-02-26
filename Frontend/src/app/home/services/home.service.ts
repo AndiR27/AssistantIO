@@ -96,7 +96,8 @@ export class HomeService {
         teacher: dto.teacher,
         year_course: dto.year_course,
         semester: dto.semester as SemesterType,
-        courseType: dto.courseType as CourseType
+        courseType: dto.courseType as CourseType,
+        cyberlearn_link: dto.cyberlearn_link
       })),
       catchError(error => {
         console.error('Error updating course:', error);

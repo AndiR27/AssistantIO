@@ -21,13 +21,14 @@ export class ExportPdfComponent {
      * @param course Détails du cours (optionnel) pour le titre et le nom du fichier
      */
     generatePDF(students: StudentModel[], tps: TP_Model[], threshold: number, course?: CourseDetailsModel): void {
+        const sortedTps = [...tps].sort((a, b) => a.no - b.no);
         const doc = new jsPDF();
 
         this.addPdfHeader(doc, threshold, course);
         this.addLegend(doc);
 
-        const headers = this.buildHeaders(tps);
-        const { data, statusData } = this.buildTableData(students, tps);
+        const headers = this.buildHeaders(sortedTps);
+        const { data, statusData } = this.buildTableData(students, sortedTps);
 
         this.generateTable(doc, headers, data, statusData, threshold);
         this.savePdf(doc, course);

@@ -4,6 +4,40 @@
 <div class="course-container">
   <!-- ▶︎ Modern Course Header with Gradient -->
   <div class="course-hero">
+    <!-- Cyberlearn logo top-right -->
+    <div class="cyberlearn-corner">
+      @if (isEditingLink) {
+        <div class="cyberlearn-edit">
+          <input type="url" [(ngModel)]="editLinkValue" placeholder="https://cyberlearn.hes-so.ch/..."
+            class="cyberlearn-input" (keyup.enter)="saveLink()" (keyup.escape)="cancelEditLink()">
+          <button mat-icon-button class="cyberlearn-save-btn" (click)="saveLink()" matTooltip="Enregistrer">
+            <mat-icon>check</mat-icon>
+          </button>
+          <button mat-icon-button class="cyberlearn-cancel-btn" (click)="cancelEditLink()" matTooltip="Annuler">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      } @else {
+        @if (course.cyberlearn_link) {
+          <div class="cyberlearn-logo-wrapper">
+            <a [href]="course.cyberlearn_link" target="_blank" rel="noopener" class="cyberlearn-link"
+              matTooltip="Ouvrir sur Cyberlearn">
+              <img src="assets/images/cyberlearn_logo.png" alt="Cyberlearn" class="cyberlearn-logo">
+            </a>
+            <button mat-icon-button class="cyberlearn-settings-btn" (click)="startEditLink()"
+              matTooltip="Modifier le lien">
+              <mat-icon>settings</mat-icon>
+            </button>
+          </div>
+        } @else {
+          <div class="cyberlearn-add" (click)="startEditLink()">
+            <img src="assets/images/cyberlearn_logo.png" alt="Cyberlearn" class="cyberlearn-logo">
+            <span class="cyberlearn-add-label">Ajouter <br>le lien</span>
+          </div>
+        }
+      }
+    </div>
+
     <div class="hero-content">
       <div class="hero-icon">
         <mat-icon>school</mat-icon>
@@ -30,70 +64,75 @@
     </div>
   </div>
 
-  <!-- ▶︎ Actions Section Title -->
+  <!-- ▶︎ Section Évaluations (priorité académique) -->
+  <app-evaluation-section [courseId]="courseId()!" [evaluations]="evaluations" (evaluationAdded)="loadEvaluations()">
+  </app-evaluation-section>
+
+  <!-- ▶︎ Section Gestion du cours -->
   <div class="section-header">
     <h2 class="section-title">
-      <mat-icon>add_circle_outline</mat-icon>
-      <span>Actions rapides</span>
+      <mat-icon>tune</mat-icon>
+      <span>Gestion du cours</span>
     </h2>
-    <p class="section-subtitle">Gérez les étudiants et les travaux pratiques</p>
+    <p class="section-subtitle">Étudiants et travaux pratiques</p>
   </div>
 
-  <!-- ▶︎ Enhanced Form Cards Grid -->
-  <div class="add-section-grid">
-    <!-- Card 1: Add Student -->
-    <mat-card class="add-card student-card mat-elevation-z2">
-      <div class="card-icon-header">
-        <div class="card-icon blue-icon">
-          <mat-icon>person_add</mat-icon>
-        </div>
-        <mat-card-header>
-          <mat-card-title>Ajouter un étudiant</mat-card-title>
-          <mat-card-subtitle>Inscription manuelle</mat-card-subtitle>
-        </mat-card-header>
+  <div class="management-grid">
+    <!-- Card 1 : Ajouter un étudiant -->
+    <mat-card class="mgmt-card student-card mat-elevation-z1">
+      <div class="card-label">
+        <mat-icon>person_add</mat-icon>
+        <span>Ajouter un étudiant</span>
       </div>
-
       <mat-card-content>
         <app-add-student (added)="loadStudents()"></app-add-student>
       </mat-card-content>
     </mat-card>
 
-    <!-- Card 2: Upload TXT -->
-    <mat-card class="add-card upload-card mat-elevation-z2">
-      <div class="card-icon-header">
-        <div class="card-icon green-icon">
-          <mat-icon>upload_file</mat-icon>
-        </div>
-        <mat-card-header>
-          <mat-card-title>Import par fichier</mat-card-title>
-          <mat-card-subtitle>Fichier .txt</mat-card-subtitle>
-        </mat-card-header>
+    <!-- Card 2 : Import par fichier -->
+    <mat-card class="mgmt-card import-card mat-elevation-z1">
+      <div class="card-label">
+        <mat-icon>upload_file</mat-icon>
+        <span>Importer des étudiants</span>
       </div>
       <mat-card-content>
         <app-upload-file-txt (uploaded)="loadStudents()"></app-upload-file-txt>
+
+        <div class="format-hint">
+          <mat-icon>lightbulb</mat-icon>
+          <div class="format-hint-text">
+            Fichier <code>.txt</code> avec un étudiant par ligne :
+            <span class="format-example">Dupont Jean;jean.dupont&#64;etu.hesge.ch;TEMPS_PLEIN
+Martin Alice;alice.martin&#64;etu.hesge.ch;TEMPS_PARTIEL</span>
+          </div>
+        </div>
       </mat-card-content>
     </mat-card>
 
-    <!-- Card 3: Add TP -->
-    <mat-card class="add-card tp-card mat-elevation-z2">
-      <div class="card-icon-header">
-        <div class="card-icon orange-icon">
-          <mat-icon>assignment_add</mat-icon>
-        </div>
-        <mat-card-header>
-          <mat-card-title>Créer un TP</mat-card-title>
-          <mat-card-subtitle>Avec fichier .zip</mat-card-subtitle>
-        </mat-card-header>
+    <!-- Card 3 : Créer un TP -->
+    <mat-card class="mgmt-card tp-card mat-elevation-z1">
+      <div class="card-label">
+        <mat-icon>assignment_add</mat-icon>
+        <span>Créer un TP</span>
       </div>
       <mat-card-content>
         <app-rendu-tp (uploaded)="loadTPInfos()"></app-rendu-tp>
+
+        <div class="format-hint">
+          <mat-icon>lightbulb</mat-icon>
+          <div class="format-hint-text">
+            Fichier <code>.zip</code> contenant les rendus des étudiants. Taille max : <code>200 Mo</code>.
+            <span class="format-example">TP1.zip
+├── Dupont_Jean/
+│   └── rendu.zip
+├── Martin_Alice/
+└── └── rendu.zip
+            </span>
+          </div>
+        </div>
       </mat-card-content>
     </mat-card>
   </div>
-
-  <!-- ▶︎ Section Évaluations -->
-  <app-evaluation-section [courseId]="courseId()!" [evaluations]="evaluations" (evaluationAdded)="loadEvaluations()">
-  </app-evaluation-section>
 
   <!-- ▶︎ Tableau des étudiants vs TPs -->
   <app-table-submissions [courseId]="courseId()" [course]="course" [students]="students" [tps]="tps"

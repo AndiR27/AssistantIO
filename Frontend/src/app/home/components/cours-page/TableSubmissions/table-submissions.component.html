@@ -79,6 +79,26 @@
                         </div>
                     </th>
                     }
+                    <th class="add-tp-header">
+                        <input type="file" #addTpFileInput accept=".zip" hidden
+                            (change)="onAddTPFileSelected($event)">
+                        <div class="add-tp-content" [class.uploading]="isAddingTP">
+                            <button mat-icon-button class="add-tp-btn"
+                                (click)="addTpFileInput.click()"
+                                [disabled]="isAddingTP"
+                                matTooltip="Ajouter TP {{ nextTpNo }} avec un fichier .zip">
+                                @if (isAddingTP) {
+                                <mat-progress-spinner mode="indeterminate" diameter="20"></mat-progress-spinner>
+                                } @else {
+                                <mat-icon>note_add</mat-icon>
+                                }
+                            </button>
+                            <span class="add-tp-label">{{ isAddingTP ? 'Envoi...' : 'TP ' + nextTpNo }}</span>
+                        </div>
+                    </th>
+                    @for (_ of placeholderCols; track $index) {
+                    <th class="placeholder-header"></th>
+                    }
                     <th class="actions-header">Actions</th>
                 </tr>
             </thead>
@@ -101,6 +121,10 @@
                                 }}</span>
                         </div>
                     </td>
+                    }
+                    <td class="add-tp-cell"></td>
+                    @for (_ of placeholderCols; track $index) {
+                    <td class="placeholder-cell"></td>
                     }
                     <td class="actions-cell">
                         <div class="student-actions">

@@ -1,21 +1,16 @@
 <!-- ▶︎ Évaluations Section -->
-<div class="evaluation-section">
-  <!-- Section Header -->
-  <div class="section-header">
-    <div class="header-content">
-      <div class="header-icon">
-        <mat-icon>assessment</mat-icon>
-      </div>
-      <div class="header-text">
-        <h2 class="section-title">Évaluations</h2>
-        <p class="section-subtitle">Contrôles continus et examens du cours</p>
-      </div>
-    </div>
-    <div class="header-badge" *ngIf="evaluations.length > 0">
-      <span class="count">{{ evaluations.length }}</span>
-    </div>
+<div class="section-header">
+  <div>
+    <h2 class="section-title">
+      <mat-icon>assessment</mat-icon>
+      <span>Évaluations</span>
+      <span class="header-badge" *ngIf="evaluations.length > 0">{{ evaluations.length }}</span>
+    </h2>
+    <p class="section-subtitle">Contrôles continus et examens du cours</p>
   </div>
+</div>
 
+<div class="evaluation-section">
   <!-- Evaluations Row Container (Drop Zone) -->
   <div class="evaluations-row" cdkDropList cdkDropListOrientation="horizontal" [cdkDropListData]="evaluations"
     (cdkDropListDropped)="onDrop($event)">

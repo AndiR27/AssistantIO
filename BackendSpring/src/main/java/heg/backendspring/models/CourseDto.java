@@ -15,7 +15,10 @@ public record CourseDto(
         String teacher,
         Set<StudentDto> students,
         Set<TPDto> tps,
-        Set<EvaluationDto> evaluations
-
+        Set<EvaluationDto> evaluations,
+        String cyberlearnLink
 ) {
+    public CourseDto(Long id, String name, String code, SemesterType semester, CourseType courseType, int year_course, String teacher, Set<StudentDto> students, Set<TPDto> tps, Set<EvaluationDto> evaluations) {
+        this(id, name, code, semester, courseType, year_course, teacher, students, tps, evaluations, null);
+    }
 }

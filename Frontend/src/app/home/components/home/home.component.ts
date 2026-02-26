@@ -14,6 +14,7 @@ import { ShareCourseDialogComponent } from '../share-course-dialog/share-course-
 import { MATERIAL_MODULES } from '../../../shared/imports/material-imports';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../shared/services/api.service';
+import { AuthService } from '../../../shared/services/auth.service';
 import { CoursePermission } from '../../models/courseAccess.model';
 
 
@@ -36,6 +37,7 @@ export class HomeComponent {
   homeService = inject(HomeService);
   dialog = inject(MatDialog);
   private api = inject(ApiService);
+  private auth = inject(AuthService);
   title = 'Page d\'accueil';
   // Propriété pour stocker une liste de course
   courseList: CoursePreview[] = [];
@@ -43,7 +45,8 @@ export class HomeComponent {
   // Set of courseIds where the current user is OWNER
   private ownedCourseIds = new Set<number>();
 
-  // Edit mode properties
+  // UI state
+  isFormExpanded = false;
   editingCourseId: number | null = null;
   editingCourse: CoursePreview | null = null;
 
@@ -82,9 +85,17 @@ export class HomeComponent {
     });
   }
 
+  get userName(): string {
+    return this.auth.getUserName();
+  }
+
+  toggleForm(): void {
+    this.isFormExpanded = !this.isFormExpanded;
+  }
+
   canShare(courseId: number | undefined): boolean {
     if (!courseId) return false;
-    return this.ownedCourseIds.has(courseId);
+    return this.auth.isGlobalAdmin() || this.ownedCourseIds.has(courseId);
   }
 
 

@@ -18,6 +18,147 @@
   color: white;
   box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
   animation: fadeIn 0.5s ease-out;
+  position: relative;
+}
+
+/* ── Cyberlearn corner ── */
+.cyberlearn-corner {
+  position: absolute;
+  top: 1rem;
+  right: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.cyberlearn-logo-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.cyberlearn-link {
+  display: flex;
+  transition: transform 0.2s ease;
+}
+
+.cyberlearn-link:hover {
+  transform: scale(1.06);
+}
+
+.cyberlearn-logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 0.65rem;
+  object-fit: contain;
+  background: white;
+  padding: 5px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
+}
+
+.cyberlearn-settings-btn {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  color: white !important;
+  background: rgba(0, 0, 0, 0.45) !important;
+  width: 22px !important;
+  height: 22px !important;
+  line-height: 22px !important;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.cyberlearn-logo-wrapper:hover .cyberlearn-settings-btn {
+  opacity: 1;
+}
+
+.cyberlearn-settings-btn mat-icon {
+  font-size: 13px;
+  width: 13px;
+  height: 13px;
+}
+
+.cyberlearn-settings-btn:hover {
+  background: rgba(0, 0, 0, 0.65) !important;
+}
+
+.cyberlearn-add {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  opacity: 0.75;
+  transition: opacity 0.2s ease;
+}
+
+.cyberlearn-add:hover {
+  opacity: 1;
+}
+
+.cyberlearn-add-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  justify-content: center;
+  align-content: center;
+}
+
+.cyberlearn-edit {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.cyberlearn-input {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 0.4rem;
+  padding: 0.35rem 0.6rem;
+  color: white;
+  font-size: 0.8rem;
+  width: 260px;
+  outline: none;
+  backdrop-filter: blur(4px);
+}
+
+.cyberlearn-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.cyberlearn-input:focus {
+  border-color: white;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.cyberlearn-save-btn {
+  color: #a7f3d0 !important;
+  width: 28px !important;
+  height: 28px !important;
+  line-height: 28px !important;
+}
+
+.cyberlearn-save-btn mat-icon,
+.cyberlearn-cancel-btn mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.cyberlearn-cancel-btn {
+  color: rgba(255, 255, 255, 0.6) !important;
+  width: 28px !important;
+  height: 28px !important;
+  line-height: 28px !important;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .hero-content {
@@ -87,143 +228,157 @@
    SECTION HEADERS
 ======================================== */
 .section-header {
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .section-title {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  font-size: 1.75rem;
+  font-size: 1.35rem;
   font-weight: 700;
   color: #1f2937;
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 0.35rem 0;
 }
 
 .section-title mat-icon {
   color: #667eea;
-  font-size: 2rem;
-  width: 2rem;
-  height: 2rem;
+  font-size: 1.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
 }
 
 .section-subtitle {
   margin: 0;
   color: #6b7280;
-  font-size: 1rem;
-  padding-left: 2.75rem;
+  font-size: 0.95rem;
+  padding-left: 2.25rem;
 }
 
 /* ========================================
-   ENHANCED FORM CARDS
+   MANAGEMENT GRID (3 cards)
 ======================================== */
-.add-section-grid {
+.management-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  align-items: stretch;
 }
 
-.add-card {
-  border-radius: 1rem !important;
-  overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 2px solid transparent;
-  position: relative;
+@media (max-width: 1100px) {
+  .management-grid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
-.add-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-  opacity: 0;
-  transition: opacity 0.3s;
+@media (max-width: 700px) {
+  .management-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
-.add-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15) !important;
-}
-
-.add-card:hover::before {
-  opacity: 1;
-}
-
-/* Card-specific colors */
-.student-card:hover {
-  border-color: #3b82f6;
-}
-
-.upload-card:hover {
-  border-color: #10b981;
-}
-
-.tp-card:hover {
-  border-color: #f59e0b;
-}
-
-.card-icon-header {
+/* ── Card base ── */
+.mgmt-card {
+  border-radius: 0.875rem !important;
+  border: 1px solid #e5e7eb;
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
   display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 1.5rem 1.5rem 0 1.5rem;
+  flex-direction: column;
 }
 
-.card-icon {
-  flex-shrink: 0;
-  width: 56px;
-  height: 56px;
-  border-radius: 0.75rem;
+.mgmt-card:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08) !important;
+  border-color: #d1d5db;
+}
+
+.card-label {
   display: flex;
   align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  gap: 0.6rem;
+  padding: 1.1rem 1.25rem 0 1.25rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #374151;
 }
 
-.card-icon mat-icon {
-  font-size: 28px;
-  width: 28px;
-  height: 28px;
-  color: white;
-}
-
-.blue-icon {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-}
-
-.green-icon {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-}
-
-.orange-icon {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-}
-
-.card-icon-header mat-card-header {
-  flex: 1;
-  padding: 0;
-}
-
-.add-card mat-card-title {
-  font-size: 1.25rem !important;
-  font-weight: 600 !important;
-  color: #1f2937 !important;
-  margin-bottom: 0.25rem !important;
-}
-
-.add-card mat-card-content {
-  padding: 2rem !important;
-}
-
-.section-title {
+.card-label mat-icon {
+  color: #667eea;
   font-size: 1.25rem;
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
-.section-title mat-icon {
-  font-size: 1.5rem;
-  width: 1.5rem;
-  height: 1.5rem;
+.mgmt-card mat-card-content {
+  padding: 1rem 1.25rem 1.25rem 1.25rem !important;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-hint {
+  font-size: 0.825rem;
+  color: #9ca3af;
+  line-height: 1.5;
+  margin: 0 0 0.75rem;
+}
+
+.card-hint code {
+  background: #f3f4f6;
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.2rem;
+  font-size: 0.775rem;
+  color: #4b5563;
+}
+
+/* ── Format hint tooltip (lightbulb style) ── */
+.format-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 0.5rem;
+  margin-top: auto;
+}
+
+.format-hint mat-icon {
+  color: #f59e0b;
+  font-size: 1.1rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.format-hint-text {
+  font-size: 0.8rem;
+  color: #92400e;
+  line-height: 2;
+}
+
+.format-hint-text code {
+  background: rgba(245, 158, 11, 0.12);
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.2rem;
+  font-size: 0.75rem;
+  color: #78350f;
+}
+
+.format-example {
+  display: block;
+  margin-top: 0.35rem;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.725rem;
+  color: #78350f;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+/* ========================================
+   BACK LINK
+======================================== */
+.back-link {
+  text-align: center;
+  margin-top: 1rem;
 }

@@ -7,7 +7,9 @@ import { FormsModule } from '@angular/forms';
 import { AddStudent } from './Forms/add-student/add-student';
 import { AddTP } from './Forms/rendu/addTP';
 import { CourseService } from '../../services/course.service';
+import { HomeService } from '../../services/home.service';
 import { CommonModule } from '@angular/common';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { UploadFileTxt } from './Forms/upload-file-txt/upload-file-txt';
 import { MATERIAL_MODULES } from '../../../shared/imports/material-imports';
 import { TableSubmissionsComponent } from './TableSubmissions/table-submissions.component';
@@ -38,6 +40,8 @@ export class CoursComponent implements OnInit {
   // qui a rendu ou pas)
   private route = inject(ActivatedRoute)
   private courseService = inject(CourseService);
+  private homeService = inject(HomeService);
+  private snackBar = inject(MatSnackBar);
 
   constructor() {
   }
@@ -48,7 +52,9 @@ export class CoursComponent implements OnInit {
   tps: TP_Model[] = [];
   evaluations: EvaluationModel[] = [];
 
-  isEditing: boolean = false
+  isEditing: boolean = false;
+  isEditingLink: boolean = false;
+  editLinkValue: string = '';
 
   ngOnInit(): void {
     const params = this.route.snapshot.params;
@@ -113,5 +119,44 @@ export class CoursComponent implements OnInit {
     if (index !== -1) {
       this.students[index] = student;
     }
+  }
+
+  startEditLink(): void {
+    this.editLinkValue = this.course.cyberlearn_link || '';
+    this.isEditingLink = true;
+  }
+
+  cancelEditLink(): void {
+    this.isEditingLink = false;
+  }
+
+  saveLink(): void {
+    let link = this.editLinkValue.trim();
+    if (link && !/^https?:\/\//i.test(link)) {
+      link = 'https://' + link;
+    }
+
+    const payload = {
+      id: this.course.id,
+      name: this.course.name,
+      code: this.course.code,
+      semester: this.course.semester,
+      year_course: this.course.year_course,
+      teacher: this.course.teacher,
+      courseType: this.course.courseType,
+      cyberlearn_link: link
+    };
+
+    this.homeService.updateCourse(payload).subscribe({
+      next: () => {
+        this.course.cyberlearn_link = link;
+        this.isEditingLink = false;
+        this.snackBar.open('Lien Cyberlearn mis à jour', 'OK', { duration: 3000 });
+      },
+      error: (err) => {
+        console.error('Error updating cyberlearn link:', err);
+        this.snackBar.open('Erreur lors de la mise à jour', 'Fermer', { duration: 5000 });
+      }
+    });
   }
 }

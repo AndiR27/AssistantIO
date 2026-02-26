@@ -1,20 +1,20 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()" class="student-form" #formRef="ngForm">
 
-  <mat-form-field appearance="outline" class="full-width">
-    <mat-label>Nom de l'étudiant</mat-label>
-    <input matInput id="name" formControlName="name" placeholder="Entrez le nom complet" required />
+  <mat-form-field appearance="outline">
+    <mat-label>Nom</mat-label>
+    <input matInput formControlName="name" placeholder="Nom complet" required />
     <mat-icon matPrefix>person</mat-icon>
   </mat-form-field>
 
-  <mat-form-field appearance="outline" class="full-width">
+  <mat-form-field appearance="outline">
     <mat-label>Email</mat-label>
-    <input matInput id="email" type="email" formControlName="email" placeholder="exemple@domaine.com" required />
+    <input matInput type="email" formControlName="email" placeholder="exemple@domaine.com" required />
     <mat-icon matPrefix>email</mat-icon>
   </mat-form-field>
 
-  <mat-form-field appearance="outline" class="full-width">
+  <mat-form-field appearance="outline">
     <mat-label>Type d'études</mat-label>
-    <mat-select id="studyType" formControlName="studyType">
+    <mat-select formControlName="studyType">
       @for (type of studyTypes(); track type) {
       <mat-option [value]="type">{{ type }}</mat-option>
       }
@@ -22,27 +22,21 @@
     <mat-icon matPrefix>school</mat-icon>
   </mat-form-field>
 
-  <div class="form-actions">
-    <button mat-raised-button color="primary" type="submit" class="submit-btn"
-      [disabled]="form.invalid || !canSubmit()">
-      @if (isSubmitting()) {
-      <ng-container>
-        <mat-icon class="spinning">sync</mat-icon>
-        <span>Ajout en cours...</span>
-      </ng-container>
-      } @else {
-      <ng-container>
-        <mat-icon>person_add</mat-icon>
-        <span>Ajouter l'étudiant</span>
-      </ng-container>
-      }
-    </button>
-  </div>
+  <button mat-raised-button color="primary" type="submit" class="submit-btn"
+    [disabled]="form.invalid || !canSubmit()">
+    @if (isSubmitting()) {
+      <mat-icon class="spinning">sync</mat-icon>
+      <span>Ajout...</span>
+    } @else {
+      <mat-icon>person_add</mat-icon>
+      <span>Ajouter</span>
+    }
+  </button>
 
   @if (addedStudent()) {
   <div class="success-message">
     <mat-icon>check_circle</mat-icon>
-    <span>Étudiant ajouté avec succès !</span>
+    <span>Étudiant ajouté !</span>
   </div>
   }
 </form>

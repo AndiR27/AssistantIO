@@ -12,6 +12,7 @@ export interface CourseDetailsModel {
   year_course: number;
   teacher: string;
   courseType: CourseType;
+  cyberlearn_link?: string;
   studentList: StudentModel[];
   tpsList: TP_Model[];
   evaluations: EvaluationModel[];

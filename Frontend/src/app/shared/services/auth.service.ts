@@ -126,7 +126,7 @@ export class AuthService {
             const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
             const payload = JSON.parse(atob(base64));
             const roles: string[] = payload?.realm_access?.roles ?? [];
-            return roles.includes('ADMIN') || roles.includes('ASSISTANT');
+            return roles.includes('ADMIN');
         } catch {
             return false;
         }

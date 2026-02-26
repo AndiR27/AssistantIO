@@ -10,4 +10,5 @@ export interface CoursePreview {
   year_course: number;
   teacher: string;
   courseType: CourseType;
+  cyberlearn_link?: string;
 }

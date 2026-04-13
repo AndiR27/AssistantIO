@@ -29,9 +29,7 @@ export class HomeService {
    * @returns Observable<CoursePreview[]>
    */
   getCoursePreviews(): Observable<CoursePreview[]> {
-    console.log('getCoursePreviews called');
     return this.api.getAllCourses().pipe(
-      tap(res => console.log('Courses fetched:', res)),
       map((res: any) => {
         const arr: any[] = Array.isArray(res)
           ? res
@@ -62,7 +60,6 @@ export class HomeService {
    * @returns Observable<CoursePreview>
    */
   addCourse(course: CoursePreview): Observable<CoursePreview> {
-    console.log('addCourse called');
     return this.api.addCourse(course).pipe(
       map(dto => ({
         id: 0,
@@ -87,7 +84,6 @@ export class HomeService {
    * @returns Observable<CoursePreview>
    */
   updateCourse(course: CoursePreview): Observable<CoursePreview> {
-    console.log('updateCourse called', course);
     return this.api.updateCourse(course).pipe(
       map(dto => ({
         id: dto.id,
@@ -113,7 +109,6 @@ export class HomeService {
    * @returns Observable<void>
    */
   deleteCourse(courseId: number): Observable<void> {
-    console.log('deleteCourse called', courseId);
     return this.api.deleteCourse(courseId).pipe(
       catchError(error => {
         console.error('Error deleting course:', error);

@@ -1,538 +1,155 @@
 package heg.backendspring.service;
 
 
-import heg.backendspring.entity.Course;
-import heg.backendspring.entity.Evaluation;
-import heg.backendspring.entity.Student;
-import heg.backendspring.entity.TP;
-import heg.backendspring.enums.StudyType;
-import heg.backendspring.exception.CourseErrorCode;
-import heg.backendspring.exception.CourseException;
-import heg.backendspring.mapping.MapperCourse;
-import heg.backendspring.mapping.MapperEvaluation;
-import heg.backendspring.mapping.MapperStudent;
-import heg.backendspring.mapping.MapperTP;
 import heg.backendspring.models.*;
-import heg.backendspring.repository.RepositoryCourse;
-import heg.backendspring.repository.RepositoryStudent;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
+import heg.backendspring.service.serviceCourse.ServiceCourseCore;
+import heg.backendspring.service.serviceCourse.ServiceCourseEvaluation;
+import heg.backendspring.service.serviceCourse.ServiceCourseStudents;
+import heg.backendspring.service.serviceCourse.ServiceCourseTP;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
+/**
+ * Facade service for Course operations.
+ * Delegates to specialized services for better separation of concerns.
+ *
+ * @see ServiceCourseCore for Course CRUD operations
+ * @see ServiceCourseStudents for student management
+ * @see ServiceCourseTP for TP management
+ * @see ServiceCourseEvaluation for evaluation management
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ServiceCourse {
 
-    @Value("${zip-storage.path}")
-    private String zipStoragePath;
-
-
-    //==============================
-    //       DEPENDANCES
-    //==============================
-    private final MapperCourse mapperCourse;
-    private final MapperStudent mapperStudent;
-    private final RepositoryCourse repositoryCourse;
-    private final ServiceStudent serviceStudent;
-    private final RepositoryStudent repositoryStudent;
-    private final MapperTP mapperTP;
-    private final ServiceSubmission serviceSubmission;
-    private final ServiceTP serviceTP;
-    private final ServiceEvaluation serviceEvaluation;
-    private final MapperEvaluation mapperEvaluation;
-
+    private final ServiceCourseCore serviceCourseCore;
+    private final ServiceCourseStudents serviceCourseStudents;
+    private final ServiceCourseTP serviceCourseTP;
+    private final ServiceCourseEvaluation serviceCourseEvaluation;
 
     //==============================
-    //    CRUD COURSE METHODS
+    //    COURSE CRUD (delegated)
     //==============================
 
-    /**
-     * Trouver un cours par son id
-     */
-    @PreAuthorize("@courseSecurity.hasAccess(#courseId, 'READ')")
     public Optional<CourseDto> findCourseById(Long courseId) {
-        return repositoryCourse.findById(courseId)
-                .map(mapperCourse::toDto);
+        return serviceCourseCore.findCourseById(courseId);
     }
 
-    /**
-     * Trouver tous les cours
-     */
     public List<CourseDto> findAllCourses() {
-        return repositoryCourse.findAll()
-                .stream()
-                .map(mapperCourse::toDto)
-                .toList();
+        return serviceCourseCore.findAllCourses();
     }
 
-    /**
-     * Trouver tous les cours par une liste d'id
-     */
     public List<CourseDto> findAllById(List<Long> ids) {
-        return repositoryCourse.findAllById(ids)
-                .stream()
-                .map(mapperCourse::toDto)
-                .toList();
+        return serviceCourseCore.findAllById(ids);
     }
 
-    /**
-     * Ajouter un cours
-     */
-    @Transactional
     public CourseDto addCourse(CourseDto courseDto) {
-        Course c = mapperCourse.toEntity(courseDto);
-        Course savedCourse = repositoryCourse.save(c);
-        log.info("Added course with id: {}", savedCourse.getId());
-
-        //Creation du repertoire servant de depot pour les zips grâce au code
-        //On est dans un cours, donc le path est celui de base : "DocumentsZip/"
-        creerDossierZip(savedCourse.getCode(), zipStoragePath);
-
-        return mapperCourse.toDto(savedCourse);
+        return serviceCourseCore.addCourse(courseDto);
     }
 
-    /**
-     * Mettre à jour un cours
-     */
-    @PreAuthorize("@courseSecurity.hasAccess(#courseDto.id(), 'OWNER')")
-    @Transactional
     public Optional<CourseDto> updateCourse(CourseDto courseDto) {
-        Optional<Course> courseOpt = repositoryCourse.findById(courseDto.id());
-        if (courseOpt.isEmpty()) {
-            return Optional.empty();
-        }
-
-        Course course = courseOpt.get();
-        //Gérer le renommage du dossier si le code a changé
-        manageFoldersOnUpdate(course.getCode(), courseDto.code());
-        // Mettre à jour l’entité via le mapper
-        mapperCourse.updateEntity(courseDto, course);
-
-        // Sauvegarder
-        Course updated = repositoryCourse.save(course);
-        log.info("Updated course id={} ({})", updated.getId(), updated.getCode());
-
-        return Optional.of(mapperCourse.toDto(updated));
+        return serviceCourseCore.updateCourse(courseDto);
     }
 
-
-
-    /**
-     * Supprimer un cours
-     */
-    @PreAuthorize("@courseSecurity.hasAccess(#courseId, 'OWNER')")
-    @Transactional
     public void deleteCourse(Long courseId) {
-        Course course = repositoryCourse.findById(courseId)
-                .orElseThrow(() -> new EntityNotFoundException("Course not found with id: " + courseId));
-
-        // relation bidirectionnelle Course <-> Student
-        for (Student student : new HashSet<>(course.getStudents())) {
-            student.getStudentCourses().remove(course);
-        }
-        course.getStudents().clear();
-        repositoryCourse.deleteById(courseId);
-        log.info("Deleted course with id: {}", courseId);
+        serviceCourseCore.deleteCourse(courseId);
     }
 
+    //==============================
+    //    STUDENTS (delegated)
+    //==============================
 
-    /**
-     * Ajouter un student à un cours
-     * 3 cas possibles : l'étudiant n'existe pas (on le crée), l'étudiant existe déjà dans le cours (on ne fait rien),
-     * ou l'étudiant existe, mais pas dans le cours (on l'ajoute au cours
-     */
-    @PreAuthorize("@courseSecurity.hasAccess(#idCourse, 'WRITE')")
-    @Transactional
     public StudentDto addStudent(Long idCourse, StudentDto studentDto) {
-        Course course = repositoryCourse.findById(idCourse)
-                .orElseThrow(() -> new EntityNotFoundException("Course not found with id: " + idCourse));
-
-        // 1. Récupérer ou créer l'étudiant
-        Student student = repositoryStudent.findStudentByEmail(studentDto.email())
-                .orElseGet(() -> mapperStudent.toEntity(serviceStudent.addStudent(studentDto)));
-
-        // 2. Étudiant déjà inscrit → rien à faire
-        if (course.getStudents().contains(student)) {
-            log.info("Student {} already enrolled in course {}", student.getEmail(), idCourse);
-            return mapperStudent.tDto(student);
-        }
-
-        // 3. Ajouter l'étudiant au cours
-        student.getStudentCourses().add(course);
-        course.getStudents().add(student);
-
-        Student saved = repositoryStudent.save(student);
-
-        log.info("Added student {} ({}) to course {}", saved.getName(), saved.getEmail(), idCourse);
-        return mapperStudent.tDto(saved);
+        return serviceCourseStudents.addStudent(idCourse, studentDto);
     }
 
-    /**
-     * Methode permettant de récupérer un étudiant d'un cours par son id
-     */
-    @PreAuthorize("@courseSecurity.hasAccess(#courseId, 'READ')")
     public Optional<StudentDto> getStudentFromCourse(Long courseId, Long studentId) {
-        return repositoryCourse.findStudentByCourseIdAndStudentId(courseId, studentId)
-                .map(mapperStudent::tDto);
+        return serviceCourseStudents.getStudentFromCourse(courseId, studentId);
     }
 
-    /**
-     * Methode permettant d'ajouter une liste d'étudiants à un cours
-     */
-    @Transactional
     public CourseDto addAllStudendsToCourse(Long idCourse, List<StudentDto> studentDtoList) {
-        for (StudentDto studentDto : studentDtoList) {
-            StudentDto addedStudent = addStudent(idCourse, studentDto);
-            log.info("Student {} added to course {}", addedStudent.email(), idCourse);
-        }
-        return mapperCourse.toDto(repositoryCourse.findById(idCourse).get());
+        return serviceCourseStudents.addAllStudendsToCourse(idCourse, studentDtoList);
     }
 
-    /**
-     * Methode permettant d'ajouter une liste d'étudiants à un cours
-     * à partir d'un fichier TXT
-     */
-    @PreAuthorize("@courseSecurity.hasAccess(#idCourse, 'WRITE')")
-    @Transactional
     public List<StudentDto> addAllStudentsFromFile(Long idCourse, String[] data) {
-        log.debug("Starting to add studends for course id={} with file (number of values : {})", idCourse, data.length);
-        List<StudentDto> studentDtoList = new ArrayList<>();
-        for (String line : data) {
-            String[] studentData = line.split(";");
-            StudentDto studentDto = new StudentDto(
-                    null,
-                    studentData[0].trim(),
-                    studentData[1].trim(),
-                    StudyType.valueOf(studentData[2]),
-                    new HashSet<>()
-            );
-            StudentDto addedStudent = addStudent(idCourse, studentDto);
-            studentDtoList.add(addedStudent);
-
-        }
-        log.info("All students from file added to course id={}", idCourse);
-        return studentDtoList;
+        return serviceCourseStudents.addAllStudentsFromFile(idCourse, data);
     }
 
-    /**
-     * Methode permettant de récupérer tous les étudiants d'un cours
-     */
-    @PreAuthorize("@courseSecurity.hasAccess(#idCourse, 'READ')")
     public List<StudentDto> getAllStudentsFromCourse(Long idCourse) {
-        Set<Student> students = repositoryCourse.findStudentsByCourseId(idCourse);
-        return students.stream().map(mapperStudent::tDto).toList();
+        return serviceCourseStudents.getAllStudentsFromCourse(idCourse);
     }
 
-    /**
-     * Methode permettant de supprimer un étudiant d'un cours (désinscription)
-     */
-    @PreAuthorize("@courseSecurity.hasAccess(#idCourse, 'WRITE')")
-    @Transactional
     public void removeStudentFromCourse(Long idCourse, Long idStudent) {
-        Optional<Course> optCourse = repositoryCourse.findById(idCourse);
-        Optional<Student> optStudent = repositoryStudent.findById(idStudent);
-
-        if (optCourse.isEmpty() || optStudent.isEmpty()) {
-            throw new EntityNotFoundException("Course or Student not found");
-        }
-
-        Course course = optCourse.get();
-        Student student = optStudent.get();
-
-        course.getStudents().remove(student);
-        student.getStudentCourses().remove(course);
-
-        repositoryStudent.save(student);
-        log.info("Removed student {} from course {}", idStudent, idCourse);
+        serviceCourseStudents.removeStudentFromCourse(idCourse, idStudent);
     }
 
+    //==============================
+    //    TPs (delegated)
+    //==============================
 
-    /**
-     * Methode permettant d'ajouter un TP à un cours en le créant
-     * Si un TP est créé, il faudra aussi y ajouter un dossier pour les rendus
-     *
-     * @param no : numéro du TP (pas l'id)
-     */
-    @PreAuthorize("@courseSecurity.hasAccess(#idCourse, 'WRITE')")
     public TPDto addTPtoCourse(Long idCourse, int no) {
-        Course course = repositoryCourse.findById(idCourse).get();
-        //throw exception si le TP existe déjà
-        if (repositoryCourse.findTPByCourseIdAndNo(idCourse, no).isPresent()) {
-            throw new CourseException(
-                    "Le TP" + no + "' est déjà associé au cours.",
-                    CourseErrorCode.TP_ALREADY_EXISTS,
-                    course.getId()
-            );
-        }
-        TP tp = new TP(no, course, null);
-        course.getTps().add(tp);
-        repositoryCourse.save(course);
-        log.info("Added TP {} to course {}", no, course.getName());
-
-        creerDossierZip("TP" + no, zipStoragePath + "/" + course.getCode());
-
-        return mapperTP.toDto(tp);
+        return serviceCourseTP.addTPtoCourse(idCourse, no);
     }
 
-    /**
-     * Methode permettant de récupérer tous les TPs d'un cours
-     */
-    @PreAuthorize("@courseSecurity.hasAccess(#idCourse, 'READ')")
     public List<TPDto> getAllTPsFromCourse(Long idCourse) {
-        return repositoryCourse.findAllTPsByCourseId(idCourse).stream().map(mapperTP::toDto).toList();
+        return serviceCourseTP.getAllTPsFromCourse(idCourse);
     }
 
-    /**
-     * Methode permettant de récupérer un TP d'un cours par son numéro
-     */
-    @PreAuthorize("@courseSecurity.hasAccess(#idCourse, 'READ')")
     public Optional<TPDto> findTPFromCourseByNo(Long idCourse, int no) {
-        Optional<TP> tpOpt = repositoryCourse.findTPByCourseIdAndNo(idCourse, no);
-        return tpOpt.map(mapperTP::toDto);
+        return serviceCourseTP.findTPFromCourseByNo(idCourse, no);
     }
 
-    /**
-     * Methode permettant de supprimer un TP d'un cours par son numéro (et donc de la base)
-     */
-    @PreAuthorize("@courseSecurity.hasAccess(#idCourse, 'WRITE')")
-    @Transactional
     public void deleteTPFromCourseByNo(Long idCourse, int no) {
-        Optional<TP> tpOpt = repositoryCourse.findTPByCourseIdAndNo(idCourse, no);
-        if (tpOpt.isPresent()) {
-            TP tp = tpOpt.get();
-            Course course = tp.getCourse();
-            course.getTps().remove(tp);
-            repositoryCourse.save(course);
-            log.info("Deleted TP {} from course {}", no, idCourse);
-            //Delete the TP entity and manage folders if needed
-            serviceTP.deleteTP(tp.getId());
-        }
+        serviceCourseTP.deleteTPFromCourseByNo(idCourse, no);
     }
 
-    /**
-     * Methode permettant de mettre à jour un TP d'un cours par son numéro
-     */
-    @PreAuthorize("@courseSecurity.hasAccess(#courseId, 'WRITE')")
-    @Transactional
     public Optional<TPDto> updateTPfromCourseByNo(Long courseId, Integer tpNumber, TPDto tpDto) {
-        Optional<TP> tpOpt = repositoryCourse.findTPByCourseIdAndNo(courseId, tpNumber);
-        Optional<Course> courseOpt = repositoryCourse.findById(courseId);
-        if (tpOpt.isEmpty()) {
-            return Optional.empty();
-        }
-        TP tp = tpOpt.get();
-        // Mettre à jour l’entité via le mapper
-        mapperTP.updateEntityFromDto(tpDto, tp);
-
-        // Mettre à jour le cours qui possède le TP
-        repositoryCourse.save(courseOpt.get());
-
-        return Optional.of(mapperTP.toDto(tp));
-
+        return serviceCourseTP.updateTPfromCourseByNo(courseId, tpNumber, tpDto);
     }
 
-    //TODO : Méthodes pour gérer les évaluations, exams...
-    /**
-     * Méthode permettant de récupérer les évaluations d'un cours
-     */
-    @PreAuthorize("@courseSecurity.hasAccess(#idCourse, 'READ')")
-    public List<EvaluationDto> getAllEvaluationsFromCourse(Long idCourse){
-        return serviceEvaluation.getAllEvaluationsFromCourse(idCourse);
-    }
-
-    /**
-     * Méthode permettant d'ajouter une évaluation à un cours (en la créant)
-     * @param idCourse
-     * @param evaluationDto
-     * @return
-     */
-    @PreAuthorize("@courseSecurity.hasAccess(#idCourse, 'WRITE')")
-    @Transactional
-    public EvaluationDto addEvaluationToCourse(Long idCourse, EvaluationDto evaluationDto){
-        Optional<Course> courseOpt = repositoryCourse.findById(idCourse);
-        if(courseOpt.isEmpty()){
-            throw new EntityNotFoundException("Course not found with id: " + idCourse);
-        }
-        //Evaluation eval = mapperEvaluation.toEntity(serviceEvaluation.createEvaluation(evaluationDto));
-        Evaluation eval = mapperEvaluation.toEntity(evaluationDto);
-        courseOpt.get().getEvaluations().add(eval);
-        eval.setCourse(courseOpt.get());
-        repositoryCourse.save(courseOpt.get());
-        log.info("Added evaluation {} to course {}", evaluationDto.name(), idCourse);
-        return mapperEvaluation.toDto(eval);
-    }
-
-    /**
-     * Méthode permettant d'ajouter un rendu zip pour un TP d'un cours
-     */
-    @PreAuthorize("@courseSecurity.hasAccess(#idCourse, 'WRITE')")
-    @Transactional
     public SubmissionDto addSubmissionToTP(Long idCourse, int tpNo, InputStream zipFile) {
-        Optional<Course> courseOpt = repositoryCourse.findById(idCourse);
-        if (courseOpt.isEmpty()) {
-            throw new EntityNotFoundException("Course not found with id: " + idCourse);
-        } else {
-            log.info("Adding submission to TP no={} for course id={}", tpNo, idCourse);
-            Optional<TP> tpOpt = repositoryCourse.findTPByCourseIdAndNo(idCourse, tpNo);
-            TPDto tpDto = serviceTP.addSubmissionToTP(tpOpt.get().getId(), zipFile);
-            return tpDto.submission();
-        }
-
+        return serviceCourseTP.addSubmissionToTP(idCourse, tpNo, zipFile);
     }
 
-    /**
-     * Méthode permettant de lancer le traitement du rendu pour un TP
-     */
-    @PreAuthorize("@courseSecurity.hasAccess(#idCours, 'WRITE')")
-    @Transactional
     public void startZipProcess(Long idCours, int idTp) throws IOException {
-        Course course = repositoryCourse.findById(idCours)
-                .orElseThrow(() -> new EntityNotFoundException("Course not found with id: " + idCours));
-
-        TP tp = repositoryCourse.findTPByCourseIdAndNo(idCours, idTp)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "TP number " + idTp + " not found for course id: " + idCours
-                ));
-        log.info("Starting zip process for course id={} tp no={}", idCours, idTp);
-        serviceSubmission.processZipSubmissionForTP(course, tp);
+        serviceCourseTP.startZipProcess(idCours, idTp);
     }
 
-    /**
-     * Méthode permettant de vérifier les rendus des étudiants et gérer la liste des
-     * statuts des rendus pour un cours et un TP donné
-     * <p>
-     * 1. Récupérer la liste des rendus pour un TP donné : utilisation de ServiceRendu
-     * 2. Pour chaque étudiant de la liste, créer un TP_Status et l'ajouter à la liste
-     * 3. Vérifier dans la liste des rendus et mettre à jour le statut du TP_Status
-     * 4. Persister la liste des TP_Status
-     */
-    @PreAuthorize("@courseSecurity.hasAccess(#idCourse, 'READ')")
-    @Transactional
     public TPDto manageSubmissionsTP(Long idCourse, int tp_no) {
-        log.info("Gestion des rendus pour le TP numéro : {} du cours id : {}", tp_no, idCourse);
-        Optional<Course> course = repositoryCourse.findById(idCourse);
-        if (course.isEmpty()) {
-            throw new EntityNotFoundException("Course not found with id: " + idCourse);
-        }
-
-        //Récupérer le TP
-        Optional<TP> tpOpt = repositoryCourse.findTPByCourseIdAndNo(idCourse, tp_no);
-        if (tpOpt.isEmpty()) {
-            log.info("not found");
-            throw new EntityNotFoundException("TP not found for course id=" + idCourse + " and tp no=" + tp_no);
-        }
-        return serviceTP.addTPStatusListToTP(tpOpt.get(), course.get().getStudents());
+        return serviceCourseTP.manageSubmissionsTP(idCourse, tp_no);
     }
 
-    /**
-     * Méthode permettant de récupérer un fichier zip restructuré des rendus d'un TP
-     */
-    @PreAuthorize("@courseSecurity.hasAccess(#idCourse, 'READ')")
     public File getTPSubmissionRestructurated(Long idCourse, int tp_no) {
-        Optional<TPDto> tpDtoOpt = findTPFromCourseByNo(idCourse, tp_no);
-        if (tpDtoOpt.isPresent()) {
-            return serviceTP.getSubmissionFileRestructurated(tpDtoOpt.get());
-        }
-        log.error("TP not found for course id={} tp no={}", idCourse, tp_no);
-        return null;
+        return serviceCourseTP.getTPSubmissionRestructurated(idCourse, tp_no);
     }
 
-
-    /**
-     * Méthode permettant de récupérer tous les TPStatus d'un TP d'un cours
-     */
-    @PreAuthorize("@courseSecurity.hasAccess(#idCourse, 'READ')")
     public List<TPStatusDto> getAllTPStatusFromTP(Long idCourse, int tp_no) {
-        Optional<Course> courseOpt = repositoryCourse.findById(idCourse);
-        if (courseOpt.isEmpty()) {
-            throw new EntityNotFoundException("Course not found with id: " + idCourse);
-        }
-        Optional<TP> tpOpt = repositoryCourse.findTPByCourseIdAndNo(idCourse, tp_no);
-        if (tpOpt.isEmpty()) {
-            throw new EntityNotFoundException("TP not found for course id=" + idCourse + " and tp no=" + tp_no);
-        } else {
-            TP tp = tpOpt.get();
-            return serviceTP.getAllTPStatusByTPId(tp.getId());
-        }
+        return serviceCourseTP.getAllTPStatusFromTP(idCourse, tp_no);
     }
 
-    /**
-     * Méthode permettant de lancer la mise à jour des statuts des rendus d'un TP d'un cours
-     */
-    @PreAuthorize("@courseSecurity.hasAccess(#courseId, 'WRITE')")
-    @Transactional
     public List<TPStatusDto> refreshTPStatusesFromTP(Long courseId, Integer tpNumber) {
-        Optional<Course> courseOpt = repositoryCourse.findById(courseId);
-        if (courseOpt.isEmpty()) {
-            throw new EntityNotFoundException("Course not found with id: " + courseId);
-
-        }
-        Optional<TP> tpOpt = repositoryCourse.findTPByCourseIdAndNo(courseId, tpNumber);
-        if (tpOpt.isEmpty()) {
-            throw new EntityNotFoundException("TP not found for course id=" + courseId + " and tp no=" + tpNumber);
-        }
-        TP tp = tpOpt.get();
-        log.info("Refreshing TPStatuses for course id={} tp no={}", courseId, tpNumber);
-        serviceTP.addTPStatusListToTP(tp, courseOpt.get().getStudents());
-        return serviceTP.getAllTPStatusByTPId(tp.getId());
+        return serviceCourseTP.refreshTPStatusesFromTP(courseId, tpNumber);
     }
 
     //==============================
-    //       PRIVATE METHODS
+    //    EVALUATIONS (delegated)
     //==============================
 
-    /**
-     * Methode permettant de créer un dossier pour stocker les zips
-     */
-    private void creerDossierZip(String nomDossier, String path) {
-        Path parentPath = Paths.get(path);
-
-        Path newDirectory = parentPath.resolve(nomDossier);
-        if (Files.notExists(newDirectory)) {
-            try {
-                Files.createDirectories(newDirectory);
-            } catch (Exception e) {
-                log.error("Failed to create directory {}\n--> {}", newDirectory, e.getMessage());
-            }
-        } else {
-            log.info("Folder {} already exists", nomDossier);
-        }
+    public List<EvaluationDto> getAllEvaluationsFromCourse(Long idCourse) {
+        return serviceCourseEvaluation.getAllEvaluationsFromCourse(idCourse);
     }
 
-    /**
-     * Permet de gérer les dossiers lors de la mise à jour d'un cours
-     * @param oldCode
-     * @param newCode
-     */
-    private void manageFoldersOnUpdate(String oldCode, String newCode) {
-        if(!oldCode.equals(newCode)) {
-            Path oldPath = Paths.get(zipStoragePath, oldCode);
-            Path newPath = Paths.get(zipStoragePath, newCode);
-            try {
-                Files.move(oldPath, newPath);
-                log.info("Renamed folder from {} to {}", oldCode, newCode);
-            } catch (IOException e) {
-                log.error("Failed to rename folder from {} to {}\n--> {}", oldCode, newCode, e.getMessage());
-            }
-        }
-
+    public EvaluationDto addEvaluationToCourse(Long idCourse, EvaluationDto evaluationDto) {
+        return serviceCourseEvaluation.addEvaluationToCourse(idCourse, evaluationDto);
     }
-
-
-
 }
 
 

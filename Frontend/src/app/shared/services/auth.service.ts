@@ -60,9 +60,7 @@ export class AuthService {
         this.initPromise = this.oauthService.loadDiscoveryDocumentAndTryLogin()
             .then(() => {
                 this.initialized = true;
-                const isAuth = this.isAuthenticated();
-                console.log('OAuth initialized, authenticated:', isAuth);
-                return isAuth;
+                return this.isAuthenticated();
             })
             .catch((error) => {
                 console.error('Erreur lors de l\'initialisation OAuth:', error);

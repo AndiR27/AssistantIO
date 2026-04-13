@@ -12,7 +12,11 @@ import heg.backendspring.utils.ZipUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -20,22 +24,21 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ServiceSubmission {
 
-    private String typeCours = "JAVA";
+    // Constante par défaut pour le type de cours
+    private static final String DEFAULT_COURSE_TYPE = "JAVA";
 
     //==============================
     //       DEPENDANCES
     //==============================
     private final RepositorySubmission repositorySubmission;
     private final MapperSubmission mapperSubmission;
+    private final SubmissionRestructureHelper restructureHelper;
 
 
     //==============================
@@ -50,7 +53,8 @@ public class ServiceSubmission {
     }
 
     /**
-     * Lancer une restructuration du rendu d'un TP
+     * Lance une restructuration du rendu d'un TP.
+     * Thread-safe: le type de cours est passé en paramètre, pas stocké en variable d'instance.
      */
     @Transactional
     public void processZipSubmissionForTP(Course c, TP tp) throws IOException {
@@ -59,59 +63,88 @@ public class ServiceSubmission {
             log.error("Aucune soumission trouvée pour le TP id {} du cours {}", tp.getId(), c.getName());
             return;
         }
-        //gérer le type de cours
-        if (c.getCourseType() != null) {
-            typeCours = String.valueOf(c.getCourseType());
-        }
+        // Déterminer le type de cours (thread-safe)
+        String courseType = (c.getCourseType() != null)
+                ? c.getCourseType().name()
+                : DEFAULT_COURSE_TYPE;
 
         log.info("Starting restructuring for TP {} of course {} with submission id {}", tp.getNo(), c.getName(), submission.getId());
-        processZipSubmission(submission, "TP" + tp.getNo() + "_RenduRestructuration.zip");
+        processZipSubmission(submission, "TP" + tp.getNo() + "_RenduRestructuration.zip", courseType);
     }
 
     /**
-     * Lancer une restructuration du rendu d'un TP
+     * Lance une restructuration du rendu d'une Evaluation.
+     * Thread-safe: le type de cours est passé en paramètre.
      */
     @Transactional
     public void processZipSubmissionForEvaluation(Course c, Evaluation evaluation) throws IOException {
         Submission submission = evaluation.getSubmission();
         if (submission == null) {
-            log.error("Aucune soumission trouvée pour le l'evaluation id {} du cours {}", evaluation.getId(), c.getName());
+            log.error("Aucune soumission trouvée pour l'evaluation id {} du cours {}", evaluation.getId(), c.getName());
             return;
         }
-        //gérer le type de cours
-        if (c.getCourseType() != null) {
-            typeCours = String.valueOf(c.getCourseType());
-        }
+        // Déterminer le type de cours (thread-safe)
+        String courseType = (c.getCourseType() != null)
+                ? c.getCourseType().name()
+                : DEFAULT_COURSE_TYPE;
 
         log.info("Starting restructuring for Evaluation {} of course {} with submission id {}", evaluation.getName(), c.getName(), submission.getId());
-        processZipSubmission(submission, evaluation.getName() + "_RenduRestructuration.zip");
+        processZipSubmission(submission, evaluation.getName() + "_RenduRestructuration.zip", courseType);
     }
 
     /**
-     * Methode permettant de restructurer le rendu d'un fichier zip
+     * Async version of processZipSubmissionForTP.
+     * Processes ZIP file restructuring in a background thread.
+     *
+     * @return CompletableFuture that completes when processing is done
+     */
+    @Async("zipProcessingExecutor")
+    @Transactional
+    public CompletableFuture<Void> processZipSubmissionForTPAsync(Course c, TP tp) {
+        try {
+            processZipSubmissionForTP(c, tp);
+            return CompletableFuture.completedFuture(null);
+        } catch (IOException e) {
+            log.error("Async ZIP processing failed for TP {} of course {}", tp.getNo(), c.getName(), e);
+            return CompletableFuture.failedFuture(e);
+        }
+    }
+
+    /**
+     * Async version of processZipSubmissionForEvaluation.
+     * Processes ZIP file restructuring in a background thread.
+     *
+     * @return CompletableFuture that completes when processing is done
+     */
+    @Async("zipProcessingExecutor")
+    @Transactional
+    public CompletableFuture<Void> processZipSubmissionForEvaluationAsync(Course c, Evaluation evaluation) {
+        try {
+            processZipSubmissionForEvaluation(c, evaluation);
+            return CompletableFuture.completedFuture(null);
+        } catch (IOException e) {
+            log.error("Async ZIP processing failed for Evaluation {} of course {}", evaluation.getName(), c.getName(), e);
+            return CompletableFuture.failedFuture(e);
+        }
+    }
+
+    /**
+     * Restructure le rendu d'un fichier ZIP.
      * <p>
-     * Logique de restructuration : Chaque dossier dans le zip est un étudiant (le
+     * Logique de restructuration : Chaque dossier dans le ZIP est un étudiant (le
      * nom du fichier contient les infos de rendu, dont le nom au début) et
-     * contient dedans un fichier zip qui est son rendu : ce fichier zip est un
-     * projet Java ou python qu'il faut dézipper, et récupérer son contenu pour le
+     * contient dedans un fichier ZIP qui est son rendu : ce fichier ZIP est un
+     * projet Java ou Python qu'il faut dézipper, et récupérer son contenu pour le
      * stocker dans un nouveau dossier "Nom_Prenom" qui sera lui-même dans un dossier
-     * "RenduRestructuration" et qui sera zippé puis stocké au même endroit que le zip
-     * d'origine
-     * <p>
-     * Cas à gérer :
-     * — Lister les dossiers à ignorer (dossiers d'environnements, de build, etc...)
-     * — Les fichiers MacOS (._) à ignorer
-     * — Les fichiers cachés à ignorer
-     * <p>
-     * - Gérer le cas ou c'est un projet Java ou Python (si java, on prends tout le
-     * dossier src, si python, on ne prend que les fichiers .py par exemple)
-     * — si java avancé, il faudrait récupérer aussi des fichiers supplémentaires tel
-     * que les tests unitaires ou dossiers ressources et pom.xml
-     * <p>
-     * Une entité TP a les infos de stockage du zip d'origine
+     * "RenduRestructuration" et qui sera zippé puis stocké au même endroit que le ZIP
+     * d'origine.
+     *
+     * @param submission        La soumission à traiter
+     * @param nomZipRestructure Le nom du fichier ZIP restructuré
+     * @param courseType        Le type de cours (JAVA, PYTHON, JAVA_JEE) - thread-safe
      */
     @Transactional
-    public void processZipSubmission(Submission submission, String nomZipRestructure) throws IOException {
+    public void processZipSubmission(Submission submission, String nomZipRestructure, String courseType) throws IOException {
 
         // chemin vers le zip d'origine
         Path originalZip = Paths.get(submission.getPathStorage());
@@ -121,27 +154,27 @@ public class ServiceSubmission {
 
         // chemin vers le dossier de restructuration
         Path restructurationDir = tpRoot.resolve("RenduRestructuration");
-        createFolderIfPossible(restructurationDir);
+        restructureHelper.createFolderIfPossible(restructurationDir);
 
-        // dossier temporaire pour extraire le zip initial => tpmExtract
+        // dossier temporaire pour extraire le zip initial
         Path tpmExtractDir = tpRoot.resolve("tmpExtract");
-        createFolderIfPossible(tpmExtractDir);
+        restructureHelper.createFolderIfPossible(tpmExtractDir);
 
         // extraire le zip d'origine dans le dossier temporaire
         ZipUtils.unzip(originalZip, tpmExtractDir);
 
-        // Parcourir chaque dossier étudiant
-        browseStudentFolders(tpmExtractDir, restructurationDir);
+        // Parcourir chaque dossier étudiant (passer courseType pour thread-safety)
+        browseStudentFolders(tpmExtractDir, restructurationDir, courseType);
 
-        //Créez un zip global pour le dossier de restructuration
+        // Créer un zip global pour le dossier de restructuration
         Path zipRestructure = tpRoot.resolve(nomZipRestructure);
         ZipUtils.zipDirectory(restructurationDir, zipRestructure);
 
-        //Mettre à jour le chemin du zip restructuré
+        // Mettre à jour le chemin du zip restructuré
         submission.setPathFileStructured(zipRestructure.toString());
         log.info("Submission path with restructurated data updated: {}", submission.getPathFileStructured());
 
-        //Nettoyer les dossiers temporaires et le dossier de restructuration
+        // Nettoyer les dossiers temporaires et le dossier de restructuration
         ZipUtils.deleteFolder(tpmExtractDir);
         ZipUtils.deleteFolder(restructurationDir);
     }
@@ -150,9 +183,22 @@ public class ServiceSubmission {
      * Méthode permettant de retourner la liste des étudiants ayant rendu leur TP
      */
     public List<String> getStudentsSubmission(Submission submission) {
+        List<String> etudiants = new ArrayList<>();
+
+        // Aucun rendu restructuré disponible (zip pas encore traité) → retourner une liste vide
+        if (submission == null || submission.getPathFileStructured() == null
+                || submission.getPathFileStructured().isBlank()) {
+            log.warn("Aucun rendu restructuré disponible — retour d'une liste d'étudiants vide");
+            return etudiants;
+        }
+
         //Récupérer le path du zip restructuré
         Path zipRestructure = Paths.get(submission.getPathFileStructured());
-        List<String> etudiants = new ArrayList<>();
+        if (!Files.exists(zipRestructure)) {
+            log.warn("Le fichier de rendu restructuré n'existe pas sur le disque : {}", zipRestructure);
+            return etudiants;
+        }
+
         try {
             //Extraire le zip
             Path extractDir = Files.createTempDirectory("extracted");
@@ -181,25 +227,16 @@ public class ServiceSubmission {
     // --------------------------------------------------------------------------
 
     /**
-     * Crée un répertoire s'il n'existe pas déjà.
-     */
-    private void createFolderIfPossible(Path dir) {
-        try {
-            Files.createDirectories(dir);
-        } catch (IOException e) {
-            log.error("Could not create directory: {}", dir, e);
-        }
-    }
-
-    /**
      * Parcourt les dossiers étudiants dans le répertoire temporaire.
+     *
+     * @param courseType Le type de cours (passé pour thread-safety)
      */
-    private void browseStudentFolders(Path tpmExtractDir, Path restructurationDir) throws IOException {
+    private void browseStudentFolders(Path tpmExtractDir, Path restructurationDir, String courseType) throws IOException {
         Files.list(tpmExtractDir)
                 .filter(Files::isDirectory)
                 .forEach(dossierEtudiant -> {
                     try {
-                        manageStudentSubmission(dossierEtudiant, restructurationDir);
+                        manageStudentSubmission(dossierEtudiant, restructurationDir, courseType);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -207,92 +244,24 @@ public class ServiceSubmission {
     }
 
     /**
-     * Gère le rendu d'un étudiant
-     * Doit pouvoir récupérer son nom et prénom pour créer un dossier "Nom_Prenom"
+     * Gère le rendu d'un étudiant.
+     * Récupère son nom et prénom pour créer un dossier "Nom_Prenom".
      *
-     * @param etudiantDir
-     * @param restructurationDir
+     * @param courseType Le type de cours (passé pour thread-safety)
      */
-    private void manageStudentSubmission(Path etudiantDir, Path restructurationDir) throws IOException {
-        //Nom du dossier : Nom Prenom_xxxxxxxx (ne pas prendre après le _)
+    private void manageStudentSubmission(Path etudiantDir, Path restructurationDir, String courseType) throws IOException {
+        // Nom du dossier : Nom Prenom_xxxxxxxx (ne pas prendre après le _)
         String studentName = etudiantDir.getFileName().toString();
 
-        //Corriger le nom
+        // Corriger le nom
         String nameStudentFormatted = StudentNameUtils.toFolderNameFromZipDir(studentName);
 
-        //Créer le dossier "Nom_Prenom" dans le dossier de restructuration
+        // Créer le dossier "Nom_Prenom" dans le dossier de restructuration
         Path studentDirRestructured = restructurationDir.resolve(nameStudentFormatted);
-        createFolderIfPossible(studentDirRestructured);
+        restructureHelper.createFolderIfPossible(studentDirRestructured);
 
-        //Gérer le contenu du dossier étudiant pour le restructurer
-        sendStudentContent(etudiantDir, studentDirRestructured);
+        // Gérer le contenu du dossier étudiant pour le restructurer
+        restructureHelper.sendStudentContent(etudiantDir, studentDirRestructured, courseType);
     }
-
-    /**
-     * Transfère le contenu du dossier étudiant vers le dossier de restructuration
-     *
-     * @param etudiantDir
-     * @param etudiantDirRestructured
-     */
-    private void sendStudentContent(Path etudiantDir, Path etudiantDirRestructured) throws IOException {
-        //Normalement : le rendu est un zip, mais dans le cas contraire, on récupère
-        // juste ce qu'il y a dedans pour le stocker dans le dossier de restructuration.
-        Optional<Path> zipEtudiant = findSubFolderZip(etudiantDir);
-        if (zipEtudiant.isPresent()) {
-            Path zipEtudiantPath = zipEtudiant.get();
-
-            //Extraire le contenu dans le dossier temporaire local
-            Path projetExtract = etudiantDir.resolve("extractedProject");
-            createFolderIfPossible(projetExtract);
-            //Gestion des différents types de zip avec une méthode de Quarkus
-            //OLD VERSION : unzip(zipEtudiantPath, projetExtract);
-            manageExtractionZip(zipEtudiantPath, projetExtract, etudiantDir);
-
-
-            log.debug("Manage extraction for student project and typeCours");
-            //Gérer le contenu du projet à copier selon le type de cours
-            if (typeCours.equals("JAVA")) {
-                ZipUtils.copyJavaProject(projetExtract, etudiantDirRestructured);
-            } else if (typeCours.equals("PYTHON")) {
-                ZipUtils.copyPythonProject(projetExtract, etudiantDirRestructured);
-            } else if (typeCours.equals("JAVA_JEE")) {
-                ZipUtils.copyJavaJEEProject(projetExtract, etudiantDirRestructured);
-            } else {
-                //les deux sets à ignorer sont vides
-                ZipUtils.copyAll(projetExtract, etudiantDirRestructured, Set.of(), Set.of());
-            }
-        } else {
-            ZipUtils.copyAll(etudiantDir, etudiantDirRestructured, Set.of(), Set.of());
-        }
-    }
-
-    /**
-     * Trouve un sous-zip (.zip, .7zip ou .rar) dans le dossier d'étudiant, s'il existe
-     */
-    private Optional<Path> findSubFolderZip(Path dossierEtudiant) {
-        try (Stream<Path> files = Files.list(dossierEtudiant)) {
-            return files.filter(p -> {
-                String fileName = p.toString().toLowerCase();
-                return fileName.endsWith(".zip") || fileName.endsWith(".7z") || fileName.endsWith(".rar");
-            }).findFirst();
-        } catch (IOException e) {
-            log.error("Error while searching for sub-zip in {}", dossierEtudiant, e);
-        }
-        return Optional.empty();
-    }
-
-    /**
-     * Gère la façon d'extraire le zip selon le type de zip
-     */
-    private void manageExtractionZip(Path zipEtudiantPath, Path projetExtract, Path etudiantDir) throws IOException {
-        String zipEtudiantPathString = zipEtudiantPath.toString();
-        if (zipEtudiantPathString.endsWith(".zip")) {
-            ZipUtils.unzip(zipEtudiantPath, projetExtract);
-        } else if (zipEtudiantPathString.endsWith(".7z")) {
-            //Gestion des fichiers 7z
-            ZipUtils.extract7z(zipEtudiantPath, projetExtract);
-        }
-    }
-
 
 }

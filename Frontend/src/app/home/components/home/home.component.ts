@@ -53,7 +53,6 @@ export class HomeComponent {
   @Input() course!: CoursePreview;
   // Constructeur pour initialiser le composant
   constructor() {
-    console.log('HomeComponent initialized');
     this.getCourses();
     this.loadMyAccesses();
   }
@@ -67,7 +66,6 @@ export class HomeComponent {
   getCourses() {
     this.homeService.getCoursePreviews().subscribe(courses => {
       this.courseList = courses;
-      console.log('Courses fetched:', this.courseList);
     });
   }
 

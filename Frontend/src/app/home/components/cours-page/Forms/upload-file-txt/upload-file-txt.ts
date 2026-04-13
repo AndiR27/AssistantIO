@@ -61,7 +61,6 @@ export class UploadFileTxt {
     this.courseSvc.addStudentsFromFile(courseId, this.file)
       .subscribe({
         next: () => {
-          console.log(`Importé ${this.lineCount()} ligne(s).`);
           this.uploaded.emit();
           this.clearFileInput();
           // masquer le message après 5s

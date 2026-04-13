@@ -75,8 +75,6 @@ export class CoursComponent implements OnInit {
       console.error('Course ID is not defined');
       return;
     }
-    // Logique pour charger les étudiants du cours
-    console.log('Chargement des étudiants pour le cours ID:', this.courseId());
     this.courseService.getStudentsByCourseId(this.courseId() as number).subscribe(
       students => {
         this.students = students;
@@ -90,11 +88,8 @@ export class CoursComponent implements OnInit {
       console.error('Course ID is not defined');
       return;
     }
-    // lancer le process de submissions et des TPStatus
-    console.log('Chargement des infos TP pour le cours ID:', this.courseId());
     this.courseService.getTPsByCourseId(this.courseId() as number).subscribe(
       tps => {
-        console.log('TPs payload:', JSON.parse(JSON.stringify(tps)));
         this.tps = tps;
       }
     );
@@ -105,7 +100,6 @@ export class CoursComponent implements OnInit {
       console.error('Course ID is not defined');
       return;
     }
-    console.log('Chargement des évaluations pour le cours ID:', this.courseId());
     this.courseService.getEvaluationsByCourseId(this.courseId() as number).subscribe(
       evaluations => {
         this.evaluations = evaluations;

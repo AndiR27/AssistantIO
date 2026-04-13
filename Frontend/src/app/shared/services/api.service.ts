@@ -552,7 +552,6 @@ export class ApiService {
       )
       .pipe(
         tap({
-          next: resp => console.log('Réponse du backend à startProcessZip:', resp),
           error: err => console.error('Erreur sur startProcessZip:', err)
         }),
         switchMap((tp) => {
@@ -732,6 +731,30 @@ export class ApiService {
       )
       .pipe(
         retry(1),
+        catchError((err: HttpErrorResponse) => {
+          this.handleError(err);
+          return throwError(() => err);
+        })
+      );
+  }
+
+  /**
+   * Upload d'un fichier mapping.txt pour l'évaluation (mode LOCAL_WS).
+   * POST /evaluations/{evaluationId}/submission/mapping
+   * @param evaluationId - L'identifiant de l'évaluation
+   * @param file - Le fichier mapping.txt à uploader
+   * @returns Observable<EvaluationModel>
+   */
+  uploadEvaluationMapping(evaluationId: number, file: File): Observable<EvaluationModel> {
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+
+    return this.http
+      .post<EvaluationModel>(
+        `${API_URL}/evaluations/${evaluationId}/submission/mapping`,
+        formData
+      )
+      .pipe(
         catchError((err: HttpErrorResponse) => {
           this.handleError(err);
           return throwError(() => err);

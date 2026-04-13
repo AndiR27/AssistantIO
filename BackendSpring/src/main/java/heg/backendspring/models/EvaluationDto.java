@@ -1,5 +1,7 @@
 package heg.backendspring.models;
 
+import heg.backendspring.enums.SubmissionMode;
+
 import java.time.LocalDate;
 
 public record EvaluationDto(
@@ -8,6 +10,7 @@ public record EvaluationDto(
         LocalDate date,
         int coefficient,
         Long courseId,
-        SubmissionDto submission
+        SubmissionDto submission,
+        SubmissionMode mode
 ) {
 }

@@ -42,7 +42,14 @@ public class ZipUtils {
                             Path dir, BasicFileAttributes attrs
                     ) throws IOException {
                         Path rel = root.relativize(dir);
-                        Path destDir = targetDir.resolve(rel.toString());
+                        Path destDir = targetDir.resolve(rel.toString()).normalize();
+
+                        // Anti path traversal
+                        if (!destDir.startsWith(targetDir.normalize())) {
+                            log.warn("Skipping directory with path traversal attempt: {}", rel);
+                            return FileVisitResult.SKIP_SUBTREE;
+                        }
+
                         Files.createDirectories(destDir);
                         return FileVisitResult.CONTINUE;
                     }
@@ -52,7 +59,14 @@ public class ZipUtils {
                             Path file, BasicFileAttributes attrs
                     ) throws IOException {
                         Path rel = root.relativize(file);
-                        Path destFile = targetDir.resolve(rel.toString());
+                        Path destFile = targetDir.resolve(rel.toString()).normalize();
+
+                        // Anti path traversal
+                        if (!destFile.startsWith(targetDir.normalize())) {
+                            log.warn("Skipping entry with path traversal attempt: {}", rel);
+                            return FileVisitResult.CONTINUE;
+                        }
+
                         Files.createDirectories(destFile.getParent());
                         Files.copy(file, destFile, StandardCopyOption.REPLACE_EXISTING);
                         return FileVisitResult.CONTINUE;

@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   backend:
     build:
@@ -42,6 +40,12 @@ services:
       # ZIP storage (volume NAS)
       # ==========================
       ZIP_STORAGE_PATH: /opt/app/data/zips
+
+      # ==========================
+      # Timezone
+      # ==========================
+      TZ: Europe/Zurich
+      JAVA_OPTS: -Duser.timezone=Europe/Zurich
 
     depends_on: []
     ports:

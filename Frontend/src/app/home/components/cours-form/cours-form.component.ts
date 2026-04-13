@@ -70,8 +70,7 @@ export class CoursFormComponent {
         teacher: '',
         courseType: this.courseTypeOptions[0]
       });
-      console.log('Course added successfully:', payload);
-      // Émettre l'événement pour notifier le composant parent
+      // Notify parent component
       this.courseAdded.emit();
     });
 

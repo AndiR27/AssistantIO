@@ -51,13 +51,10 @@ export class TableSubmissionsComponent implements OnInit {
 
 
     ngOnInit() {
-        console.log('TableSubmissionsComponent initialized');
-        console.log('Students:', this.students);
-        console.log('TPs:', this.tps);
+        // Component initialized
     }
 
     get sortedTPs(): TP_Model[] {
-      console.log('Sorting TPs by number');
         return [...this.tps].sort((a, b) => a.no - b.no);
     }
 
@@ -182,20 +179,17 @@ export class TableSubmissionsComponent implements OnInit {
         }
 
         this.processingTPs.add(tp.no);
-        console.log(`Démarrage du process de submission pour le TP ${tp.no} du cours ${this.courseId}`);
 
         // Call endpoints sequentially with a delay to prevent backend race condition
         // First: startProcessSubmission (launches the restructuration)
         this.courseService.startProcessSubmission(this.courseId!, tp.no).subscribe({
             next: () => {
-                console.log(`✅ Restructuration du TP ${tp.no} terminée avec succès`);
                 // Wait 1 second for backend to finalize before calling manageTP
                 setTimeout(() => {
                     // Second: manageTP (updates status for all students)
                     // Note: This may fail due to backend issues, but restructuration is already done
                     this.courseService.manageTP(this.courseId!, tp.no).subscribe({
                         next: () => {
-                            console.log(`✅ Gestion du TP ${tp.no} terminée`);
                             this.processingTPs.delete(tp.no);
                             this.refresh.emit();
                         },
@@ -243,12 +237,10 @@ export class TableSubmissionsComponent implements OnInit {
         }
 
         this.processingMapping.add(tp.no);
-        console.log(`Rafraîchissement des statuts pour le TP ${tp.no}`);
 
         // Use the new refresh endpoint that checks submissions without recreating TPStatus
         this.courseService.refreshTPStatusList(this.courseId!, tp.no).subscribe({
-            next: (updatedStatuses) => {
-                console.log(`✅ Statuts rafraîchis pour le TP ${tp.no}:`, updatedStatuses);
+            next: () => {
                 this.processingMapping.delete(tp.no);
                 this.refresh.emit();
                 this.snackBar.open(
@@ -315,8 +307,7 @@ export class TableSubmissionsComponent implements OnInit {
             if (result && this.courseId && student.id) {
                 // Update student via API
                 this.courseService.updateStudent(this.courseId!, student.id, result).subscribe({
-                    next: (updatedStudent) => {
-                        console.log('Student updated:', updatedStudent);
+                    next: () => {
                         this.snackBar.open('Étudiant mis à jour avec succès', 'Fermer', { duration: 3000 });
                         this.refresh.emit();
                     },
@@ -353,8 +344,7 @@ export class TableSubmissionsComponent implements OnInit {
 
                 // Update submission status via API with validated enum value
                 this.tpStatusService.updateTPStatus(currentStatus.id, validatedType).subscribe({
-                    next: (updatedStatus) => {
-                        console.log('Submission status updated:', updatedStatus);
+                    next: () => {
                         this.snackBar.open('Statut de rendu mis à jour', 'Fermer', { duration: 3000 });
                         this.refresh.emit();
                     },

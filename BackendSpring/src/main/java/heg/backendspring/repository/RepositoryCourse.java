@@ -3,7 +3,6 @@ package heg.backendspring.repository;
 
 import heg.backendspring.entity.Course;
 import heg.backendspring.entity.Student;
-import heg.backendspring.entity.TP;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -26,13 +25,10 @@ public interface RepositoryCourse extends JpaRepository<Course, Long> {
     //Trouver un cours selon son code
     Optional<Course> findCourseByCode(String code);
 
-    // Trouver un TP dans le cours selon son numéro
-    @Query("SELECT tp FROM TP tp WHERE tp.course.id = :courseId AND tp.no = :no")
-    Optional<TP> findTPByCourseIdAndNo(Long courseId, int no);
-
-
-    //Trouver tous les TP d'un cours
-    @Query("SELECT c.tps FROM Course c WHERE c.id = :courseId")
-    Set<TP> findAllTPsByCourseId(Long courseId);
+    /**
+     * Trouve un cours avec ses etudiants charges (evite LazyInitializationException).
+     */
+    @Query("SELECT DISTINCT c FROM Course c LEFT JOIN FETCH c.students WHERE c.id = :courseId")
+    Optional<Course> findByIdWithStudents(@Param("courseId") Long courseId);
 
 }

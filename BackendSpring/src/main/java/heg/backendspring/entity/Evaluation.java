@@ -1,6 +1,7 @@
 package heg.backendspring.entity;
 
 
+import heg.backendspring.enums.SubmissionMode;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -16,7 +17,7 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Evaluation {
+public class Evaluation implements Submittable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -32,6 +33,11 @@ public class Evaluation {
 
     private int coefficient;
 
+    /** Mode de traitement du rendu : CLASSIC (par défaut) ou LOCAL_WS (dossiers HEG-WS + mapping). */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "evaluation_mode", nullable = false)
+    private SubmissionMode mode = SubmissionMode.CLASSIC;
+
     //Une évaluation est associée à un cours
     @ManyToOne
     @JoinColumn(name = "course_id", nullable = false)
@@ -41,4 +47,18 @@ public class Evaluation {
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "submission_id")
     private Submission submission;
+
+    // ========================================
+    // Submittable interface implementation
+    // ========================================
+
+    @Override
+    public String getSubmissionName() {
+        return this.name;
+    }
+
+    @Override
+    public String getFolderName() {
+        return this.name;
+    }
 }

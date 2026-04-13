@@ -28,7 +28,7 @@ export class CourseService {
    */
   getCourseById(id: number): Observable<CourseDetailsModel> {
     return this.api.getCourseById(id).pipe(
-      tap(res => console.log('API getCourseById response:', res)),
+      
       map((res: any) => {
         const dto = Array.isArray(res)
           ? res[0]
@@ -69,7 +69,7 @@ export class CourseService {
    */
   getStudentsByCourseId(courseId: number): Observable<StudentModel[]> {
     return this.api.getStudentsByCourseId(courseId).pipe(
-      tap(res => console.log('API getStudentsByCourseId response:', res)),
+      
       map((res: any) => {
         const students = Array.isArray(res) ? res : [];
         return students.map((student: any) => ({
@@ -95,7 +95,7 @@ export class CourseService {
    */
   addStudentToCourse(courseId: number, student: StudentModel): Observable<StudentModel> {
     return this.api.addStudentToCourse(courseId, student).pipe(
-      tap(res => console.log('API addStudentToCourse response:', res)),
+      
       map((res: any) => ({
         id: res.id,
         name: res.name,
@@ -118,7 +118,7 @@ export class CourseService {
    */
   addStudentsFromFile(courseId: number, file: File): Observable<any> {
     return this.api.addStudentsFromFile(courseId, file).pipe(
-      tap(res => console.log('API addStudentsFromFile response:', res)),
+      
       catchError(err => {
         console.error('Error in addStudentsFromFile():', err);
         return throwError(() => err);
@@ -135,7 +135,6 @@ export class CourseService {
    */
   deleteStudent(courseId: number, studentId: number): Observable<void> {
     return this.api.deleteStudent(courseId, studentId).pipe(
-      tap(() => console.log(`Student ${studentId} deleted from course ${courseId}`)),
       catchError(err => {
         console.error('Error in deleteStudent():', err);
         return throwError(() => err);
@@ -153,7 +152,7 @@ export class CourseService {
    */
   updateStudent(courseId: number, studentId: number, student: StudentModel): Observable<StudentModel> {
     return this.api.updateStudent(courseId, studentId, student).pipe(
-      tap(res => console.log(`Student ${studentId} updated in course ${courseId}:`, res)),
+      
       map((res: any) => ({
         id: res.id,
         name: res.name,
@@ -179,7 +178,7 @@ export class CourseService {
    */
   getTPsByCourseId(courseId: number): Observable<TP_Model[]> {
     return this.api.getTPsByCourseId(courseId).pipe(
-      tap(res => console.log('API getTPsByCourseId response:', res)),
+      
       map((res: any) => {
         const tps = Array.isArray(res) ? res : [];
         return tps.map((tp: any) => ({
@@ -208,7 +207,7 @@ export class CourseService {
    */
   createTP(courseId: number, tpNo: number): Observable<TP_Model> {
     return this.api.createTP(courseId, tpNo).pipe(
-      tap(res => console.log('API createTP response:', res)),
+      
       catchError(err => {
         console.error('Error in createTP():', err);
         return throwError(() => err);
@@ -218,7 +217,7 @@ export class CourseService {
 
   addTpToCourse(courseId: number, tpNo: number, file: File): Observable<TP_Model> {
     return this.api.addTpToCourse(courseId, tpNo, file).pipe(
-      tap(res => console.log('API addTpToCourse response:', res)),
+      
       catchError(err => {
         console.error('Error in addTpToCourse():', err);
         return throwError(() => err);
@@ -235,7 +234,7 @@ export class CourseService {
    */
   startProcessSubmission(courseId: number, tpNo: number): Observable<any> {
     return this.api.startProcessSubmission(courseId, tpNo).pipe(
-      tap(res => console.log('API startProcessSubmission response:', res)),
+      
       catchError(err => {
         console.error('Error in startProcessSubmission():', err);
         return throwError(() => err);
@@ -252,7 +251,7 @@ export class CourseService {
    */
   manageTP(courseId: number, tpNo: number): Observable<any> {
     return this.api.manageTP(courseId, tpNo).pipe(
-      tap(res => console.log('API manageTP response:', res)),
+      
       catchError(err => {
         console.error('Error in manageTP():', err);
         return throwError(() => err);
@@ -285,7 +284,6 @@ export class CourseService {
    */
   deleteTP(courseId: number, tpNo: number): Observable<void> {
     return this.api.deleteTP(courseId, tpNo).pipe(
-      tap(() => console.log(`TP ${tpNo} deleted from course ${courseId}`)),
       catchError(err => {
         console.error('Error in deleteTP():', err);
         return throwError(() => err);
@@ -303,7 +301,7 @@ export class CourseService {
    */
   updateTP(courseId: number, tpNo: number, tpData: any): Observable<TP_Model> {
     return this.api.updateTP(courseId, tpNo, tpData).pipe(
-      tap(res => console.log('API updateTP response:', res)),
+      
       catchError(err => {
         console.error('Error in updateTP():', err);
         return throwError(() => err);
@@ -320,7 +318,6 @@ export class CourseService {
    */
   refreshTPStatusList(courseId: number, tpNo: number): Observable<TPStatusModel[]> {
     return this.api.refreshTPStatus(courseId, tpNo).pipe(
-      tap(res => console.log(`✅ Refreshed TPStatus list (Course: ${courseId}, TP: ${tpNo}):`, res)),
       catchError(err => {
         console.error('Error in refreshTPStatusList():', err);
         return throwError(() => err);
@@ -340,7 +337,7 @@ export class CourseService {
    */
   getEvaluationsByCourseId(courseId: number): Observable<EvaluationModel[]> {
     return this.api.getEvaluationsByCourseId(courseId).pipe(
-      tap(res => console.log('API getEvaluationsByCourseId response:', res)),
+      
       map((res: any) => {
         const evaluations = Array.isArray(res) ? res : [];
         return evaluations.map((evaluation: any) => ({
@@ -348,7 +345,9 @@ export class CourseService {
           name: evaluation.name,
           date: evaluation.date,
           coefficient: evaluation.coefficient,
-          courseId: evaluation.courseId
+          courseId: evaluation.courseId,
+          mode: evaluation.mode,
+          submission: evaluation.submission
         } as EvaluationModel));
       }),
       catchError(err => {
@@ -367,13 +366,15 @@ export class CourseService {
    */
   createEvaluation(courseId: number, evaluation: Omit<EvaluationModel, 'id'>): Observable<EvaluationModel> {
     return this.api.createEvaluation(courseId, evaluation).pipe(
-      tap(res => console.log('API createEvaluation response:', res)),
+
       map((res: any) => ({
         id: res.id,
         name: res.name,
         date: res.date,
         coefficient: res.coefficient,
-        courseId: res.courseId
+        courseId: res.courseId,
+        mode: res.mode,
+        submission: res.submission
       } as EvaluationModel)),
       catchError(err => {
         console.error('Error in createEvaluation():', err);
@@ -391,13 +392,15 @@ export class CourseService {
    */
   updateEvaluation(evaluationId: number, evaluation: Partial<EvaluationModel>): Observable<EvaluationModel> {
     return this.api.updateEvaluation(evaluationId, evaluation).pipe(
-      tap(res => console.log('API updateEvaluation response:', res)),
+
       map((res: any) => ({
         id: res.id,
         name: res.name,
         date: res.date,
         coefficient: res.coefficient,
-        courseId: res.courseId
+        courseId: res.courseId,
+        mode: res.mode,
+        submission: res.submission
       } as EvaluationModel)),
       catchError(err => {
         console.error('Error in updateEvaluation():', err);
@@ -414,7 +417,6 @@ export class CourseService {
    */
   deleteEvaluation(evaluationId: number): Observable<void> {
     return this.api.deleteEvaluation(evaluationId).pipe(
-      tap(() => console.log(`Evaluation ${evaluationId} deleted`)),
       catchError(err => {
         console.error('Error in deleteEvaluation():', err);
         return throwError(() => err);
@@ -435,17 +437,40 @@ export class CourseService {
    */
   uploadEvaluationSubmission(evaluationId: number, file: File): Observable<EvaluationModel> {
     return this.api.uploadEvaluationSubmission(evaluationId, file).pipe(
-      tap(res => console.log('API uploadEvaluationSubmission response:', res)),
+
       map((res: any) => ({
         id: res.id,
         name: res.name,
         date: res.date,
         coefficient: res.coefficient,
         courseId: res.courseId,
+        mode: res.mode,
         submission: res.submission
       } as EvaluationModel)),
       catchError(err => {
         console.error('Error in uploadEvaluationSubmission():', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  /**
+   * Upload du fichier mapping.txt (mode LOCAL_WS).
+   * POST /evaluations/{evaluationId}/submission/mapping
+   */
+  uploadEvaluationMapping(evaluationId: number, file: File): Observable<EvaluationModel> {
+    return this.api.uploadEvaluationMapping(evaluationId, file).pipe(
+      map((res: any) => ({
+        id: res.id,
+        name: res.name,
+        date: res.date,
+        coefficient: res.coefficient,
+        courseId: res.courseId,
+        mode: res.mode,
+        submission: res.submission
+      } as EvaluationModel)),
+      catchError(err => {
+        console.error('Error in uploadEvaluationMapping():', err);
         return throwError(() => err);
       })
     );
@@ -459,7 +484,7 @@ export class CourseService {
    */
   processEvaluationSubmission(evaluationId: number): Observable<any> {
     return this.api.processEvaluationSubmission(evaluationId).pipe(
-      tap(res => console.log('API processEvaluationSubmission response:', res)),
+      
       catchError(err => {
         console.error('Error in processEvaluationSubmission():', err);
         return throwError(() => err);
@@ -475,7 +500,6 @@ export class CourseService {
    */
   downloadEvaluationRestructured(evaluationId: number): Observable<Blob> {
     return this.api.downloadEvaluationRestructured(evaluationId).pipe(
-      tap(() => console.log(`Downloading restructured ZIP for evaluation ${evaluationId}`)),
       catchError(err => {
         console.error('Error in downloadEvaluationRestructured():', err);
         return throwError(() => err);

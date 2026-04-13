@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="AssistantIO" type="CompoundRunConfigurationType">
+    <toRun name="Frontend - Angular" type="js.build_tools.npm" />
+    <toRun name="BackendSpringApplication" type="SpringBootApplicationConfigurationType" />
+    <method v="2" />
+  </configuration>
+</component>

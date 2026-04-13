@@ -697,6 +697,111 @@
   background: rgba(16, 185, 129, 0.08);
 }
 
+/* Mapping (HEG-WS) button */
+.mapping-btn:hover {
+  border-color: #8b5cf6;
+  color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.08);
+}
+
+.mapping-btn.active {
+  border-color: #8b5cf6;
+  color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.12);
+}
+
+/* Mode badge */
+.mode-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  flex-shrink: 0;
+}
+
+.mode-badge.localws {
+  background: rgba(139, 92, 246, 0.12);
+  color: #7c3aed;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+/* Mapping trigger (pré-upload, mode LOCAL_WS) */
+.mapping-trigger {
+  border-color: rgba(139, 92, 246, 0.4) !important;
+  color: #7c3aed !important;
+  background: rgba(139, 92, 246, 0.06) !important;
+}
+.mapping-trigger:hover {
+  border-color: #8b5cf6 !important;
+  background: rgba(139, 92, 246, 0.12) !important;
+}
+
+/* Mode toggle dans le formulaire d'ajout */
+.mode-toggle-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin: 0.25rem 0 0.75rem;
+}
+
+.mode-toggle-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted, #64748b);
+  font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+}
+
+.mode-toggle-group {
+  display: inline-flex;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(248, 250, 252, 0.6);
+  width: fit-content;
+}
+
+.mode-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.9rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #475569;
+  font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.mode-toggle-btn + .mode-toggle-btn {
+  border-left: 1px solid rgba(148, 163, 184, 0.35);
+}
+
+.mode-toggle-btn mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.mode-toggle-btn:hover {
+  background: rgba(139, 92, 246, 0.06);
+  color: #7c3aed;
+}
+
+.mode-toggle-btn.active {
+  background: rgba(139, 92, 246, 0.14);
+  color: #7c3aed;
+}
+
 /* Card with submission gets a subtle indicator */
 .evaluation-card.has-submission .card-accent {
   background: linear-gradient(90deg, var(--eval-primary) 0%, var(--eval-success) 100%);

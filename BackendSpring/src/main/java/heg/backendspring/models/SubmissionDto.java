@@ -4,6 +4,7 @@ public record SubmissionDto(
         Long id,
         String fileName,
         String pathStorage,
-        String pathFileStructured
+        String pathFileStructured,
+        String pathMappingFile
 ) {
 }

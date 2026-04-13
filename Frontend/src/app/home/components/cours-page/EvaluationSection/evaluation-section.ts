@@ -26,7 +26,8 @@ export class EvaluationSectionComponent {
     newEvaluation: Partial<EvaluationModel> = {
         name: '',
         date: '',
-        coefficient: 1
+        coefficient: 1,
+        mode: 'CLASSIC'
     };
 
     // État pour l'édition inline
@@ -37,6 +38,7 @@ export class EvaluationSectionComponent {
     uploadingId: number | null = null;
     processingId: number | null = null;
     downloadingId: number | null = null;
+    uploadingMappingId: number | null = null;
 
     // ========================================
     // AJOUT
@@ -48,7 +50,8 @@ export class EvaluationSectionComponent {
         this.newEvaluation = {
             name: '',
             date: new Date().toISOString().split('T')[0],
-            coefficient: 1
+            coefficient: 1,
+            mode: 'CLASSIC'
         };
     }
 
@@ -65,7 +68,8 @@ export class EvaluationSectionComponent {
             name: this.newEvaluation.name,
             date: this.newEvaluation.date,
             coefficient: this.newEvaluation.coefficient || 1,
-            courseId: this.courseId
+            courseId: this.courseId,
+            mode: this.newEvaluation.mode || 'CLASSIC'
         };
 
         this.courseService.createEvaluation(this.courseId, evaluation).subscribe({
@@ -216,5 +220,40 @@ export class EvaluationSectionComponent {
 
     isDownloading(evaluation: EvaluationModel): boolean {
         return this.downloadingId === evaluation.id;
+    }
+
+    isUploadingMapping(evaluation: EvaluationModel): boolean {
+        return this.uploadingMappingId === evaluation.id;
+    }
+
+    isLocalWsMode(evaluation: EvaluationModel): boolean {
+        return evaluation.mode === 'LOCAL_WS';
+    }
+
+    onMappingFileSelected(event: Event, evaluation: EvaluationModel): void {
+        const input = event.target as HTMLInputElement;
+        if (!input.files || input.files.length === 0) {
+            return;
+        }
+
+        const file = input.files[0];
+        this.uploadingMappingId = evaluation.id!;
+
+        this.courseService.uploadEvaluationMapping(evaluation.id!, file).subscribe({
+            next: (updated) => {
+                const index = this.evaluations.findIndex(e => e.id === evaluation.id);
+                if (index !== -1) {
+                    this.evaluations[index] = updated;
+                }
+                this.uploadingMappingId = null;
+                this.evaluationUpdated.emit();
+            },
+            error: (err) => {
+                console.error('Error uploading mapping file:', err);
+                this.uploadingMappingId = null;
+            }
+        });
+
+        input.value = '';
     }
 }

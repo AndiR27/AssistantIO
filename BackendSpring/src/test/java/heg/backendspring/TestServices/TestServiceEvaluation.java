@@ -456,7 +456,7 @@ class TestServiceEvaluation {
     // =====================================
 
     private EvaluationDto dto(Long id, String name, LocalDate date, int coefficient, Long courseId) {
-        return new EvaluationDto(id, name, date, coefficient, courseId, null);
+        return new EvaluationDto(id, name, date, coefficient, courseId, null, null);
     }
 
     /**

@@ -27,7 +27,6 @@ export class TPStatusService {
      */
     getAllTPStatusForTP(courseId: number, tpNumber: number): Observable<TPStatusModel[]> {
         return this.api.getAllTPStatusForTP(courseId, tpNumber).pipe(
-            tap(res => console.log(`API getAllTPStatusForTP (Course: ${courseId}, TP: ${tpNumber}) response:`, res)),
             catchError(err => {
                 console.error('Error in getAllTPStatusForTP():', err);
                 return throwError(() => err);
@@ -43,7 +42,6 @@ export class TPStatusService {
      */
     getTPStatusById(statusId: number): Observable<TPStatusModel> {
         return this.api.getTPStatusById(statusId).pipe(
-            tap(res => console.log(`API getTPStatusById (${statusId}) response:`, res)),
             catchError(err => {
                 console.error('Error in getTPStatusById():', err);
                 return throwError(() => err);
@@ -60,7 +58,6 @@ export class TPStatusService {
      */
     updateTPStatus(statusId: number, newType: StudentSubmissionType): Observable<TPStatusModel> {
         return this.api.updateTPStatus(statusId, newType).pipe(
-            tap(res => console.log(`API updateTPStatus (${statusId}) to ${newType} response:`, res)),
             catchError(err => {
                 console.error('Error in updateTPStatus():', err);
                 return throwError(() => err);
@@ -76,7 +73,6 @@ export class TPStatusService {
      */
     deleteTPStatus(statusId: number): Observable<void> {
         return this.api.deleteTPStatus(statusId).pipe(
-            tap(() => console.log(`TPStatus ${statusId} deleted successfully`)),
             catchError(err => {
                 console.error('Error in deleteTPStatus():', err);
                 return throwError(() => err);

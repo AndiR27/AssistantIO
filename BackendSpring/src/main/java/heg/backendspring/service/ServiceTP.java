@@ -37,6 +37,8 @@ import java.util.stream.Collectors;
 public class ServiceTP {
 
     private final ServiceSubmission serviceSubmission;
+    private final SubmissionHandler submissionHandler;
+
     @Value("${zip-storage.path}")
     private String zipStoragePath;
 
@@ -65,39 +67,20 @@ public class ServiceTP {
     }
 
     /**
-     * Methode permettant d'ajouter un rendu au TP afin de pouvoir le stocker
-     * On va utiliser un InputStream pour stocker le fichier zip : cela permet de ne pas
-     * stocker le fichier en mémoire et de le stocker directement sur le disque
-     * <p>
-     * De plus, la couche service ne dois pas connaitre le protocole HTTP ou le format
-     * multipart, c'est pourquoi on utilise un InputStream
+     * Ajoute un rendu (fichier ZIP) au TP pour le stocker.
+     * Utilise SubmissionHandler pour éviter la duplication de code.
+     *
+     * @param idTP    L'identifiant du TP
+     * @param zipFile Le flux du fichier ZIP
+     * @return Le DTO du TP mis à jour, ou null si le TP n'existe pas
      */
     @Transactional
     public TPDto addSubmissionToTP(Long idTP, InputStream zipFile) {
         Optional<TP> tpOpt = repositoryTP.findById(idTP);
         if (tpOpt.isPresent()) {
             TP tp = tpOpt.get();
-            //nom du fichier
-            String nomFichier = "TP" + tp.getNo() + "_RenduCyberlearn.zip";
-            String codeCours = tp.getCourse().getCode();
-            //chemin vers le fichier
-            Path tpFolder = Paths.get(zipStoragePath, codeCours, "TP" + tp.getNo());
-
-            //Chemin complet vers le fichier
-            Path cheminVersZip = tpFolder.resolve(nomFichier);
-            //Copier le stream
-            try {
-                if (zipFile == null) {
-                    log.info("Zip file is null");
-                }
-                Files.copy(zipFile, cheminVersZip, StandardCopyOption.REPLACE_EXISTING);
-            } catch (IOException e) {
-                log.error("Unable to copy zip file", e);
-            }
-
-            //Creer le rendu
-            tp.setSubmission(new Submission(nomFichier, cheminVersZip.toString()
-                    , null));
+            // Déléguer la logique commune à SubmissionHandler
+            submissionHandler.addSubmission(tp, zipFile);
             repositoryTP.save(tp);
             return mapperTP.toDto(tp);
         }
@@ -177,19 +160,12 @@ public class ServiceTP {
 //    }
 
     /**
-     * Méthode permettant de récupérer le fichier zip restructuré pour un TP donné
+     * Récupère le fichier ZIP restructuré pour un TP donné.
+     * Utilise SubmissionHandler pour la logique commune.
      */
     public File getSubmissionFileRestructurated(TPDto tpDto) {
-        //Récupérer le TP
         TP tp = repositoryTP.findById(tpDto.id()).orElseThrow();
-        //Récupérer le rendu
-        Submission submission = tp.getSubmission();
-        if (submission != null) {
-            log.info("Path to restructurated file is not null : {}", submission.getPathFileStructured());
-            Path pathFile = Paths.get(submission.getPathFileStructured());
-            return pathFile.toFile();
-        }
-        return null;
+        return submissionHandler.getRestructuredFile(tp);
     }
 
     /**

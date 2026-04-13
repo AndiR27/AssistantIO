@@ -13,6 +13,9 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.multipart.MultipartFile;
@@ -88,6 +91,30 @@ public class ControllerEvaluation implements EvaluationApi {
         try {
             return ResponseEntity.status(201).body(serviceEvaluation.addSubmissionToEvaluation(evaluationId, FileUploadForm.getFileInputStream(file)));
         } catch (IOException e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
+
+    /**
+     * Upload d'un fichier mapping.txt pour une Evaluation en mode LOCAL_WS.
+     * Le mapping est stocké à côté du zip de rendu et la Submission passe en mode LOCAL_WS.
+     * Format attendu par ligne : "StudentName : HEG-WS-XXXX".
+     */
+    @PostMapping(
+            value = "/evaluations/{evaluationId}/submission/mapping",
+            consumes = {"multipart/form-data"},
+            produces = {"application/json"}
+    )
+    public ResponseEntity<EvaluationDto> uploadMappingFileForEvaluation(
+            @PathVariable("evaluationId") Long evaluationId,
+            @RequestParam("file") MultipartFile file) {
+        log.info("Received mapping file: {} for evaluation {}", file.getOriginalFilename(), evaluationId);
+        try {
+            EvaluationDto dto = serviceEvaluation.addMappingFileToEvaluation(
+                    evaluationId, FileUploadForm.getFileInputStream(file));
+            return ResponseEntity.status(201).body(dto);
+        } catch (IOException e) {
+            log.error("Erreur lors du traitement du mapping pour l'évaluation {}", evaluationId, e);
             return ResponseEntity.status(500).build();
         }
     }

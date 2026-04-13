@@ -1633,6 +1633,11 @@ components:
           type: integer
           format: int64
           example: 1
+        mode:
+          type: string
+          enum: [CLASSIC, LOCAL_WS]
+          description: Mode de restructuration du rendu (CLASSIC par défaut, LOCAL_WS pour dossiers HEG-WS + mapping).
+          example: "CLASSIC"
       required: [ "name", "date", "coefficient", "courseId" ]
       example:
         id: 200
@@ -1640,6 +1645,7 @@ components:
         date: "2025-01-15"
         coefficient: 2
         courseId: 1
+        mode: "CLASSIC"
 
     StudentDto:
       type: object
@@ -1696,6 +1702,10 @@ components:
           type: string
           description: Chemin du ZIP restructuré.
           example: "/data/courses/61-13/TP1/TP1_RenduRestructuration.zip"
+        pathMappingFile:
+          type: string
+          description: Chemin du fichier mapping.txt (mode LOCAL_WS uniquement, piloté par l'Evaluation).
+          example: "/data/courses/61-13/Examen/mapping.txt"
       required: [ "fileName", "pathStorage" ]
       example:
         id: 100

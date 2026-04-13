@@ -1,13 +1,11 @@
 package heg.backendspring.service;
 
-
 import heg.backendspring.entity.Course;
 import heg.backendspring.entity.Evaluation;
 import heg.backendspring.entity.Submission;
-import heg.backendspring.entity.TP;
+import heg.backendspring.enums.SubmissionMode;
 import heg.backendspring.mapping.MapperEvaluation;
 import heg.backendspring.models.EvaluationDto;
-import heg.backendspring.models.TPDto;
 import heg.backendspring.repository.RepositoryEvaluation;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -19,11 +17,6 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.annotation.Target;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,10 +28,12 @@ public class ServiceEvaluation {
 
     @Value("${zip-storage.path}")
     private String zipStoragePath;
+
     private final RepositoryEvaluation repositoryEvaluation;
     private final MapperEvaluation mapperEvaluation;
-
     private final ServiceSubmission serviceSubmission;
+    private final ServiceSubmissionLocalWS serviceSubmissionLocalWS;
+    private final SubmissionHandler submissionHandler;
 
     //==============================
     //    CRUD EVALUATION METHODS
@@ -86,35 +81,16 @@ public class ServiceEvaluation {
 
 
     /**
-     * Ajouter une Submission à une Evaluation
+     * Ajoute une Submission (fichier ZIP) à une Evaluation.
+     * Utilise SubmissionHandler pour éviter la duplication de code.
      */
     @Transactional
-    public EvaluationDto addSubmissionToEvaluation(Long evaluationId,  InputStream zipFile) {
+    public EvaluationDto addSubmissionToEvaluation(Long evaluationId, InputStream zipFile) {
         Optional<Evaluation> evalOpt = repositoryEvaluation.findById(evaluationId);
         if (evalOpt.isPresent()) {
             Evaluation eval = evalOpt.get();
-
-            //nom du fichier
-            String nomFichier = eval.getName() + "_RenduCyberlearn.zip";
-            String codeCours = eval.getCourse().getCode();
-            //chemin vers le fichier
-            Path evalFolder = Paths.get(zipStoragePath, codeCours, eval.getName());
-
-            //Chemin complet vers le fichier
-            Path cheminVersZip = evalFolder.resolve(nomFichier);
-            //Copier le stream
-            try {
-                if (zipFile == null) {
-                    log.info("Zip file is null");
-                }
-                Files.copy(zipFile, cheminVersZip, StandardCopyOption.REPLACE_EXISTING);
-            } catch (IOException e) {
-                log.error("Unable to copy zip file", e);
-            }
-
-            //Creer le rendu
-            eval.setSubmission(new Submission(nomFichier, cheminVersZip.toString()
-                    , null));
+            // Déléguer la logique commune à SubmissionHandler
+            submissionHandler.addSubmission(eval, zipFile);
             repositoryEvaluation.save(eval);
             return mapperEvaluation.toDto(eval);
         }
@@ -122,7 +98,8 @@ public class ServiceEvaluation {
     }
 
     /**
-     * Méthode permettant de lancer le traitement du rendu pour une Evaluation
+     * Méthode permettant de lancer le traitement du rendu pour une Evaluation.
+     * Route vers le mode CLASSIC ou LOCAL_WS en fonction du mode défini sur l'Evaluation.
      */
     @Transactional
     public void startZipProcess(Long evaluationId) throws IOException {
@@ -133,26 +110,46 @@ public class ServiceEvaluation {
         }
         Evaluation evaluation = evalOpt.get();
         Course course = evaluation.getCourse();
-        log.info("Starting zip process for course code={} eval name={}", course.getCode(), evaluation.getName());
-        serviceSubmission.processZipSubmissionForEvaluation(course, evaluation);
+
+        SubmissionMode mode = (evaluation.getMode() != null)
+                ? evaluation.getMode()
+                : SubmissionMode.CLASSIC;
+
+        log.info("Starting zip process (mode={}) for course code={} eval name={}",
+                mode, course.getCode(), evaluation.getName());
+
+        if (mode == SubmissionMode.LOCAL_WS) {
+            serviceSubmissionLocalWS.processZipSubmissionForEvaluation(course, evaluation);
+        } else {
+            serviceSubmission.processZipSubmissionForEvaluation(course, evaluation);
+        }
+    }
+
+    /**
+     * Attache un fichier mapping.txt à la Submission de l'Evaluation.
+     * Le mode LOCAL_WS doit déjà être configuré sur l'Evaluation.
+     */
+    @Transactional
+    public EvaluationDto addMappingFileToEvaluation(Long evaluationId, InputStream mappingFile) {
+        Evaluation eval = repositoryEvaluation.findById(evaluationId)
+                .orElseThrow(() -> new EntityNotFoundException("Evaluation not found with id: " + evaluationId));
+        if (eval.getSubmission() == null) {
+            throw new EntityNotFoundException(
+                    "Aucune soumission pour l'évaluation " + evaluationId + " — envoyer le zip d'abord.");
+        }
+        submissionHandler.addMappingFile(eval, mappingFile);
+        repositoryEvaluation.save(eval);
+        log.info("Mapping ajouté pour l'évaluation {} (mode {})", evaluationId, eval.getMode());
+        return mapperEvaluation.toDto(eval);
     }
     /**
-     * Méthode permettant de récupérer le fichier zip restructuré pour un TP donné
+     * Récupère le fichier ZIP restructuré pour une Evaluation.
+     * Utilise SubmissionHandler pour la logique commune.
      */
     public File getSubmissionFileRestructurated(Long evaluationId) {
-        Optional<Evaluation> evalOpt = repositoryEvaluation.findById(evaluationId);
-        if (evalOpt.isEmpty()) {
-            log.error("Evaluation with id {} not found for retrieving submission file", evaluationId);
-            throw new EntityNotFoundException("Evaluation not found");
-        }
-        // Récupérer le rendu
-        Submission submission = evalOpt.get().getSubmission();
-        if (submission != null) {
-            log.info("Path to restructurated file is not null : {}", submission.getPathFileStructured());
-            Path pathFile = Paths.get(submission.getPathFileStructured());
-            return pathFile.toFile();
-        }
-        return null;
+        Evaluation eval = repositoryEvaluation.findById(evaluationId)
+                .orElseThrow(() -> new EntityNotFoundException("Evaluation not found with id: " + evaluationId));
+        return submissionHandler.getRestructuredFile(eval);
     }
 
 

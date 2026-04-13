@@ -34,6 +34,7 @@ export interface EvaluationModel {
   coefficient: number;
   courseId: number;
   submission?: SubmissionModel;
+  mode?: 'CLASSIC' | 'LOCAL_WS';
 }
 
 // Modèle d'un TP (Travail Pratique)
@@ -51,6 +52,7 @@ interface SubmissionModel {
   fileName: string;
   pathStorage: string;
   pathFileStructured: string;
+  pathMappingFile?: string;
 }
 
 // Ré-export de TPStatusModel pour faciliter les imports

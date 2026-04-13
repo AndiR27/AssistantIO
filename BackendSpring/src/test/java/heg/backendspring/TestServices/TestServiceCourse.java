@@ -6,6 +6,7 @@ import heg.backendspring.entity.TP;
 import heg.backendspring.enums.CourseType;
 import heg.backendspring.enums.SemesterType;
 import heg.backendspring.enums.StudyType;
+import heg.backendspring.enums.SubmissionMode;
 import heg.backendspring.mapping.MapperCourse;
 import heg.backendspring.mapping.MapperStudent;
 import heg.backendspring.models.CourseDto;
@@ -15,6 +16,7 @@ import heg.backendspring.models.TPDto;
 import heg.backendspring.repository.RepositoryCourse;
 import heg.backendspring.repository.RepositoryEvaluation;
 import heg.backendspring.repository.RepositoryStudent;
+import heg.backendspring.repository.RepositoryTP;
 import heg.backendspring.security.course_access.CourseSecurityCheck;
 import heg.backendspring.service.ServiceCourse;
 import heg.backendspring.service.ServiceStudent;
@@ -49,6 +51,8 @@ public class TestServiceCourse {
 
     @MockitoBean
     private RepositoryCourse repositoryCourse;
+    @MockitoBean
+    private RepositoryTP repositoryTP;
     @MockitoBean
     private RepositoryStudent repositoryStudent;
     @MockitoBean
@@ -416,7 +420,7 @@ public class TestServiceCourse {
         tp2.setId(11L);
         tp2.setNo(2);
 
-        when(repositoryCourse.findAllTPsByCourseId(courseId))
+        when(repositoryTP.findByCourseId(courseId))
                 .thenReturn(Set.of(tp1, tp2));
 
         List<TPDto> result = serviceCourse.getAllTPsFromCourse(courseId);
@@ -426,7 +430,7 @@ public class TestServiceCourse {
         assertTrue(result.stream().anyMatch(tp -> tp.id().equals(10L) && tp.no() == 1));
         assertTrue(result.stream().anyMatch(tp -> tp.id().equals(11L) && tp.no() == 2));
 
-        verify(repositoryCourse).findAllTPsByCourseId(courseId);
+        verify(repositoryTP).findByCourseId(courseId);
     }
 
 
@@ -443,7 +447,7 @@ public class TestServiceCourse {
         tp.setCourse(course);
         course.getTps().add(tp);
 
-        when(repositoryCourse.findTPByCourseIdAndNo(1L, 1))
+        when(repositoryTP.findByCourseIdAndNo(1L, 1))
                 .thenReturn(Optional.of(tp));
         when(repositoryCourse.save(any(Course.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
@@ -452,7 +456,7 @@ public class TestServiceCourse {
 
         assertTrue(course.getTps().isEmpty());
 
-        verify(repositoryCourse).findTPByCourseIdAndNo(1L, 1);
+        verify(repositoryTP).findByCourseIdAndNo(1L, 1);
         verify(repositoryCourse).save(course);
     }
 
@@ -469,7 +473,7 @@ public class TestServiceCourse {
         course.getTps().add(tp);
 
         TPDto tpDtoInput = new TPDto(10L, 2, 1L, null, null);
-        when(repositoryCourse.findTPByCourseIdAndNo(1L, 1))
+        when(repositoryTP.findByCourseIdAndNo(1L, 1))
                 .thenReturn(Optional.of(tp));
         when(repositoryCourse.findById(1L))
                 .thenReturn(Optional.of(course));
@@ -485,7 +489,7 @@ public class TestServiceCourse {
         assertEquals(1, course.getTps().size());
         assertEquals(2, course.getTps().iterator().next().getNo());
 
-        verify(repositoryCourse).findTPByCourseIdAndNo(1L, 1);
+        verify(repositoryTP).findByCourseIdAndNo(1L, 1);
         verify(repositoryCourse).findById(1L);
         verify(repositoryCourse).save(course);
 
@@ -509,12 +513,12 @@ public class TestServiceCourse {
         course.getTps().add(tp);
 
         when(repositoryCourse.findById(courseId)).thenReturn(Optional.of(course));
-        when(repositoryCourse.findTPByCourseIdAndNo(courseId, tpNo)).thenReturn(Optional.of(tp));
+        when(repositoryTP.findByCourseIdAndNo(courseId, tpNo)).thenReturn(Optional.of(tp));
 
         serviceCourse.startZipProcess(courseId, tpNo);
 
         verify(repositoryCourse).findById(courseId);
-        verify(repositoryCourse).findTPByCourseIdAndNo(courseId, tpNo);
+        verify(repositoryTP).findByCourseIdAndNo(courseId, tpNo);
         verify(serviceSubmission).processZipSubmissionForTP(course, tp);
         verifyNoMoreInteractions(serviceSubmission);
     }
@@ -538,8 +542,8 @@ public class TestServiceCourse {
         tp.setNo(tpNo);
         tp.setCourse(course);
 
-        when(repositoryCourse.findById(courseId)).thenReturn(Optional.of(course));
-        when(repositoryCourse.findTPByCourseIdAndNo(courseId, tpNo)).thenReturn(Optional.of(tp));
+        when(repositoryCourse.findByIdWithStudents(courseId)).thenReturn(Optional.of(course));
+        when(repositoryTP.findByCourseIdAndNo(courseId, tpNo)).thenReturn(Optional.of(tp));
 
         TPDto tpDto = new TPDto(5L, tpNo, courseId, null, null); // adapte si ta signature est différente
         when(serviceTP.addTPStatusListToTP(tp, course.getStudents())).thenReturn(tpDto);
@@ -549,8 +553,8 @@ public class TestServiceCourse {
         assertNotNull(result);
         assertEquals(tpDto, result);
 
-        verify(repositoryCourse).findById(courseId);
-        verify(repositoryCourse).findTPByCourseIdAndNo(courseId, tpNo);
+        verify(repositoryCourse).findByIdWithStudents(courseId);
+        verify(repositoryTP).findByCourseIdAndNo(courseId, tpNo);
         verify(serviceTP).addTPStatusListToTP(tp, course.getStudents());
     }
 
@@ -569,7 +573,7 @@ public class TestServiceCourse {
         tp.setNo(tpNo);
         tp.setCourse(course);
 
-        when(repositoryCourse.findTPByCourseIdAndNo(courseId, tpNo))
+        when(repositoryTP.findByCourseIdAndNo(courseId, tpNo))
                 .thenReturn(Optional.of(tp));
 
         File fakeFile = new File("target/test-zips/fake.zip");
@@ -581,7 +585,7 @@ public class TestServiceCourse {
         assertNotNull(result);
         assertEquals(fakeFile, result);
 
-        verify(repositoryCourse).findTPByCourseIdAndNo(courseId, tpNo);
+        verify(repositoryTP).findByCourseIdAndNo(courseId, tpNo);
         verify(serviceTP).getSubmissionFileRestructurated(
                 argThat(dto ->
                         dto.id().equals(5L)
@@ -600,7 +604,7 @@ public class TestServiceCourse {
         course.setEvaluations(new HashSet<>());
 
         when(repositoryCourse.findById(courseId)).thenReturn(Optional.of(course));
-        EvaluationDto eval = new EvaluationDto(null, "CC1", LocalDate.now(), 1, courseId, null);
+        EvaluationDto eval = new EvaluationDto(null, "CC1", LocalDate.now(), 1, courseId, null, SubmissionMode.CLASSIC);
 
         when(repositoryCourse.save(any(Course.class))).thenAnswer(inv -> {
             Course c = inv.getArgument(0, Course.class);

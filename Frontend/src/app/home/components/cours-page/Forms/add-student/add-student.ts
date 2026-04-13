@@ -44,8 +44,6 @@ export class AddStudent {
 
 
   onSubmit(): void {
-    console.log('Debut de l\'ajout d\'un étudiant');
-
     // Vérification de la validité du formulaire avant de soumettre
     if (!this.form.valid) {
       this.form.markAllAsTouched();
@@ -62,7 +60,6 @@ export class AddStudent {
         next: student => {
           this.addedStudent.set(student);
           this.added.emit();
-          console.log('Emit Etudiant avec succès:', student);
           this.formDirective.resetForm({ studyType: StudyType.TEMPS_PLEIN });
 
           // Clear success message after 3 seconds

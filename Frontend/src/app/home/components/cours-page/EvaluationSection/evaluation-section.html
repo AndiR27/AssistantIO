@@ -68,6 +68,15 @@
               <mat-spinner *ngIf="isUploading(eval)" diameter="18"></mat-spinner>
               <span>{{ isUploading(eval) ? 'Envoi...' : 'Ajouter ZIP' }}</span>
             </label>
+            <label class="upload-trigger mapping-trigger" *ngIf="isLocalWsMode(eval)"
+              [class.uploading]="isUploadingMapping(eval)"
+              matTooltip="Ajouter mapping HEG-WS (.txt)">
+              <input type="file" accept=".txt" hidden (change)="onMappingFileSelected($event, eval)"
+                [disabled]="isUploadingMapping(eval)">
+              <mat-icon *ngIf="!isUploadingMapping(eval)">list_alt</mat-icon>
+              <mat-spinner *ngIf="isUploadingMapping(eval)" diameter="18"></mat-spinner>
+              <span>{{ isUploadingMapping(eval) ? 'Envoi...' : 'Ajouter Mapping' }}</span>
+            </label>
           </div>
 
           <!-- Has submission -->
@@ -76,6 +85,9 @@
               <mat-icon class="file-icon">inventory_2</mat-icon>
               <span class="file-name" [matTooltip]="eval.submission.fileName">
                 {{ eval.submission.fileName }}
+              </span>
+              <span class="mode-badge localws" *ngIf="isLocalWsMode(eval)" matTooltip="Mode HEG-WS (mapping activé)">
+                HEG-WS
               </span>
             </div>
 
@@ -86,6 +98,17 @@
                   [disabled]="isUploading(eval)">
                 <mat-icon *ngIf="!isUploading(eval)">upload_file</mat-icon>
                 <mat-spinner *ngIf="isUploading(eval)" diameter="16"></mat-spinner>
+              </label>
+
+              <!-- Upload mapping.txt (LOCAL_WS mode uniquement) -->
+              <label class="action-btn mapping-btn" *ngIf="isLocalWsMode(eval)"
+                [matTooltip]="eval.submission?.pathMappingFile ? 'Remplacer le mapping HEG-WS' : 'Ajouter mapping HEG-WS (.txt)'"
+                [class.uploading]="isUploadingMapping(eval)"
+                [class.active]="!!eval.submission?.pathMappingFile">
+                <input type="file" accept=".txt" hidden (change)="onMappingFileSelected($event, eval)"
+                  [disabled]="isUploadingMapping(eval)">
+                <mat-icon *ngIf="!isUploadingMapping(eval)">list_alt</mat-icon>
+                <mat-spinner *ngIf="isUploadingMapping(eval)" diameter="16"></mat-spinner>
               </label>
 
               <!-- Process -->
@@ -163,6 +186,23 @@
             <mat-label>Coefficient</mat-label>
             <input matInput type="number" [(ngModel)]="newEvaluation.coefficient" min="1" max="10">
           </mat-form-field>
+        </div>
+        <div class="mode-toggle-row">
+          <span class="mode-toggle-label">Mode de restructuration</span>
+          <div class="mode-toggle-group" role="group">
+            <button type="button" class="mode-toggle-btn"
+              [class.active]="newEvaluation.mode === 'CLASSIC'"
+              (click)="newEvaluation.mode = 'CLASSIC'">
+              <mat-icon>folder_shared</mat-icon>
+              <span>Classique</span>
+            </button>
+            <button type="button" class="mode-toggle-btn"
+              [class.active]="newEvaluation.mode === 'LOCAL_WS'"
+              (click)="newEvaluation.mode = 'LOCAL_WS'">
+              <mat-icon>hub</mat-icon>
+              <span>HEG-WS</span>
+            </button>
+          </div>
         </div>
         <div class="form-actions">
           <button mat-button class="cancel-btn" (click)="cancelAdd()">Annuler</button>

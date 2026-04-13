@@ -28,6 +28,10 @@ public class Submission {
     @Column(name = "path_file_structured")
     private String pathFileStructured;
 
+    /** Chemin du fichier mapping.txt utilisé uniquement en mode LOCAL_WS (piloté par l'Evaluation). */
+    @Column(name = "path_mapping_file")
+    private String pathMappingFile;
+
     public Submission(String fileName, String pathStorage, String pathFileStructured) {
         this.fileName = fileName;
         this.pathStorage = pathStorage;

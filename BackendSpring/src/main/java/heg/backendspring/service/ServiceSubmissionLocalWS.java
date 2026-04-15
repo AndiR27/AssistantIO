@@ -232,7 +232,7 @@ public class ServiceSubmissionLocalWS {
         Path studentDirRestructured = restructurationDir.resolve(nameFormatted);
         restructureHelper.createFolderIfPossible(studentDirRestructured);
 
-        restructureHelper.sendStudentContent(hegWsDir, studentDirRestructured, courseType);
+        restructureHelper.sendStudentContentLocal(hegWsDir, studentDirRestructured, courseType);
     }
 
     /**

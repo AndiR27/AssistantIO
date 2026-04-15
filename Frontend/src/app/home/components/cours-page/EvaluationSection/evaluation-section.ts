@@ -20,6 +20,7 @@ export class EvaluationSectionComponent {
     @Input() evaluations: EvaluationModel[] = [];
     @Output() evaluationAdded = new EventEmitter<void>();
     @Output() evaluationUpdated = new EventEmitter<void>();
+    @Output() evaluationDeleted = new EventEmitter<void>();
 
     // État pour le formulaire d'ajout
     isAddingNew = false;
@@ -39,6 +40,7 @@ export class EvaluationSectionComponent {
     processingId: number | null = null;
     downloadingId: number | null = null;
     uploadingMappingId: number | null = null;
+    deletingId: number | null = null;
 
     // ========================================
     // AJOUT
@@ -228,6 +230,80 @@ export class EvaluationSectionComponent {
 
     isLocalWsMode(evaluation: EvaluationModel): boolean {
         return evaluation.mode === 'LOCAL_WS';
+    }
+
+    /**
+     * Statut de la soumission, dans l'ordre du flux:
+     *  - 'none'        : aucun fichier ZIP téléversé
+     *  - 'mapping'     : LOCAL_WS, ZIP présent, mapping HEG-WS manquant
+     *  - 'pending'     : prêt à être traité (ZIP + mapping si LOCAL_WS), pas encore restructuré
+     *  - 'ready'       : restructuration effectuée, téléchargement disponible
+     */
+    submissionStatus(evaluation: EvaluationModel): 'none' | 'mapping' | 'pending' | 'ready' {
+        if (!evaluation.submission) return 'none';
+        if (this.isLocalWsMode(evaluation) && !evaluation.submission.pathMappingFile) {
+            return 'mapping';
+        }
+        if (!evaluation.submission.pathFileStructured) return 'pending';
+        return 'ready';
+    }
+
+    statusLabel(evaluation: EvaluationModel): string {
+        switch (this.submissionStatus(evaluation)) {
+            case 'none': return 'Aucun rendu';
+            case 'mapping': return 'Mapping requis';
+            case 'pending': return 'À traiter';
+            case 'ready': return 'Restructuré';
+        }
+    }
+
+    statusIcon(evaluation: EvaluationModel): string {
+        switch (this.submissionStatus(evaluation)) {
+            case 'none': return 'inbox';
+            case 'mapping': return 'error_outline';
+            case 'pending': return 'hourglass_top';
+            case 'ready': return 'task_alt';
+        }
+    }
+
+    isReady(evaluation: EvaluationModel): boolean {
+        return this.submissionStatus(evaluation) === 'ready';
+    }
+
+    isDeleting(evaluation: EvaluationModel): boolean {
+        return this.deletingId === evaluation.id;
+    }
+
+    hasMappingFile(evaluation: EvaluationModel): boolean {
+        return !!evaluation.submission?.pathMappingFile;
+    }
+
+    mappingFileName(evaluation: EvaluationModel): string | null {
+        const path = evaluation.submission?.pathMappingFile;
+        if (!path) return null;
+        const parts = path.split(/[\\/]/);
+        return parts[parts.length - 1] || path;
+    }
+
+    deleteEvaluation(evaluation: EvaluationModel): void {
+        if (!evaluation.id) return;
+        const ok = confirm(
+            `Supprimer l'évaluation "${evaluation.name}" ?\nCette action est irréversible.`
+        );
+        if (!ok) return;
+
+        this.deletingId = evaluation.id;
+        this.courseService.deleteEvaluation(evaluation.id).subscribe({
+            next: () => {
+                this.evaluations = this.evaluations.filter(e => e.id !== evaluation.id);
+                this.deletingId = null;
+                this.evaluationDeleted.emit();
+            },
+            error: (err) => {
+                console.error('Error deleting evaluation:', err);
+                this.deletingId = null;
+            }
+        });
     }
 
     onMappingFileSelected(event: Event, evaluation: EvaluationModel): void {

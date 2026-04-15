@@ -122,6 +122,32 @@ public class ServiceCourseStudents {
     }
 
     /**
+     * Methode permettant de mettre a jour les informations d'un etudiant d'un cours.
+     * Ne modifie que les champs editables (nom, email, filiere) et preserve les inscriptions.
+     */
+    @PreAuthorize("@courseSecurity.hasAccess(#idCourse, 'WRITE')")
+    @Transactional
+    public StudentDto updateStudentFromCourse(Long idCourse, Long idStudent, StudentDto studentDto) {
+        Student student = repositoryCourse.findStudentByCourseIdAndStudentId(idCourse, idStudent)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Student " + idStudent + " not found in course " + idCourse));
+
+        if (studentDto.name() != null) {
+            student.setName(studentDto.name());
+        }
+        if (studentDto.email() != null) {
+            student.setEmail(studentDto.email());
+        }
+        if (studentDto.studyType() != null) {
+            student.setStudyType(studentDto.studyType());
+        }
+
+        Student saved = repositoryStudent.save(student);
+        log.info("Updated student {} in course {}", idStudent, idCourse);
+        return mapperStudent.tDto(saved);
+    }
+
+    /**
      * Methode permettant de supprimer un etudiant d'un cours (desinscription)
      */
     @PreAuthorize("@courseSecurity.hasAccess(#idCourse, 'WRITE')")

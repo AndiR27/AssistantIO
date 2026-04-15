@@ -91,6 +91,10 @@ public class ServiceCourse {
         serviceCourseStudents.removeStudentFromCourse(idCourse, idStudent);
     }
 
+    public StudentDto updateStudentFromCourse(Long idCourse, Long idStudent, StudentDto studentDto) {
+        return serviceCourseStudents.updateStudentFromCourse(idCourse, idStudent, studentDto);
+    }
+
     //==============================
     //    TPs (delegated)
     //==============================

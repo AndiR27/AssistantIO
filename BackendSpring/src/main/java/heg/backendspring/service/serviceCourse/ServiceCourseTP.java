@@ -187,6 +187,7 @@ public class ServiceCourseTP {
     /**
      * Methode permettant de recuperer un fichier zip restructure des rendus d'un TP
      */
+    @Transactional(readOnly = true)
     @PreAuthorize("@courseSecurity.hasAccess(#idCourse, 'READ')")
     public File getTPSubmissionRestructurated(Long idCourse, int tp_no) {
         Optional<TPDto> tpDtoOpt = findTPFromCourseByNo(idCourse, tp_no);

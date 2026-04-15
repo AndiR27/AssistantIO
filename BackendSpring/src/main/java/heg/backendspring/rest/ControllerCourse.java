@@ -93,6 +93,11 @@ public class ControllerCourse implements CourseApi, SubmissionApi {
         return ResponseEntity.noContent().build();
     }
 
+    @Override
+    public ResponseEntity<StudentDto> updateStudent(Long courseId, Long studentId, StudentDto studentDto) {
+        return ResponseEntity.ok(serviceCourse.updateStudentFromCourse(courseId, studentId, studentDto));
+    }
+
 
     @Override
     public ResponseEntity<SubmissionDto> addSubmission(Long courseId, Integer tpNo, MultipartFile file) {

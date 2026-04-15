@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
+
 /**
  * Helpers partagés pour la restructuration des rendus ZIP.
  * Utilisés à la fois par ServiceSubmission (flux classique par nom d'étudiant)
@@ -60,6 +61,18 @@ public class SubmissionRestructureHelper {
         }
     }
 
+    public void sendStudentContentLocal(Path sourceDir, Path destDirRestructured, String courseType){
+        //Pour les contenus local, le projet est stocké directement dans le dossier HEG-WS-XXXX.
+        log.debug("Manage local content for student project, courseType={}", courseType);
+
+        switch (courseType) {
+            case "JAVA" -> ZipUtils.copyJavaProject(sourceDir, destDirRestructured);
+            case "PYTHON" -> ZipUtils.copyPythonProject(sourceDir, destDirRestructured);
+            case "JAVA_JEE" -> ZipUtils.copyJavaJEEProject(sourceDir, destDirRestructured);
+            default -> ZipUtils.copyAll(sourceDir, destDirRestructured, Set.of(), Set.of());
+        }
+    }
+
     /**
      * Trouve un sous-zip (.zip, .7zip ou .rar) dans le dossier source, s'il existe
      */
@@ -86,4 +99,5 @@ public class SubmissionRestructureHelper {
             ZipUtils.extract7z(zipPath, extractDir);
         }
     }
+
 }

@@ -611,6 +611,44 @@ paths:
           description: Erreur interne.
 
   /course/{courseId}/students/{studentId}:
+    put:
+      tags: [ course ]
+      summary: Mise à jour d’un étudiant d’un cours.
+      description: Met à jour les informations d’un étudiant (nom, email, filière).
+      operationId: updateStudent
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          description: Identifiant du cours.
+          schema:
+            type: integer
+            format: int64
+        - name: studentId
+          in: path
+          required: true
+          description: Identifiant de l’étudiant.
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Nouvelles données de l’étudiant.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentDto'
+      responses:
+        '200':
+          description: Étudiant mis à jour.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentDto'
+        '404':
+          description: Cours ou étudiant introuvable.
+        '500':
+          description: Erreur interne.
     delete:
       tags: [ course ]
       summary: Suppression d’un étudiant d’un cours.

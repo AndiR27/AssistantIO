@@ -17,7 +17,9 @@
 
     <!-- Existing Evaluation Cards (Draggable) -->
     <div class="evaluation-card" *ngFor="let eval of evaluations; let i = index" [class.editing]="isEditing(eval)"
-      [class.has-submission]="eval.submission" cdkDrag [cdkDragDisabled]="isEditing(eval)">
+      [class.has-submission]="eval.submission" [class.local-ws]="isLocalWsMode(eval)"
+      [class.deleting]="isDeleting(eval)" [attr.data-status]="submissionStatus(eval)" cdkDrag
+      [cdkDragDisabled]="isEditing(eval)">
 
       <!-- Drag preview placeholder -->
       <div class="drag-placeholder" *cdkDragPlaceholder></div>
@@ -32,99 +34,116 @@
       <!-- ===== VIEW MODE ===== -->
       <ng-container *ngIf="!isEditing(eval)">
         <div class="card-content">
-          <div class="card-header">
-            <span class="eval-number">{{ i + 1 }}</span>
-            <span class="eval-type-badge">CC</span>
+
+          <!-- HEADER : numbered avatar + name on left, edit/delete on right (hover) -->
+          <div class="card-head">
+            <div class="head-left">
+              <div class="num-avatar">#{{ i + 1 }}</div>
+              <h3 class="eval-name" [matTooltip]="eval.name">{{ eval.name }}</h3>
+            </div>
+            <div class="head-actions">
+              <button mat-icon-button class="head-btn edit-btn" matTooltip="Modifier"
+                (click)="startEdit(eval); $event.stopPropagation()">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button class="head-btn delete-btn" matTooltip="Supprimer"
+                [disabled]="isDeleting(eval)"
+                (click)="deleteEvaluation(eval); $event.stopPropagation()">
+                <mat-icon *ngIf="!isDeleting(eval)">delete_outline</mat-icon>
+                <mat-spinner *ngIf="isDeleting(eval)" diameter="18"></mat-spinner>
+              </button>
+            </div>
           </div>
-          <h3 class="eval-name">{{ eval.name }}</h3>
-          <div class="eval-details">
-            <div class="detail-item">
+
+          <!-- Mode tag -->
+          <span class="mode-tag" [class.localws]="isLocalWsMode(eval)" [class.classic]="!isLocalWsMode(eval)">
+            <mat-icon>{{ isLocalWsMode(eval) ? 'hub' : 'folder_shared' }}</mat-icon>
+            {{ isLocalWsMode(eval) ? 'HEG-WS' : 'Classic' }}
+          </span>
+
+          <!-- Meta info -->
+          <div class="meta">
+            <div class="meta-item">
               <mat-icon>calendar_today</mat-icon>
               <span>{{ eval.date | date:'dd MMM yyyy' }}</span>
             </div>
-            <div class="detail-item coeff">
+            <div class="meta-item">
               <mat-icon>balance</mat-icon>
               <span>Coef. {{ eval.coefficient }}</span>
             </div>
           </div>
-        </div>
-        <div class="card-actions">
-          <button mat-icon-button class="edit-btn" matTooltip="Modifier"
-            (click)="startEdit(eval); $event.stopPropagation()">
-            <mat-icon>edit</mat-icon>
-          </button>
-        </div>
 
-        <!-- ===== SUBMISSION ZONE ===== -->
-        <div class="submission-zone">
-          <div class="submission-divider"></div>
-
-          <!-- No submission yet -->
-          <div class="submission-content" *ngIf="!eval.submission">
-            <label class="upload-trigger" [class.uploading]="isUploading(eval)">
-              <input type="file" accept=".zip" hidden (change)="onFileSelected($event, eval)"
-                [disabled]="isUploading(eval)">
-              <mat-icon *ngIf="!isUploading(eval)">cloud_upload</mat-icon>
-              <mat-spinner *ngIf="isUploading(eval)" diameter="18"></mat-spinner>
-              <span>{{ isUploading(eval) ? 'Envoi...' : 'Ajouter ZIP' }}</span>
-            </label>
-            <label class="upload-trigger mapping-trigger" *ngIf="isLocalWsMode(eval)"
-              [class.uploading]="isUploadingMapping(eval)"
-              matTooltip="Ajouter mapping HEG-WS (.txt)">
-              <input type="file" accept=".txt" hidden (change)="onMappingFileSelected($event, eval)"
-                [disabled]="isUploadingMapping(eval)">
-              <mat-icon *ngIf="!isUploadingMapping(eval)">list_alt</mat-icon>
-              <mat-spinner *ngIf="isUploadingMapping(eval)" diameter="18"></mat-spinner>
-              <span>{{ isUploadingMapping(eval) ? 'Envoi...' : 'Ajouter Mapping' }}</span>
-            </label>
+          <!-- ===== STATUS BOX ===== -->
+          <div class="status-box" [attr.data-status]="submissionStatus(eval)">
+            <div class="status-head">
+              <mat-icon>{{ statusIcon(eval) }}</mat-icon>
+              <span>{{ statusLabel(eval) }}</span>
+            </div>
+            <div class="status-file" *ngIf="eval.submission">
+              <mat-icon>description</mat-icon>
+              <span [matTooltip]="eval.submission.fileName">{{ eval.submission.fileName }}</span>
+            </div>
           </div>
 
-          <!-- Has submission -->
-          <div class="submission-content has-file" *ngIf="eval.submission">
-            <div class="file-info">
-              <mat-icon class="file-icon">inventory_2</mat-icon>
-              <span class="file-name" [matTooltip]="eval.submission.fileName">
-                {{ eval.submission.fileName }}
-              </span>
-              <span class="mode-badge localws" *ngIf="isLocalWsMode(eval)" matTooltip="Mode HEG-WS (mapping activé)">
-                HEG-WS
-              </span>
+          <!-- ===== MAPPING SECTION (LOCAL_WS) ===== -->
+          <ng-container *ngIf="isLocalWsMode(eval)">
+            <div class="mapping-box" *ngIf="hasMappingFile(eval)">
+              <div class="mapping-head">
+                <mat-icon>swap_horiz</mat-icon>
+                <span>MAPPING HEG-WS</span>
+              </div>
+              <div class="mapping-file">
+                <mat-icon>description</mat-icon>
+                <span [matTooltip]="eval.submission?.pathMappingFile">{{ mappingFileName(eval) }}</span>
+              </div>
             </div>
 
-            <div class="submission-actions">
-              <!-- Re-upload -->
-              <label class="action-btn" matTooltip="Remplacer le ZIP" [class.uploading]="isUploading(eval)">
-                <input type="file" accept=".zip" hidden (change)="onFileSelected($event, eval)"
-                  [disabled]="isUploading(eval)">
-                <mat-icon *ngIf="!isUploading(eval)">upload_file</mat-icon>
-                <mat-spinner *ngIf="isUploading(eval)" diameter="16"></mat-spinner>
-              </label>
-
-              <!-- Upload mapping.txt (LOCAL_WS mode uniquement) -->
-              <label class="action-btn mapping-btn" *ngIf="isLocalWsMode(eval)"
-                [matTooltip]="eval.submission?.pathMappingFile ? 'Remplacer le mapping HEG-WS' : 'Ajouter mapping HEG-WS (.txt)'"
-                [class.uploading]="isUploadingMapping(eval)"
-                [class.active]="!!eval.submission?.pathMappingFile">
-                <input type="file" accept=".txt" hidden (change)="onMappingFileSelected($event, eval)"
-                  [disabled]="isUploadingMapping(eval)">
-                <mat-icon *ngIf="!isUploadingMapping(eval)">list_alt</mat-icon>
-                <mat-spinner *ngIf="isUploadingMapping(eval)" diameter="16"></mat-spinner>
-              </label>
-
-              <!-- Process -->
-              <button class="action-btn process-btn" matTooltip="Lancer le traitement" (click)="processSubmission(eval)"
-                [disabled]="isProcessing(eval)">
-                <mat-icon *ngIf="!isProcessing(eval)">play_arrow</mat-icon>
-                <mat-spinner *ngIf="isProcessing(eval)" diameter="16"></mat-spinner>
-              </button>
-
-              <!-- Download -->
-              <button class="action-btn download-btn" matTooltip="Télécharger ZIP restructuré"
-                (click)="downloadRestructured(eval)" [disabled]="isDownloading(eval)">
-                <mat-icon *ngIf="!isDownloading(eval)">download</mat-icon>
-                <mat-spinner *ngIf="isDownloading(eval)" diameter="16"></mat-spinner>
-              </button>
+            <div class="warning-box" *ngIf="!hasMappingFile(eval) && eval.submission">
+              <div class="warning-head">
+                <mat-icon>error</mat-icon>
+                <span>Mapping manquant</span>
+              </div>
+              <p class="warning-text">Le fichier ne peut pas être restructuré sans mapping</p>
             </div>
+          </ng-container>
+
+          <!-- ===== ACTION BAR ===== -->
+          <div class="action-bar">
+            <label class="act-pill" matTooltip="Téléverser / remplacer le ZIP de rendu"
+              [class.uploading]="isUploading(eval)" [class.has-file]="!!eval.submission">
+              <input type="file" accept=".zip" hidden (change)="onFileSelected($event, eval)"
+                [disabled]="isUploading(eval)">
+              <mat-icon *ngIf="!isUploading(eval)">{{ eval.submission ? 'description' : 'cloud_upload' }}</mat-icon>
+              <mat-spinner *ngIf="isUploading(eval)" diameter="16"></mat-spinner>
+              <span>Rendu</span>
+            </label>
+
+            <label class="act-pill mapping" *ngIf="isLocalWsMode(eval)"
+              [matTooltip]="hasMappingFile(eval) ? 'Remplacer le mapping HEG-WS' : 'Ajouter mapping HEG-WS (.txt)'"
+              [class.uploading]="isUploadingMapping(eval)" [class.has-file]="hasMappingFile(eval)">
+              <input type="file" accept=".txt" hidden (change)="onMappingFileSelected($event, eval)"
+                [disabled]="isUploadingMapping(eval)">
+              <mat-icon *ngIf="!isUploadingMapping(eval)">swap_horiz</mat-icon>
+              <mat-spinner *ngIf="isUploadingMapping(eval)" diameter="16"></mat-spinner>
+              <span>Mapping</span>
+            </label>
+
+            <button class="act-pill execute" matTooltip="Lancer le traitement"
+              (click)="processSubmission(eval)"
+              [disabled]="isProcessing(eval) || !eval.submission || (isLocalWsMode(eval) && !hasMappingFile(eval))">
+              <mat-icon *ngIf="!isProcessing(eval)">play_arrow</mat-icon>
+              <mat-spinner *ngIf="isProcessing(eval)" diameter="16"></mat-spinner>
+              <span>Exécuter</span>
+            </button>
+
+            <button class="act-pill download icon-only"
+              [class.ready]="isReady(eval)"
+              [matTooltip]="isReady(eval) ? 'Télécharger ZIP restructuré' : 'Lancer le traitement avant de télécharger'"
+              (click)="downloadRestructured(eval)"
+              [disabled]="isDownloading(eval) || !isReady(eval)">
+              <mat-icon *ngIf="!isDownloading(eval)">download</mat-icon>
+              <mat-spinner *ngIf="isDownloading(eval)" diameter="16"></mat-spinner>
+            </button>
           </div>
         </div>
       </ng-container>

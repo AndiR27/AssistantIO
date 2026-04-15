@@ -65,7 +65,9 @@
   </div>
 
   <!-- ▶︎ Section Évaluations (priorité académique) -->
-  <app-evaluation-section [courseId]="courseId()!" [evaluations]="evaluations" (evaluationAdded)="loadEvaluations()">
+  <app-evaluation-section [courseId]="courseId()!" [evaluations]="evaluations"
+    (evaluationAdded)="loadEvaluations()" (evaluationUpdated)="loadEvaluations()"
+    (evaluationDeleted)="loadEvaluations()">
   </app-evaluation-section>
 
   <!-- ▶︎ Section Gestion du cours -->

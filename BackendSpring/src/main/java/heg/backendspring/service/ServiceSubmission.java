@@ -8,6 +8,7 @@ import heg.backendspring.mapping.MapperSubmission;
 import heg.backendspring.models.SubmissionDto;
 import heg.backendspring.repository.RepositorySubmission;
 import heg.backendspring.utils.StudentNameUtils;
+import heg.backendspring.utils.SubmissionRestructureHelper;
 import heg.backendspring.utils.ZipUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

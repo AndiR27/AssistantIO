@@ -1,6 +1,5 @@
-package heg.backendspring.service;
+package heg.backendspring.utils;
 
-import heg.backendspring.utils.ZipUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

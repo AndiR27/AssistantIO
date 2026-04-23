@@ -4,6 +4,7 @@ import heg.backendspring.entity.Course;
 import heg.backendspring.entity.Evaluation;
 import heg.backendspring.entity.Submission;
 import heg.backendspring.utils.StudentNameUtils;
+import heg.backendspring.utils.SubmissionRestructureHelper;
 import heg.backendspring.utils.ZipUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

@@ -3,6 +3,7 @@ import {ActivatedRoute} from '@angular/router';
 import {CourseService} from '../../../../services/course.service';
 import {FormBuilder, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {MATERIAL_MODULES} from '../../../../../shared/imports/material-imports';
+import {environment} from '../../../../../../environments/environment';
 
 @Component({
   selector: 'app-rendu-tp',
@@ -21,7 +22,7 @@ export class AddTP {
   private courseService = inject(CourseService);
   private fb = inject(FormBuilder);
 
-  private readonly MAX_FILE_SIZE_MB = 200;
+  private readonly MAX_FILE_SIZE_MB = environment.maxFileSizeMB;
   private readonly MAX_FILE_SIZE_BYTES = this.MAX_FILE_SIZE_MB * 1024 * 1024;
 
   file?: File;
@@ -39,7 +40,7 @@ export class AddTP {
     if (input.files && input.files.length > 0) {
       const selected = input.files[0];
       if (selected.size > this.MAX_FILE_SIZE_BYTES) {
-        this.errorMsg = `Le fichier dépasse la taille maximale autorisée (${this.MAX_FILE_SIZE_MB} Mo).`;
+        this.errorMsg = `Le fichier dépasse la taille maximale autorisée (${this.MAX_FILE_SIZE_MB} Mo !).`;
         this.file = undefined;
         this.form.patchValue({ file: null });
         input.value = '';

@@ -5,23 +5,17 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { environment } from '../../../environments/environment';
 import { catchError, throwError } from 'rxjs';
 
-/** Prevents multiple "session expired" snackbars when several requests fail at once */
 let isHandlingExpiry = false;
+let expiryTimeout: ReturnType<typeof setTimeout> | null = null;
 
-/**
- * Intercepteur HTTP fonctionnel pour ajouter le token Bearer
- * aux requêtes vers l'API backend, et gérer l'expiration de session (401)
- */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
     const authService = inject(AuthService);
     const snackBar = inject(MatSnackBar);
 
-    // Ne pas ajouter le token pour les requêtes vers Keycloak
     if (req.url.includes(environment.keycloak.issuer)) {
         return next(req);
     }
 
-    // Ajouter le token seulement si authentifié et si c'est une requête API
     const token = authService.getAccessToken();
 
     let request = req;
@@ -41,15 +35,16 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
                 snackBar.open('Session expirée — reconnexion nécessaire', 'Se connecter', {
                     duration: 6000,
                 }).onAction().subscribe(() => {
+                    if (expiryTimeout) clearTimeout(expiryTimeout);
+                    isHandlingExpiry = false;
+                    expiryTimeout = null;
                     authService.login();
                 });
 
-                // Auto-redirect after snackbar timeout if user doesn't click
-                setTimeout(() => {
-                    if (isHandlingExpiry) {
-                        isHandlingExpiry = false;
-                        authService.login();
-                    }
+                expiryTimeout = setTimeout(() => {
+                    isHandlingExpiry = false;
+                    expiryTimeout = null;
+                    authService.login();
                 }, 6500);
             }
 

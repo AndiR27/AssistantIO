@@ -247,6 +247,8 @@ public class ZipUtils {
                         //Gestion des fichiers à ignorer
                         String filename = path.getFileName().toString();
 
+                        if (filename.startsWith("._")) return false;
+
                         if (Files.isDirectory(path) && ignoreDirs.contains(filename)) {
                             return false;
                         }

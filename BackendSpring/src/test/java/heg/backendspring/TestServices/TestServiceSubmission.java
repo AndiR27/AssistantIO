@@ -9,7 +9,7 @@ import heg.backendspring.mapping.MapperTP;
 import heg.backendspring.models.SubmissionDto;
 import heg.backendspring.repository.*;
 import heg.backendspring.service.ServiceCourse;
-import heg.backendspring.service.ServiceSubmission;
+import heg.backendspring.service.serviceSubmission.ServiceSubmission;
 import heg.backendspring.service.ServiceTP;
 import heg.backendspring.utils.ZipUtils;
 import org.junit.jupiter.api.BeforeEach;

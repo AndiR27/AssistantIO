@@ -2,11 +2,13 @@ package heg.backendspring.service;
 
 import heg.backendspring.entity.Course;
 import heg.backendspring.entity.Evaluation;
-import heg.backendspring.entity.Submission;
 import heg.backendspring.enums.SubmissionMode;
 import heg.backendspring.mapping.MapperEvaluation;
 import heg.backendspring.models.EvaluationDto;
 import heg.backendspring.repository.RepositoryEvaluation;
+import heg.backendspring.service.serviceSubmission.ServiceSubmission;
+import heg.backendspring.service.serviceSubmission.ServiceSubmissionLocalWS;
+import heg.backendspring.service.serviceSubmission.SubmissionHandler;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

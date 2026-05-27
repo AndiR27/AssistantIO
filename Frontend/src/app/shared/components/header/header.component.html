@@ -3,7 +3,7 @@
   <div class="header-inner">
     <!-- Navigation (left) -->
     <nav class="header-nav">
-      <a href="/home" class="nav-link">
+      <a routerLink="/home" class="nav-link">
         <mat-icon>home</mat-icon>
         <span>Accueil</span>
       </a>
@@ -17,7 +17,7 @@
 
     <!-- User section (right, stacked) -->
     <div class="user-section">
-      <ng-container *ngIf="isAuthenticated; else loginBtn">
+      <ng-container *ngIf="isAuthenticated$ | async; else loginBtn">
         <div class="user-info">
           <mat-icon>person</mat-icon>
           <span class="user-name">{{ userName }}</span>

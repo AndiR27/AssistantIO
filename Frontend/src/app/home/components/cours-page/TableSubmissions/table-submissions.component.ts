@@ -14,6 +14,7 @@ import { StudentSubmissionType } from '../../../models/tpStatus.model';
 import { EditStudentDialogComponent } from './dialogs/edit-student-dialog.component';
 import { EditSubmissionDialogComponent } from './dialogs/edit-submission-dialog.component';
 import { ExportPdfComponent } from './export-pdf.component';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
     selector: 'app-table-submissions',
@@ -78,7 +79,7 @@ export class TableSubmissionsComponent implements OnInit {
         });
     }
 
-    private readonly MAX_FILE_SIZE_MB = 200;
+    private readonly MAX_FILE_SIZE_MB = environment.maxFileSizeMB;
     private readonly MAX_FILE_SIZE_BYTES = this.MAX_FILE_SIZE_MB * 1024 * 1024;
 
     get nextTpNo(): number {

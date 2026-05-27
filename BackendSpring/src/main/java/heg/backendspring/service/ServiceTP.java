@@ -9,6 +9,8 @@ import heg.backendspring.models.TPDto;
 import heg.backendspring.models.TPStatusDto;
 import heg.backendspring.repository.RepositoryTP;
 import heg.backendspring.repository.RepositoryTPStatus;
+import heg.backendspring.service.serviceSubmission.ServiceSubmission;
+import heg.backendspring.service.serviceSubmission.SubmissionHandler;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -23,12 +25,9 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Slf4j

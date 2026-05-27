@@ -7,7 +7,7 @@ import {
   RouterStateSnapshot,
   Router
 } from '@angular/router';
-import {Observable, EMPTY, tap} from 'rxjs';
+import {Observable, EMPTY} from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 import {CourseDetailsModel} from '../../home/models/courseDetails.model';
@@ -28,7 +28,11 @@ export class CourseResolver implements Resolve<CourseDetailsModel> {
     state: RouterStateSnapshot
   ): Observable<CourseDetailsModel> {
     const id = Number(route.paramMap.get('id'));
-    return this.courseService.getCourseById(id);
-
+    return this.courseService.getCourseById(id).pipe(
+      catchError(() => {
+        this.router.navigate(['/home']);
+        return EMPTY;
+      })
+    );
   }
 }

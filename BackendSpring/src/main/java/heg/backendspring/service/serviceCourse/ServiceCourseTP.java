@@ -10,7 +10,7 @@ import heg.backendspring.models.TPDto;
 import heg.backendspring.models.TPStatusDto;
 import heg.backendspring.repository.RepositoryCourse;
 import heg.backendspring.repository.RepositoryTP;
-import heg.backendspring.service.ServiceSubmission;
+import heg.backendspring.service.serviceSubmission.ServiceSubmission;
 import heg.backendspring.service.ServiceTP;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;

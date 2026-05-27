@@ -20,7 +20,7 @@ import heg.backendspring.repository.RepositoryTP;
 import heg.backendspring.security.course_access.CourseSecurityCheck;
 import heg.backendspring.service.ServiceCourse;
 import heg.backendspring.service.ServiceStudent;
-import heg.backendspring.service.ServiceSubmission;
+import heg.backendspring.service.serviceSubmission.ServiceSubmission;
 import heg.backendspring.service.ServiceTP;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

@@ -1,4 +1,4 @@
-package heg.backendspring.service;
+package heg.backendspring.service.serviceSubmission;
 
 import heg.backendspring.entity.Course;
 import heg.backendspring.entity.Evaluation;
@@ -136,7 +136,7 @@ public class ServiceSubmissionLocalWS {
 
     /**
      * Parcourt les dossiers HEG-WS dans le répertoire temporaire.
-     * Le zip d'origine contient en général un dossier "wrapper" (ex. 63-51_FM_Q/) qui
+     * Le zip d'origine contient en général un dossier "wrapper" (ex. 63-51/) qui
      * englobe les dossiers HEG-WS-XXXX. On descend donc d'un niveau si le dossier
      * top-level n'est pas lui-même un HEG-WS.
      * Les dossiers meta (__MACOSX, fichiers cachés) sont ignorés.
@@ -216,10 +216,12 @@ public class ServiceSubmissionLocalWS {
             String studentName = codeToStudent.get(hegWsCode);
             log.debug("Mapped {} -> {}", hegWsCode, studentName);
             nameFormatted = StudentNameUtils.toFolderNameFromZipDir(studentName);
+
             if (nameFormatted.isEmpty()) {
                 nameFormatted = hegWsCode + "_NotFound";
                 stats.notFound++;
             } else {
+                nameFormatted = nameFormatted + "_" + hegWsCode;
                 stats.found++;
             }
         } else {

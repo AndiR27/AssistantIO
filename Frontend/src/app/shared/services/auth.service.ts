@@ -2,11 +2,8 @@ import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { OAuthService, AuthConfig } from 'angular-oauth2-oidc';
 import { environment } from '../../../environments/environment';
+import { BehaviorSubject } from 'rxjs';
 
-/**
- * Service d'authentification OAuth2/OIDC avec Keycloak
- * Utilise le flux Authorization Code avec PKCE
- */
 @Injectable({
     providedIn: 'root'
 })
@@ -15,16 +12,20 @@ export class AuthService {
     private initPromise: Promise<boolean> | null = null;
     private isBrowser: boolean;
 
+    private _isAuthenticated$ = new BehaviorSubject<boolean>(false);
+    isAuthenticated$ = this._isAuthenticated$.asObservable();
+
     constructor(private oauthService: OAuthService) {
         this.isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
         if (this.isBrowser) {
             this.configure();
+
+            this.oauthService.events.subscribe(() => {
+                this._isAuthenticated$.next(this.oauthService.hasValidAccessToken());
+            });
         }
     }
 
-    /**
-     * Configure le client OAuth2 pour Keycloak avec PKCE
-     */
     private configure(): void {
         const authConfig: AuthConfig = {
             issuer: environment.keycloak.issuer,
@@ -33,8 +34,7 @@ export class AuthService {
             responseType: 'code',
             scope: environment.keycloak.scope,
             showDebugInformation: !environment.production,
-            requireHttps: false, // Set to true in production with HTTPS
-            // PKCE configuration
+            requireHttps: false,
             useSilentRefresh: false,
             sessionChecksEnabled: false,
         };
@@ -42,12 +42,7 @@ export class AuthService {
         this.oauthService.configure(authConfig);
     }
 
-    /**
-     * Initialise le service OAuth - à appeler une seule fois au démarrage
-     * Retourne une promesse qui est réutilisée si déjà en cours
-     */
     runInitialAuth(): Promise<boolean> {
-        // Skip OAuth initialization on server (SSR)
         if (!this.isBrowser) {
             this.initialized = true;
             return Promise.resolve(false);
@@ -60,62 +55,47 @@ export class AuthService {
         this.initPromise = this.oauthService.loadDiscoveryDocumentAndTryLogin()
             .then(() => {
                 this.initialized = true;
+
+                if (this.oauthService.hasValidAccessToken()) {
+                    this.oauthService.setupAutomaticSilentRefresh();
+                }
+
+                this._isAuthenticated$.next(this.oauthService.hasValidAccessToken());
                 return this.isAuthenticated();
             })
             .catch((error) => {
                 console.error('Erreur lors de l\'initialisation OAuth:', error);
-                this.initialized = true; // Mark as done even on error
+                this.initialized = true;
                 return false;
             });
 
         return this.initPromise;
     }
 
-    /**
-     * Vérifie si le service a été initialisé
-     */
     isInitialized(): boolean {
         return this.initialized;
     }
 
-    /**
-     * Déclenche le flux de connexion Keycloak
-     */
     login(): void {
         this.oauthService.initCodeFlow();
     }
 
-    /**
-     * Déconnecte l'utilisateur
-     */
     logout(): void {
         this.oauthService.logOut();
     }
 
-    /**
-     * Vérifie si l'utilisateur est authentifié
-     */
     isAuthenticated(): boolean {
         return this.oauthService.hasValidAccessToken();
     }
 
-    /**
-     * Retourne le token d'accès JWT
-     */
     getAccessToken(): string {
         return this.oauthService.getAccessToken();
     }
 
-    /**
-     * Retourne les claims de l'identité de l'utilisateur
-     */
     getIdentityClaims(): Record<string, unknown> {
         return this.oauthService.getIdentityClaims() as Record<string, unknown>;
     }
 
-    /**
-     * Vérifie si l'utilisateur a le rôle ADMIN ou ASSISTANT (via realm_access.roles du JWT)
-     */
     isGlobalAdmin(): boolean {
         const token = this.oauthService.getAccessToken();
         if (!token) return false;
@@ -130,9 +110,6 @@ export class AuthService {
         }
     }
 
-    /**
-     * Retourne le nom d'affichage de l'utilisateur
-     */
     getUserName(): string {
         const claims = this.getIdentityClaims();
         return (claims?.['preferred_username'] as string)

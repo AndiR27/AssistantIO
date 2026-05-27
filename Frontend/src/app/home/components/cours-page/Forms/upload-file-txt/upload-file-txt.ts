@@ -11,6 +11,7 @@ import {MATERIAL_MODULES} from '../../../../../shared/imports/material-imports';
     MATERIAL_MODULES
   ],
   templateUrl: './upload-file-txt.html',
+  standalone: true,
   styleUrl: './upload-file-txt.css'
 })
 export class UploadFileTxt {

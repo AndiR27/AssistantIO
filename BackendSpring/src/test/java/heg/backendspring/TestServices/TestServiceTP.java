@@ -7,7 +7,7 @@ import heg.backendspring.repository.RepositoryCourse;
 import heg.backendspring.repository.RepositoryTP;
 import heg.backendspring.repository.RepositoryTPStatus;
 import heg.backendspring.service.ServiceCourse;
-import heg.backendspring.service.ServiceSubmission;
+import heg.backendspring.service.serviceSubmission.ServiceSubmission;
 import heg.backendspring.service.ServiceTP;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;

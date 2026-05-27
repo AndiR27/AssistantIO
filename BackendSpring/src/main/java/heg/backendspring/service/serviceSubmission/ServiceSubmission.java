@@ -1,4 +1,4 @@
-package heg.backendspring.service;
+package heg.backendspring.service.serviceSubmission;
 
 import heg.backendspring.entity.Course;
 import heg.backendspring.entity.Evaluation;
@@ -153,12 +153,14 @@ public class ServiceSubmission {
         // chemin racine du TP : "DocumentsZips/{CODE_COURS}/TP{no}"
         Path tpRoot = originalZip.getParent();
 
-        // chemin vers le dossier de restructuration
+        // chemin vers le dossier de restructuration (nettoyer si existant d'un run précédent)
         Path restructurationDir = tpRoot.resolve("RenduRestructuration");
+        ZipUtils.deleteFolder(restructurationDir);
         restructureHelper.createFolderIfPossible(restructurationDir);
 
-        // dossier temporaire pour extraire le zip initial
+        // dossier temporaire pour extraire le zip initial (nettoyer si existant)
         Path tpmExtractDir = tpRoot.resolve("tmpExtract");
+        ZipUtils.deleteFolder(tpmExtractDir);
         restructureHelper.createFolderIfPossible(tpmExtractDir);
 
         // extraire le zip d'origine dans le dossier temporaire
@@ -169,6 +171,7 @@ public class ServiceSubmission {
 
         // Créer un zip global pour le dossier de restructuration
         Path zipRestructure = tpRoot.resolve(nomZipRestructure);
+        Files.deleteIfExists(zipRestructure);
         ZipUtils.zipDirectory(restructurationDir, zipRestructure);
 
         // Mettre à jour le chemin du zip restructuré
@@ -235,6 +238,10 @@ public class ServiceSubmission {
     private void browseStudentFolders(Path tpmExtractDir, Path restructurationDir, String courseType) throws IOException {
         Files.list(tpmExtractDir)
                 .filter(Files::isDirectory)
+                .filter(p -> {
+                    String name = p.getFileName().toString();
+                    return !name.equals("__MACOSX") && !name.startsWith(".");
+                })
                 .forEach(dossierEtudiant -> {
                     try {
                         manageStudentSubmission(dossierEtudiant, restructurationDir, courseType);

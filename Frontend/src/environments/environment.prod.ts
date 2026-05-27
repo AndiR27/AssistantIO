@@ -1,6 +1,7 @@
 export const environment = {
   production: true,
   apiUrl: '/api',
+  maxFileSizeMB: 400,
   keycloak: {
     issuer: 'https://keycloak.andi27.synology.me/auth/realms/assistantio',
     clientId: 'assistantio-frontend',

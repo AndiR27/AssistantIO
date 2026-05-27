@@ -1,4 +1,4 @@
-package heg.backendspring.service;
+package heg.backendspring.service.serviceSubmission;
 
 import heg.backendspring.entity.Submission;
 import heg.backendspring.entity.Submittable;

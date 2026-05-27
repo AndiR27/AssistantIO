@@ -78,8 +78,10 @@ public class SubmissionRestructureHelper {
     public Optional<Path> findSubFolderZip(Path dossierSource) {
         try (Stream<Path> files = Files.list(dossierSource)) {
             return files.filter(p -> {
-                String fileName = p.toString().toLowerCase();
-                return fileName.endsWith(".zip") || fileName.endsWith(".7z") || fileName.endsWith(".rar");
+                String name = p.getFileName().toString();
+                if (name.startsWith("._")) return false;
+                String lower = name.toLowerCase();
+                return lower.endsWith(".zip") || lower.endsWith(".7z") || lower.endsWith(".rar");
             }).findFirst();
         } catch (IOException e) {
             log.error("Error while searching for sub-zip in {}", dossierSource, e);
